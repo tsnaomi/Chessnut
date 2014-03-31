@@ -94,27 +94,90 @@ class ChessnutGame(object):
         """Return the coordinates of the pawn that will be making the move
         specified.
         """
-        x, y = self._pgn_move_to_coords(groups['dest'])
+        dx, dy = self._pgn_move_to_coords(groups['dest'])
+        ox = self._pgn_file_to_x(groups['file'])
+        oy = self._pgn_rank_to_y(groups['rank'])
+
+        #If both the rank and file of the pawn moving have been explicitly
+        #given.
+        if ox is not None and oy is not None:
+            if self.turn:
+                if not groups['capture']:
+                    pass
+                else:
+                    pass
+            else:
+                if not groups['capture']:
+                    pass
+                else:
+                    pass
+
+        #If the file of the pawn moving has been explictly given.
+        elif ox is not None:
+            if self.turn:
+                if not groups['capture']:
+                    pass
+                else:
+                    pass
+            else:
+                if not groups['capture']:
+                    pass
+                else:
+                    pass
+
+        #If the rank of the pawn moving has been explicitly given.
+        elif oy is not None:
+            if self.turn:
+                if not groups['capture']:
+                    pass
+                else:
+                    pass
+            else:
+                if not groups['capture']:
+                    pass
+                else:
+                    pass
+
+        #If neither the rank nor the file of the pawn moving has been
+        #explicitly given.
+        else:
+            if self.turn:
+                if not groups['capture']:
+                    pass
+                else:
+                    pass
+            else:
+                if not groups['capture']:
+                    pass
+                else:
+                    pass
 
         if self.turn:
             if not groups['capture']:
-                if self.board[x][y - 1][0] == 'P' and \
-                        self.board[x][y + 1][1] == self.turn:
-                    return x, y + 1
-                elif y == 4 and \
-                        self.board[x][y + 2][0] == 'P' and \
-                        self.board[x][y + 2][1] == self.turn:
-                    return x, y + 2
+                if self.board[dx][dy + 1][0] == 'P' and \
+                        self.board[dx][dy + 1][1] == self.turn:
+                    return dx, dy + 1
+                elif dy == 4 and \
+                        self.board[dx][dy + 2][0] == 'P' and \
+                        self.board[dx][dy + 2][1] == self.turn and \
+                        self.board[dx][dy + 1][0] == 0:
+                    return dx, dy + 2
+            else:
+                pass
+
 
         else:
             if not groups['capture']:
-                if self.board[x][y - 1][0] == 'P' and \
-                        self.board[x][y - 1][1] == self.turn:
-                    return x, y - 1
-                elif y == 3 and \
-                        self.board[x][y - 2][0] == 'P' and \
-                        self.board[x][y - 2][1] == self.turn:
-                    return x, y - 2
+                if self.board[dx][dy - 1][0] == 'P' and \
+                        self.board[dx][dy - 1][1] == self.turn:
+                    return dx, dy - 1
+                elif dy == 3 and \
+                        self.board[dx][dy - 2][0] == 'P' and \
+                        self.board[dx][dy - 2][1] == self.turn and \
+                        self.board[dx][dy - 1][0] == 0:
+                    return dx, dy - 2
+            else:
+                pass
 
         raise MoveNotLegalError
 
