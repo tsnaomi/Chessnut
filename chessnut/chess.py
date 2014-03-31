@@ -103,18 +103,26 @@ class ChessnutGame(object):
         if ox is not None and oy is not None:
             if self.turn:
                 if not groups['capture']:
-                    if dy == 4:
-                        pass
-                    else:
-                        pass
+                    if ox == dx:
+                        if dy == 3:
+                            if oy == dy + 1 or \
+                                    oy == dy + 2 and \
+                                    self.board[dx][dy + 1][0] == 0:
+                                return ox, oy
+                        elif oy == dy - 1:
+                            return ox, oy
                 else:
                     pass
             else:
                 if not groups['capture']:
-                    if dy == 3:
-                        pass
-                    else:
-                        pass
+                    if ox == dx:
+                        if dy == 4:
+                            if oy == dy - 1 or \
+                                    oy == dy - 2 and \
+                                    self.board[dx][dy - 1][0] == 0:
+                                return ox, oy
+                        elif oy == dy - 1:
+                            return ox, oy
                 else:
                     pass
 
@@ -122,18 +130,28 @@ class ChessnutGame(object):
         elif ox is not None:
             if self.turn:
                 if not groups['capture']:
-                    if dy == 4:
-                        pass
-                    else:
-                        pass
+                    if ox == dx:
+                        if self.board[dx][dy + 1][0] == 'P' and \
+                                self.board[dx][dy + 1][1] == self.turn:
+                            return dx, dy + 1
+                        elif dy == 4 and \
+                                self.board[dx][dy + 2][0] == 'P' and \
+                                self.board[dx][dy + 2][1] == self.turn and \
+                                self.board[dx][dy + 1][0] == 0:
+                            return dx, dy + 2
                 else:
                     pass
             else:
                 if not groups['capture']:
-                    if dy == 3:
-                        pass
-                    else:
-                        pass
+                    if ox == dx:
+                        if self.board[dx][dy - 1][0] == 'P' and \
+                                self.board[dx][dy - 1][1] == self.turn:
+                            return dx, dy - 1
+                        elif dy == 4 and \
+                                self.board[dx][dy - 2][0] == 'P' and \
+                                self.board[dx][dy - 2][1] == self.turn and \
+                                self.board[dx][dy - 1][0] == 0:
+                            return dx, dy - 2
                 else:
                     pass
 
@@ -141,18 +159,30 @@ class ChessnutGame(object):
         elif oy is not None:
             if self.turn:
                 if not groups['capture']:
-                    if dy == 4:
-                        pass
-                    else:
-                        pass
+                    if oy == dy + 1:
+                        if self.board[dx][dy + 1][0] == 'P' and \
+                                self.board[dx][dy + 1][1] == self.turn:
+                            return dx, dy + 1
+                    elif oy == dy + 2:
+                        if dy == 4 and \
+                                self.board[dx][dy + 2][0] == 'P' and \
+                                self.board[dx][dy + 2][1] == self.turn and \
+                                self.board[dx][dy + 1][0] == 0:
+                            return dx, dy + 2
                 else:
                     pass
             else:
                 if not groups['capture']:
-                    if dy == 3:
-                        pass
-                    else:
-                        pass
+                    if oy == dy - 1:
+                        if self.board[dx][dy - 1][0] == 'P' and \
+                                self.board[dx][dy - 1][1] == self.turn:
+                            return dx, dy - 1
+                    elif oy == dy - 2:
+                        if dy == 4 and \
+                                self.board[dx][dy - 2][0] == 'P' and \
+                                self.board[dx][dy - 2][1] == self.turn and \
+                                self.board[dx][dy - 1][0] == 0:
+                            return dx, dy - 2
                 else:
                     pass
 
@@ -161,47 +191,28 @@ class ChessnutGame(object):
         else:
             if self.turn:
                 if not groups['capture']:
-                    if dy == 4:
-                        pass
-                    else:
-                        pass
+                    if self.board[dx][dy + 1][0] == 'P' and \
+                            self.board[dx][dy + 1][1] == self.turn:
+                        return dx, dy + 1
+                    elif dy == 4 and \
+                            self.board[dx][dy + 2][0] == 'P' and \
+                            self.board[dx][dy + 2][1] == self.turn and \
+                            self.board[dx][dy + 1][0] == 0:
+                        return dx, dy + 2
                 else:
                     pass
             else:
                 if not groups['capture']:
-                    if dy == 3:
-                        pass
-                    else:
-                        pass
+                    if self.board[dx][dy - 1][0] == 'P' and \
+                            self.board[dx][dy - 1][1] == self.turn:
+                        return dx, dy - 1
+                    elif dy == 3 and \
+                            self.board[dx][dy - 2][0] == 'P' and \
+                            self.board[dx][dy - 2][1] == self.turn and \
+                            self.board[dx][dy - 1][0] == 0:
+                        return dx, dy - 2
                 else:
                     pass
-
-        if self.turn:
-            if not groups['capture']:
-                if self.board[dx][dy + 1][0] == 'P' and \
-                        self.board[dx][dy + 1][1] == self.turn:
-                    return dx, dy + 1
-                elif dy == 4 and \
-                        self.board[dx][dy + 2][0] == 'P' and \
-                        self.board[dx][dy + 2][1] == self.turn and \
-                        self.board[dx][dy + 1][0] == 0:
-                    return dx, dy + 2
-            else:
-                pass
-
-
-        else:
-            if not groups['capture']:
-                if self.board[dx][dy - 1][0] == 'P' and \
-                        self.board[dx][dy - 1][1] == self.turn:
-                    return dx, dy - 1
-                elif dy == 3 and \
-                        self.board[dx][dy - 2][0] == 'P' and \
-                        self.board[dx][dy - 2][1] == self.turn and \
-                        self.board[dx][dy - 1][0] == 0:
-                    return dx, dy - 2
-            else:
-                pass
 
         raise MoveNotLegalError
 
@@ -209,31 +220,31 @@ class ChessnutGame(object):
         """Return the coordinates of the rook that will be making the move
         specified.
         """
-        pass
+        raise MoveNotLegalError
 
     def _knight_evaluator(self, groups):
         """Return the coordinates of the knight that will be making the
         move specified.
         """
-        pass
+        raise MoveNotLegalError
 
     def _bishop_evaluator(self, groups):
         """Return the coordinates of the bishop that will be making the
         move specified.
         """
-        pass
+        raise MoveNotLegalError
 
     def _king_evaluator(self, groups):
         """Return the coordinates of the king that will be making the
         move specified.
         """
-        pass
+        raise MoveNotLegalError
 
     def _queen_evaluator(self, groups):
         """Return the coordinates of the queen that will be making the
         move specified.
         """
-        pass
+        raise MoveNotLegalError
 
     def _pgn_move_to_coords(self, move):
         """Converts a single move in PGN notation to board-state array
