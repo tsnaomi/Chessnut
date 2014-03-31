@@ -4,15 +4,16 @@ import re
 class ChessnutGame(object):
     """Class that encapsulates all Chessnut game logic."""
 
-    def __init__(self, game):
+    def __init__(self, game=None):
         """Takes as argument the game referenced (possibly as a PGN)
         string - details TBD.
         """
         #False means black's turn, True means white's.
         self.turn = True
-        self.pgn = game
-        self.board = self._pgn_to_board(game)
-        self.image_name = self._board_to_image()
+        if game is not None:
+            self.pgn = game
+            self.board = self._pgn_to_board(game)
+            self.image_name = self._board_to_image()
 
     def __call__(self, move):
         """Takes as its argument the move being attempted an evaluates
@@ -20,7 +21,7 @@ class ChessnutGame(object):
         """
         pass
 
-    def _pgn_to_board(self):
+    def _pgn_to_board(self, game):
         """Converts PGN notation to a 2D array representing board state."""
         board = self._initialize_chessboard()
         moves = re.split(r'\s?\d+\.\s', self.pgn)
@@ -260,12 +261,19 @@ class ChessnutGame(object):
     def _pgn_file_to_x(self, _file):
         """Convert a lettered file to its x-position in the 2D board array.
         """
+        if _file not in 'abcdefgh':
+            raise ValueError(
+                "_pgn_file_to_x got %s (not a valid file)" % _file
+            )
         return ord(_file) - 97
 
     def _pgn_rank_to_y(self, rank):
-        """Convert a numbered rank to its y-position in the 2D board array.
-        """
-        return -(8 - rank)
+        """Convert a numbered rank to its y-position in the 2D board array."""
+        if rank not in '12345678':
+            raise ValueError(
+                "_pgn_rank_to_y got %s (not a valid rank)" % rank
+            )
+        return (8 - int(rank))
 
     def _initialize_chessboard(self):
         """Creates a 2D array representing an initial chessboard."""
