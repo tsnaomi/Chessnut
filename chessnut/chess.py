@@ -251,13 +251,21 @@ class ChessnutGame(object):
         """Converts a single move in PGN notation to board-state array
         coordinates.
         """
-        pass
+        move = list(move)
+        if len(move) != 2:
+            raise ValueError("_pgn_move_to_coords got input of length != 2")
 
-    def _pgn_file_to_x(self, file):
-        pass
+        return self._pgn_file_to_x(move[0]), self._pgn_rank_to_y(move[1])
+
+    def _pgn_file_to_x(self, _file):
+        """Convert a lettered file to its x-position in the 2D board array.
+        """
+        return ord(_file) - 97
 
     def _pgn_rank_to_y(self, rank):
-        pass
+        """Convert a numbered rank to its y-position in the 2D board array.
+        """
+        return -(8 - rank)
 
     def _initialize_chessboard(self):
         """Creates a 2D array representing an initial chessboard."""
