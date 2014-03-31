@@ -33,5 +33,5 @@ def main(argv=sys.argv):
     DBSession.configure(bind=engine)
     Base.metadata.create_all(engine)
     with transaction.manager:
-        admin = User(name=u'admin', password=u'admin', email="admin@admin.com")
+        admin = User(username=u'admin', password=u'admin', email="admin@admin.com")
         DBSession.add(admin)
