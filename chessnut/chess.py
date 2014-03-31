@@ -88,13 +88,35 @@ class ChessnutGame(object):
             return self._queen_evaluator
 
         raise ValueError(
-            "_get_evaluator recieved a letter not corresponding to an evaluator")
+            "_get_evaluator recieved a letter not corresponding to an evaluator.")
 
     def _pawn_evaluator(self, groups):
         """Return the coordinates of the pawn that will be making the move
         specified.
         """
-        pass
+        x, y = self._pgn_move_to_coords(groups['dest'])
+
+        if self.turn:
+            if not groups['capture']:
+                if self.board[x][y - 1][0] == 'P' and \
+                        self.board[x][y + 1][1] == self.turn:
+                    return x, y + 1
+                elif y == 4 and \
+                        self.board[x][y + 2][0] == 'P' and \
+                        self.board[x][y + 2][1] == self.turn:
+                    return x, y + 2
+
+        else:
+            if not groups['capture']:
+                if self.board[x][y - 1][0] == 'P' and \
+                        self.board[x][y - 1][1] == self.turn:
+                    return x, y - 1
+                elif y == 3 and \
+                        self.board[x][y - 2][0] == 'P' and \
+                        self.board[x][y - 2][1] == self.turn:
+                    return x, y - 2
+
+        raise MoveNotLegalError
 
     def _rook_evaluator(self, groups):
         """Return the coordinates of the rook that will be making the move
@@ -132,6 +154,12 @@ class ChessnutGame(object):
         """
         pass
 
+    def _pgn_file_to_x(self, file):
+        pass
+
+    def _pgn_rank_to_y(self, rank):
+        pass
+
     def _initialize_chessboard(self):
         """Creates a 2D array representing an initial chessboard."""
         board = []
@@ -149,18 +177,18 @@ class ChessnutGame(object):
         board.append([('P', False) for i in range(8)])
 
         for i in range(4):
-            board.append([0 for i in range(8)])
+            board.append([(0, 0) for i in range(8)])
 
-        board.append(('P', False) for i in range(8))
+        board.append(('P', True) for i in range(8))
         board.append([
-            ('R', False),
-            ('N', False),
-            ('B', False),
-            ('Q', False),
-            ('K', False),
-            ('B', False),
-            ('N', False),
-            ('R', False),
+            ('R', True),
+            ('N', True),
+            ('B', True),
+            ('Q', True),
+            ('K', True),
+            ('B', True),
+            ('N', True),
+            ('R', True),
         ])
 
         return board
