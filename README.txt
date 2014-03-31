@@ -19,3 +19,4 @@ Stephen Todo
 
 - http://python-social-auth.readthedocs.org/en/latest/configuration/pyramid.html
 
+-(user gist: https://gist.github.com/scott2b/7540117)

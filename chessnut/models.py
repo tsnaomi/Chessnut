@@ -50,7 +50,6 @@ class User(Base):
     __tablename__ = 'users'
     user_id = Column(Integer, primary_key=True)
     username = Column(Unicode(20), unique=True)
-    name = Column(Unicode(50))
     email = Column(Unicode(50))
     _password = Column('password', Unicode(60))
 
@@ -63,9 +62,8 @@ class User(Base):
     password = property(_get_password, _set_password)
     password = synonym('_password', descriptor=password)
 
-    def __init__(self, username, password, name, email):
+    def __init__(self, username, password, email):
         self.username = username
-        self.name = name
         self.email = email
         self.password = password
 
