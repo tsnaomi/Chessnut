@@ -40,15 +40,79 @@ class ChessnutGame(object):
         """Converts the board state to an image filename."""
         pass
 
+    def _evaluate_move(self, move):
+        """Take in a move in PGN/SAN notation, evaluate it, and perform
+        it, if legal.
+        """
+        #Attempt to parse the SAN notation.
+        match = re.match(
+            r'(?P<piece>[RNBKQP])?(?P<file>[a-z])?(?P<rank>\d)?(?P<capture>x)?(?P<dest>\w\d)(?P<check>+)?(?P<checkmate>#)?',
+            move
+        )
+
+        if not match:
+            raise NotationParseError
+
+        groups = match.groupdict()
+        groups.setdefault('piece', 'P')
+
+        evaluator = self._get_evaluator(groups['piece'])
+
+        #ox and oy are origin x and origin y, the x and y coordinates from
+        #which the piece is moving.
+        ox, oy = evaluator(groups)
+        if not ox:
+            raise MoveNotLegalError
+
+        #dx and dy are destination x and destination y, the x and y
+        #coordinates to which the piece is moving.
+        dx, dy = self._pgn_move_to_coords(groups['dest'])
+
+        self.board[ox][oy], self.board[dx][dy] = 0, self.board[ox][oy]
+
+        #TO DO: castling, en passant capture, check and checkmate
+
+    def _get_evaluator(self, piece):
+        """Return the appropriate evaluator callable for the piece passed
+        in.
+        """
+        if piece == 'P':
+            return self._pawn_evaluator
+        elif piece == 'R':
+            return self._rook_evaluator
+        elif piece == 'N':
+            return self._knight_evaluator
+        elif piece == 'B':
+            return self._bishop_evaluator
+        elif piece == 'K':
+            return self._king_evaluator
+        elif piece == 'Q':
+            return self._queen_evaluator
+
+        raise ValueError(
+            "_get_evaluator recieved a letter not corresponding to an evaluator")
+
+    def _pawn_evaluator(self, groups):
+        pass
+
+    def _rook_evaluator(self, groups):
+        pass
+
+    def _knight_evaluator(self, groups):
+        pass
+
+    def _bishop_evaluator(self, groups):
+        pass
+
+    def _king_evaluator(self, groups):
+        pass
+
+    def _queen_evaluator(self, groups):
+        pass
+
     def _pgn_move_to_coords(self, move):
         """Converts a single move in PGN notation to board-state array
         coordinates.
-        """
-        pass
-
-    def _evaluate_move(self, move):
-        """Take in a move in PGN notation, evaluate it, and perform it,
-        if legal.
         """
         pass
 
@@ -76,8 +140,8 @@ class ChessnutGame(object):
             ('R', False),
             ('N', False),
             ('B', False),
-            ('K', False),
             ('Q', False),
+            ('K', False),
             ('B', False),
             ('N', False),
             ('R', False),
@@ -91,7 +155,7 @@ class ChessnutError(BaseException):
     pass
 
 
-class MoveNotValidError(ChessnutError):
+class MoveNotLegalError(ChessnutError):
     """Exception raised when a player attempts to make a move that is not
     legal.
     """
