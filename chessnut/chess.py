@@ -1,3 +1,6 @@
+import re
+
+
 class ChessnutGame(object):
     """Class that encapsulates all Chessnut game logic."""
 
@@ -5,9 +8,11 @@ class ChessnutGame(object):
         """Takes as argument the game referenced (possibly as a PGN)
         string - details TBD.
         """
+        #False means black's turn, True means white's.
+        self.turn = True
         self.pgn = game
-        self.fen = self._pgn_to_board(game)
-        self.board = self._fen_to_board(game)
+        self.board = self._pgn_to_board(game)
+        self.image_name = self._board_to_image()
 
     def __call__(self, move):
         """Takes as its argument the move being attempted an evaluates
@@ -15,12 +20,36 @@ class ChessnutGame(object):
         """
         pass
 
-    def _pgn_to_board(board):
+    def _pgn_to_board(self):
         """Converts PGN notation to a 2D array representing board state."""
+        board = self._initialize_chessboard()
+        moves = re.split(r'\s?\d+\.\s', self.pgn)
+
+        move_count = 0
+        for move in moves:
+            move_count += 1
+            half_moves = move.split()
+
+            for half_move in half_moves:
+                self._evaluate_move(half_move)
+
+            if len(half_moves) == 1:
+                self.turn = False
+
+    def _board_to_image(self, pgn):
+        """Converts the board state to an image filename."""
         pass
 
-    def _fen_to_board(self, pgn):
-        """Converts PGN format to a 2D array representing board state."""
+    def _pgn_move_to_coords(self, move):
+        """Converts a single move in PGN notation to board-state array
+        coordinates.
+        """
+        pass
+
+    def _evaluate_move(self, move):
+        """Take in a move in PGN notation, evaluate it, and perform it,
+        if legal.
+        """
         pass
 
     def _initialize_chessboard(self):
