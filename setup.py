@@ -15,7 +15,6 @@ requires = [
     'pyramid_jinja2',
     'zope.sqlalchemy',
     'waitress',
-    'python-social-auth',
     'cryptacular',
     'wtforms',
     'psycopg2',

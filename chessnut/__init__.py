@@ -1,6 +1,5 @@
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
-from social.apps.pyramid_app.models import init_social
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 
@@ -27,14 +26,12 @@ def main(global_config, **settings):
     config = Configurator(settings=settings,
                           authentication_policy=authentication_policy,
                           authorization_policy=authorization_policy,
-                          root_factory=Root,)
-    config.add_jinja2_search_path("chessnut:templates")
+                          root_factory=Root,
+                          )
 
-    # python social auth
-    # config.include('social.apps.pyramid_app')
-    # config.include('pyramid_jinja2')
-    # config.scan('social.apps.pyramid_app')
-    # init_social(config, Base, DBSession)
+    # jinja 2 config
+    config.add_jinja2_search_path("chessnut:templates")
+    config.include('pyramid_jinja2')
 
     # views
     config.add_static_view('static', 'static', cache_max_age=3600)

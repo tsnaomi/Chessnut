@@ -42,13 +42,13 @@ class User(Base):
     @property
     def __acl__(self):
         return [
-            (Allow, self.user_id, 'edit'),
+            (Allow, self.id, 'edit'),
             (Allow, 'g:admins', ALL_PERMISSIONS),
             (Allow, Everyone, DENY_ALL)
         ]
 
     __tablename__ = 'users'
-    user_id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
     username = Column(Unicode(20), unique=True)
     email = Column(Unicode(50))
     _password = Column('password', Unicode(60))
@@ -82,8 +82,8 @@ class User(Base):
 class Game(Base):
     __tablename__ = 'game'
     game_id = Column(Integer, primary_key=True)
-    owner = Column(Integer, ForeignKey('users.user_id'), nullable=False)
-    opponent = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    owner = Column(Integer, ForeignKey('users.id'), nullable=False)
+    opponent = Column(Integer, ForeignKey('users.id'), nullable=False)
 
     @property
     def __acl__(self):
