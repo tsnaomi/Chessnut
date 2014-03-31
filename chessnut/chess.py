@@ -6,7 +6,7 @@ class ChessnutGame(object):
         string - details TBD.
         """
         self.pgn = game
-        self.fen = self._pgn_to_fen(game)
+        self.fen = self._pgn_to_board(game)
         self.board = self._fen_to_board(game)
 
     def __call__(self, move):
@@ -15,8 +15,8 @@ class ChessnutGame(object):
         """
         pass
 
-    def _pgn_to_fen(board):
-        """Converts PGN notation to FEN notation."""
+    def _pgn_to_board(board):
+        """Converts PGN notation to a 2D array representing board state."""
         pass
 
     def _fen_to_board(self, pgn):
@@ -25,6 +25,36 @@ class ChessnutGame(object):
 
     def _initialize_chessboard(self):
         """Creates a 2D array representing an initial chessboard."""
+        board = []
+
+        board.append([
+            ('R', False),
+            ('N', False),
+            ('B', False),
+            ('Q', False),
+            ('K', False),
+            ('B', False),
+            ('N', False),
+            ('R', False),
+        ])
+        board.append([('P', False) for i in range(8)])
+
+        for i in range(4):
+            board.append([0 for i in range(8)])
+
+        board.append(('P', False) for i in range(8))
+        board.append([
+            ('R', False),
+            ('N', False),
+            ('B', False),
+            ('K', False),
+            ('Q', False),
+            ('B', False),
+            ('N', False),
+            ('R', False),
+        ])
+
+        return board
 
 
 class ChessnutError(BaseException):
