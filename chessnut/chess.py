@@ -101,30 +101,31 @@ class ChessnutGame(object):
         #If both the rank and file of the pawn moving have been explicitly
         #given.
         if ox is not None and oy is not None:
-            if self.turn:
-                if not groups['capture']:
-                    if ox == dx:
-                        if dy == 3:
-                            if oy == dy + 1 or \
-                                    oy == dy + 2 and \
-                                    self.board[dx][dy + 1][0] == 0:
+            if self.board[ox][oy] == ('P', self.turn):
+                if self.turn:
+                    if not groups['capture']:
+                        if ox == dx:
+                            if dy == 3:
+                                if oy == dy - 1 or \
+                                        oy == dy - 2 and \
+                                        self.board[dx][dy - 1][0] == 0:
+                                    return ox, oy
+                            elif oy == dy - 1:
                                 return ox, oy
-                        elif oy == dy - 1:
-                            return ox, oy
+                    else:
+                        pass
                 else:
-                    pass
-            else:
-                if not groups['capture']:
-                    if ox == dx:
-                        if dy == 4:
-                            if oy == dy - 1 or \
-                                    oy == dy - 2 and \
-                                    self.board[dx][dy - 1][0] == 0:
+                    if not groups['capture']:
+                        if ox == dx:
+                            if dy == 4:
+                                if oy == dy + 1 or \
+                                        oy == dy + 2 and \
+                                        self.board[dx][dy + 1][0] == 0:
+                                    return ox, oy
+                            elif oy == dy - 1:
                                 return ox, oy
-                        elif oy == dy - 1:
-                            return ox, oy
-                else:
-                    pass
+                    else:
+                        pass
 
         #If the file of the pawn moving has been explictly given.
         elif ox is not None:
