@@ -61,8 +61,6 @@ class ChessnutGame(object):
         #ox and oy are origin x and origin y, the x and y coordinates from
         #which the piece is moving.
         ox, oy = evaluator(groups)
-        if not ox:
-            raise MoveNotLegalError
 
         #dx and dy are destination x and destination y, the x and y
         #coordinates to which the piece is moving.
@@ -93,21 +91,39 @@ class ChessnutGame(object):
             "_get_evaluator recieved a letter not corresponding to an evaluator")
 
     def _pawn_evaluator(self, groups):
+        """Return the coordinates of the pawn that will be making the move
+        specified.
+        """
         pass
 
     def _rook_evaluator(self, groups):
+        """Return the coordinates of the rook that will be making the move
+        specified.
+        """
         pass
 
     def _knight_evaluator(self, groups):
+        """Return the coordinates of the knight that will be making the
+        move specified.
+        """
         pass
 
     def _bishop_evaluator(self, groups):
+        """Return the coordinates of the bishop that will be making the
+        move specified.
+        """
         pass
 
     def _king_evaluator(self, groups):
+        """Return the coordinates of the king that will be making the
+        move specified.
+        """
         pass
 
     def _queen_evaluator(self, groups):
+        """Return the coordinates of the queen that will be making the
+        move specified.
+        """
         pass
 
     def _pgn_move_to_coords(self, move):
