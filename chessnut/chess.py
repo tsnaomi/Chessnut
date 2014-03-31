@@ -103,12 +103,18 @@ class ChessnutGame(object):
         if ox is not None and oy is not None:
             if self.turn:
                 if not groups['capture']:
-                    pass
+                    if dy == 4:
+                        pass
+                    else:
+                        pass
                 else:
                     pass
             else:
                 if not groups['capture']:
-                    pass
+                    if dy == 3:
+                        pass
+                    else:
+                        pass
                 else:
                     pass
 
@@ -116,12 +122,18 @@ class ChessnutGame(object):
         elif ox is not None:
             if self.turn:
                 if not groups['capture']:
-                    pass
+                    if dy == 4:
+                        pass
+                    else:
+                        pass
                 else:
                     pass
             else:
                 if not groups['capture']:
-                    pass
+                    if dy == 3:
+                        pass
+                    else:
+                        pass
                 else:
                     pass
 
@@ -129,12 +141,18 @@ class ChessnutGame(object):
         elif oy is not None:
             if self.turn:
                 if not groups['capture']:
-                    pass
+                    if dy == 4:
+                        pass
+                    else:
+                        pass
                 else:
                     pass
             else:
                 if not groups['capture']:
-                    pass
+                    if dy == 3:
+                        pass
+                    else:
+                        pass
                 else:
                     pass
 
@@ -143,12 +161,18 @@ class ChessnutGame(object):
         else:
             if self.turn:
                 if not groups['capture']:
-                    pass
+                    if dy == 4:
+                        pass
+                    else:
+                        pass
                 else:
                     pass
             else:
                 if not groups['capture']:
-                    pass
+                    if dy == 3:
+                        pass
+                    else:
+                        pass
                 else:
                     pass
 
