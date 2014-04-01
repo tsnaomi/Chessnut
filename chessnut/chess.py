@@ -151,7 +151,22 @@ class ChessnutGame(object):
         """Return the coordinates of the rook that will be making the move
         specified.
         """
-        raise MoveNotLegalError
+        dcol, drow = self._pgn_move_to_coords(groups['dest'])
+
+        #Compile a list of rooks that could make the given move.
+        pieces = []
+        if not groups['capture']:
+            pass
+        else:
+            pass
+
+        if not pieces:
+            raise MoveNotLegalError
+
+        orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
+        ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
+
+        return self._evaluate_rank_and_file(pieces, orow, ocol)
 
     def _knight_evaluator(self, groups):
         """Return the coordinates of the knight that will be making the
