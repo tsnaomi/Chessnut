@@ -79,6 +79,25 @@ class User(Base):
         return crypt.check(user.password, password)
 
 
+class TwUser(Base):
+    __tablename__ = 'twuser'
+    id = Column(Integer, primary_key=True)
+    key = Column(Unicode(80))
+    secret = Column(Unicode(80))
+
+    def __init__(self, key, secret):
+        self.key = key
+        self.secret = secret
+
+    @classmethod
+    def get_by_id(cls, id):
+        return DBSession.query(cls).filter(cls.id == id).first()
+
+    @classmethod
+    def get_by_secret(cls, secret):
+        return DBSession.query(cls).filter(cls.secret == secret).first()
+
+
 class Game(Base):
     __tablename__ = 'game'
     game_id = Column(Integer, primary_key=True)

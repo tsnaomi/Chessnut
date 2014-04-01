@@ -1,5 +1,6 @@
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
+from pyramid_beaker import session_factory_from_settings
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 
@@ -23,12 +24,13 @@ def main(global_config, **settings):
     Base.metadata.bind = engine
     authentication_policy = AuthTktAuthenticationPolicy('somesecret')
     authorization_policy = ACLAuthorizationPolicy()
+    session_factory = session_factory_from_settings(settings)
     config = Configurator(settings=settings,
                           authentication_policy=authentication_policy,
                           authorization_policy=authorization_policy,
                           root_factory=Root,
                           )
-
+    config.set_session_factory(session_factory)
     # jinja 2 config
     config.add_jinja2_search_path("chessnut:templates")
     config.include('pyramid_jinja2')
@@ -36,7 +38,11 @@ def main(global_config, **settings):
     # views
     config.add_static_view('static', 'static', cache_max_age=3600)
     config.add_route('home', '/')
+    config.add_route('login', '/login')
+    config.add_route('logout', '/logout')
+    config.add_route('twauth', '/twauth')
     config.add_route('index', '/index')
     config.add_route('register', '/register')
+    config.add_route('post', '/post')
     config.scan()
     return config.make_wsgi_app()
