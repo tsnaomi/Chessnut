@@ -284,6 +284,13 @@ class MoveNotLegalError(ChessnutError):
     pass
 
 
+class MoveAmbiguousError(ChessnutError):
+    """Exception raised when a player tries to make a move and it can't
+    be determined which specific piece was intended to make the move.
+    """
+    pass
+
+
 class NotationParseError(ChessnutError):
     """Exception raised when a player submits chess notation that the
     game logic can't parse.
