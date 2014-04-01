@@ -63,15 +63,15 @@ class ChessnutGame(object):
 
         evaluator = self._get_evaluator(groups['piece'])
 
-        #ox and oy are origin x and origin y, the x and y coordinates from
+        #orow and ocol are origin x and origin y, the x and y coordinates from
         #which the piece is moving.
-        ox, oy = evaluator(groups)
+        orow, ocol = evaluator(groups)
 
-        #dx and dy are destination x and destination y, the x and y
+        #drow and dcol are destination x and destination y, the x and y
         #coordinates to which the piece is moving.
-        dx, dy = self._pgn_move_to_coords(groups['dest'])
+        drow, dcol = self._pgn_move_to_coords(groups['dest'])
 
-        self.board[ox][oy], self.board[dx][dy] = 0, self.board[ox][oy]
+        self.board[orow][ocol], self.board[drow][dcol] = 0, self.board[orow][ocol]
 
         #TO DO: castling, en passant capture, check and checkmate
 
@@ -99,96 +99,96 @@ class ChessnutGame(object):
         """Return the coordinates of the pawn that will be making the move
         specified.
         """
-        dx, dy = self._pgn_move_to_coords(groups['dest'])
-        oy = self._pgn_file_to_col(groups['file']) if groups['file'] else None
-        ox = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
+        drow, dcol = self._pgn_move_to_coords(groups['dest'])
+        orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
+        ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
 
         #If both the rank and file of the pawn moving have been explicitly
         #given.
-        if ox is not None and oy is not None:
-            if self.board[ox][oy] == ('P', self.turn):
+        if orow is not None and ocol is not None:
+            if self.board[orow][ocol] == ('P', self.turn):
                 if self.turn:
                     if not groups['capture']:
-                        if ox == dx:
-                            if dy == 3:
-                                if oy == dy - 1 or \
-                                        oy == dy - 2 and \
-                                        self.board[dx][dy - 1][0] == 0:
-                                    return ox, oy
-                            elif oy == dy - 1:
-                                return ox, oy
+                        if orow == drow:
+                            if dcol == 3:
+                                if ocol == dcol - 1 or \
+                                        ocol == dcol - 2 and \
+                                        self.board[drow][dcol - 1][0] == 0:
+                                    return orow, ocol
+                            elif ocol == dcol - 1:
+                                return orow, ocol
                     else:
                         pass
                 else:
                     if not groups['capture']:
-                        if ox == dx:
-                            if dy == 4:
-                                if oy == dy + 1 or \
-                                        oy == dy + 2 and \
-                                        self.board[dx][dy + 1][0] == 0:
-                                    return ox, oy
-                            elif oy == dy - 1:
-                                return ox, oy
+                        if orow == drow:
+                            if dcol == 4:
+                                if ocol == dcol + 1 or \
+                                        ocol == dcol + 2 and \
+                                        self.board[drow][dcol + 1][0] == 0:
+                                    return orow, ocol
+                            elif ocol == dcol - 1:
+                                return orow, ocol
                     else:
                         pass
 
         #If the file of the pawn moving has been explictly given.
-        elif ox is not None:
+        elif orow is not None:
             if self.turn:
                 if not groups['capture']:
-                    if ox == dx:
-                        if self.board[dx][dy + 1][0] == 'P' and \
-                                self.board[dx][dy + 1][1] == self.turn:
-                            return dx, dy + 1
-                        elif dy == 4 and \
-                                self.board[dx][dy + 2][0] == 'P' and \
-                                self.board[dx][dy + 2][1] == self.turn and \
-                                self.board[dx][dy + 1][0] == 0:
-                            return dx, dy + 2
+                    if orow == drow:
+                        if self.board[drow][dcol + 1][0] == 'P' and \
+                                self.board[drow][dcol + 1][1] == self.turn:
+                            return drow, dcol + 1
+                        elif dcol == 4 and \
+                                self.board[drow][dcol + 2][0] == 'P' and \
+                                self.board[drow][dcol + 2][1] == self.turn and \
+                                self.board[drow][dcol + 1][0] == 0:
+                            return drow, dcol + 2
                 else:
                     pass
             else:
                 if not groups['capture']:
-                    if ox == dx:
-                        if self.board[dx][dy - 1][0] == 'P' and \
-                                self.board[dx][dy - 1][1] == self.turn:
-                            return dx, dy - 1
-                        elif dy == 4 and \
-                                self.board[dx][dy - 2][0] == 'P' and \
-                                self.board[dx][dy - 2][1] == self.turn and \
-                                self.board[dx][dy - 1][0] == 0:
-                            return dx, dy - 2
+                    if orow == drow:
+                        if self.board[drow][dcol - 1][0] == 'P' and \
+                                self.board[drow][dcol - 1][1] == self.turn:
+                            return drow, dcol - 1
+                        elif dcol == 4 and \
+                                self.board[drow][dcol - 2][0] == 'P' and \
+                                self.board[drow][dcol - 2][1] == self.turn and \
+                                self.board[drow][dcol - 1][0] == 0:
+                            return drow, dcol - 2
                 else:
                     pass
 
         #If the rank of the pawn moving has been explicitly given.
-        elif oy is not None:
+        elif ocol is not None:
             if self.turn:
                 if not groups['capture']:
-                    if oy == dy + 1:
-                        if self.board[dx][dy + 1][0] == 'P' and \
-                                self.board[dx][dy + 1][1] == self.turn:
-                            return dx, dy + 1
-                    elif oy == dy + 2:
-                        if dy == 4 and \
-                                self.board[dx][dy + 2][0] == 'P' and \
-                                self.board[dx][dy + 2][1] == self.turn and \
-                                self.board[dx][dy + 1][0] == 0:
-                            return dx, dy + 2
+                    if ocol == dcol + 1:
+                        if self.board[drow][dcol + 1][0] == 'P' and \
+                                self.board[drow][dcol + 1][1] == self.turn:
+                            return drow, dcol + 1
+                    elif ocol == dcol + 2:
+                        if dcol == 4 and \
+                                self.board[drow][dcol + 2][0] == 'P' and \
+                                self.board[drow][dcol + 2][1] == self.turn and \
+                                self.board[drow][dcol + 1][0] == 0:
+                            return drow, dcol + 2
                 else:
                     pass
             else:
                 if not groups['capture']:
-                    if oy == dy - 1:
-                        if self.board[dx][dy - 1][0] == 'P' and \
-                                self.board[dx][dy - 1][1] == self.turn:
-                            return dx, dy - 1
-                    elif oy == dy - 2:
-                        if dy == 4 and \
-                                self.board[dx][dy - 2][0] == 'P' and \
-                                self.board[dx][dy - 2][1] == self.turn and \
-                                self.board[dx][dy - 1][0] == 0:
-                            return dx, dy - 2
+                    if ocol == dcol - 1:
+                        if self.board[drow][dcol - 1][0] == 'P' and \
+                                self.board[drow][dcol - 1][1] == self.turn:
+                            return drow, dcol - 1
+                    elif ocol == dcol - 2:
+                        if dcol == 4 and \
+                                self.board[drow][dcol - 2][0] == 'P' and \
+                                self.board[drow][dcol - 2][1] == self.turn and \
+                                self.board[drow][dcol - 1][0] == 0:
+                            return drow, dcol - 2
                 else:
                     pass
 
@@ -198,26 +198,26 @@ class ChessnutGame(object):
             import pdb; pdb.set_trace()
             if self.turn:
                 if not groups['capture']:
-                    if self.board[dx][dy + 1][0] == 'P' and \
-                            self.board[dx][dy + 1][1] == self.turn:
-                        return dx, dy + 1
-                    elif dy == 4 and \
-                            self.board[dx][dy + 2][0] == 'P' and \
-                            self.board[dx][dy + 2][1] == self.turn and \
-                            self.board[dx][dy + 1][0] == 0:
-                        return dx, dy + 2
+                    if self.board[drow][dcol + 1][0] == 'P' and \
+                            self.board[drow][dcol + 1][1] == self.turn:
+                        return drow, dcol + 1
+                    elif dcol == 4 and \
+                            self.board[drow][dcol + 2][0] == 'P' and \
+                            self.board[drow][dcol + 2][1] == self.turn and \
+                            self.board[drow][dcol + 1][0] == 0:
+                        return drow, dcol + 2
                 else:
                     pass
             else:
                 if not groups['capture']:
-                    if self.board[dx][dy - 1][0] == 'P' and \
-                            self.board[dx][dy - 1][1] == self.turn:
-                        return dx, dy - 1
-                    elif dy == 3 and \
-                            self.board[dx][dy - 2][0] == 'P' and \
-                            self.board[dx][dy - 2][1] == self.turn and \
-                            self.board[dx][dy - 1][0] == 0:
-                        return dx, dy - 2
+                    if self.board[drow][dcol - 1][0] == 'P' and \
+                            self.board[drow][dcol - 1][1] == self.turn:
+                        return drow, dcol - 1
+                    elif dcol == 3 and \
+                            self.board[drow][dcol - 2][0] == 'P' and \
+                            self.board[drow][dcol - 2][1] == self.turn and \
+                            self.board[drow][dcol - 1][0] == 0:
+                        return drow, dcol - 2
                 else:
                     pass
 
@@ -298,7 +298,7 @@ class ChessnutGame(object):
         for i in range(4):
             board.append([(0, 0) for i in range(8)])
 
-        board.append(('P', True) for i in range(8))
+        board.append([('P', True) for i in range(8)])
         board.append([
             ('R', True),
             ('N', True),
