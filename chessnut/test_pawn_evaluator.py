@@ -63,6 +63,44 @@ class TestPawnEvaluator(unittest.TestCase):
         self.assertRaises(
             MoveNotLegalError, self.c._pawn_evaluator, self.groups)
 
+    def test_move_pawn_forward_2_from_start_blocked_path(self):
+        """Attempt to move a pawn forward two spaces on its first move
+        when its path is blocked and assert that this move is determined
+        illegal.
+        """
+        self.c.board[5][1] = ('K', True)
+        self.groups['rank'] = '2'
+        self.groups['file'] = 'b'
+        self.groups['dest'] = 'b4'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
+        self.c.turn = False
+        self.c.board[2][1] = ('K', False)
+        self.groups['rank'] = '7'
+        self.groups['file'] = 'b'
+        self.groups['dest'] = 'b5'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
+
+    def test_move_pawn_forward_2_from_start_blocked_space(self):
+        """Attempt to move a pawn forward two spaces on its first move
+        when the destination space is blocked and assert that this move
+        is determined illegal.
+        """
+        self.c.board[4][1] = ('K', True)
+        self.groups['rank'] = '2'
+        self.groups['file'] = 'b'
+        self.groups['dest'] = 'b4'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
+        self.c.turn = False
+        self.c.board[3][1] = ('K', False)
+        self.groups['rank'] = '7'
+        self.groups['file'] = 'b'
+        self.groups['dest'] = 'b5'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
+
     def test_move_pawn_diagonally_not_capture(self):
         """Try to move a pawn diagonally when not capturing and assert
         that this move is determined illegal.
