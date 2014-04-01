@@ -101,34 +101,32 @@ class ChessnutGame(object):
         """
         dcol, drow = self._pgn_move_to_coords(groups['dest'])
 
+        #Check whether there's already a piece at the destination cell.
+        if self.board[drow][dcol] != (0, 0) and \
+                (self.board[drow][dcol][1] == self.turn or
+                 not groups['capture']):
+            raise MoveNotLegalError
+
+        if self.turn:
+            rowmod = 1
+        else:
+            rowmod = -1
+
         #Compile a list of pawns that could make the given move.
         pieces = []
         try:
-            if self.turn:
-                if not groups['capture']:
-                    if self.board[drow + 1][dcol] == ('P', self.turn) and \
-                            self.board[drow][dcol] == (0, 0):
-                        pieces.append((drow + 1, dcol))
-                    elif drow == 4 and \
-                            self.board[drow + 2][dcol] == ('P', self.turn) and \
-                            self.board[drow + 1][dcol] == (0, 0) and \
-                            self.board[drow][dcol] == (0, 0):
-                        pieces.append((drow + 2, dcol))
-                else:
-                    pass
-
+            if not groups['capture']:
+                if self.board[drow + 1 * rowmod][dcol] == ('P', self.turn):
+                    pieces.append((drow + 1 * rowmod, dcol))
+                elif drow == (4 if self.turn else 3) and \
+                        self.board[drow + 2 * rowmod][dcol] == ('P', self.turn) \
+                        and self.board[drow + 1 * rowmod][dcol] == (0, 0):
+                    pieces.append((drow + 2 * rowmod, dcol))
             else:
-                if not groups['capture']:
-                    if self.board[drow - 1][dcol] == ('P', self.turn) and \
-                            self.board[drow][dcol] == (0, 0):
-                        pieces.append((drow - 1, dcol))
-                    elif drow == 3 and \
-                            self.board[drow - 2][dcol] == ('P', self.turn) and \
-                            self.board[drow - 1][dcol] == (0, 0) and \
-                            self.board[drow][dcol] == (0, 0):
-                        pieces.append((drow - 2, dcol))
-                else:
-                    pass
+                if self.board[drow + 1 * rowmod][dcol + 1] == ('P', self.turn):
+                    pieces.append((drow + 1, dcol + 1))
+                if self.board[drow + 1 * rowmod][dcol - 1] == ('P', self.turn):
+                    pieces.append((drow + 1 * rowmod, dcol - 1))
 
         except IndexError:
             #If an IndexError is raised, then the player has specified a
