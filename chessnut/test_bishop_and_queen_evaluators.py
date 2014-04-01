@@ -11,8 +11,8 @@ class TestBishopEvaluator(unittest.TestCase):
         self.groups = {
             'piece': None,
             'dest': None,
-            'rank': None,
-            'file': None,
+            'rank': '4',
+            'file': 'e',
             'capture': None,
             'check': None,
             'checkmate': None,
@@ -97,6 +97,36 @@ class TestBishopEvaluator(unittest.TestCase):
             for dest in ['d3', 'd5', 'f3', 'f5']:
                 self.groups['dest'] = dest
                 self.assertEqual(evaluator(self.groups), (4, 4))
+
+    def test_move_bishop_horizontally(self):
+        """Try to move a bishop horizontally and assert that this move is
+        determined illegal.
+        """
+        for piece in [('B', True), ('B', False)]:
+            self.groups['piece'] = piece[0]
+            evaluator = self.c._get_evaluator(piece[0])
+            self.c.turn = piece[1]
+            self.c.board[4][4] = piece
+            for dest in ['e3', 'e5', 'd4', 'f4']:
+                self.groups['dest'] = dest
+                self.assertRaises(MoveNotLegalError, evaluator, self.groups)
+
+    def test_capture_bishop_horizontally(self):
+        """Try to capture horizontally with a bishop and assert that this
+        move is determined illegal.
+        """
+        self.groups['capture'] = 'x'
+        for piece in [('B', True), ('B', False)]:
+            for i in [3, 4, 5]:
+                for j in [3, 4, 5]:
+                    self.c.board[i][j] = ('P', not piece[1])
+            self.groups['piece'] = piece[0]
+            evaluator = self.c._get_evaluator(piece[0])
+            self.c.turn = piece[1]
+            self.c.board[4][4] = piece
+            for dest in ['e3', 'e5', 'd4', 'f4']:
+                self.groups['dest'] = dest
+                self.assertRaises(MoveNotLegalError, evaluator, self.groups)
 
 
 if __name__ == '__main__':
