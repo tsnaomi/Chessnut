@@ -162,6 +162,27 @@ class TestKnightEvaluator(unittest.TestCase):
         """Move a knight right 2 then up 1 when another piece blocks
         that location and assert that this move is determined illegal.
         """
+        self.c.board[3][2] = ('N', True)
+        self.c.board[7][1] = (0, 0)
+        self.c.board[4][4] = ('P', True)
+        self.groups['dest'] = 'e4'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
+        self.c.board[2][4] = ('P', True)
+        self.groups['dest'] = 'e6'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
+        self.c.turn = False
+        self.c.board[4][2] = ('N', False)
+        self.c.board[0][1] = (0, 0)
+        self.c.board[5][4] = ('P', False)
+        self.groups['dest'] = 'e3'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
+        self.c.board[3][4] = ('P', False)
+        self.groups['dest'] = 'e5'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
 
     def test_capture_knight_forward(self):
         """Capture with a knight by moving forward 2, then right or left
