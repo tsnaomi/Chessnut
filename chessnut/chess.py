@@ -100,113 +100,180 @@ class ChessnutGame(object):
         specified.
         """
         dcol, drow = self._pgn_move_to_coords(groups['dest'])
+
+        #First, compile a complete list of pawns that could make the
+        #requested move.
+        pawns = []
+        if self.turn:
+            if not groups['capture']:
+                if self.board[drow + 1][dcol] == ('P', self.turn) and \
+                        self.board[drow][dcol] == (0, 0):
+                    pawns.append((drow + 1, dcol))
+                elif drow == 4 and \
+                        self.board[drow + 2][dcol] == ('P', self.turn) and \
+                        self.board[drow + 1][dcol] == (0, 0) and \
+                        self.board[drow][dcol] == (0, 0):
+                    pawns.append((drow + 2, dcol))
+            else:
+                pass
+
+        else:
+            if not groups['capture']:
+                if self.board[drow - 1][dcol] == ('P', self.turn) and \
+                        self.board[drow][dcol] == (0, 0):
+                    pawns.append((drow - 1, dcol))
+                elif drow == 3 and \
+                        self.board[drow - 2][dcol] == ('P', self.turn) and \
+                        self.board[drow - 1][dcol] == (0, 0) and \
+                        self.board[drow][dcol] == (0, 0):
+                    pawns.append((drow - 2, dcol))
+            else:
+                pass
+
+        #Second, compare that list of pawns against pawns from the specific
+        #rank and/or file requested (if any) and determine whether there
+        #is exactly one pawn that can make the requested move. If so,
+        #return its coordinates.
         orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
 
         #If both the rank and file of the pawn moving have been explicitly
         #given.
         if orow is not None and ocol is not None:
-            if self.board[orow][ocol] == ('P', self.turn):
-                if self.turn:
-                    if not groups['capture']:
-                        if ocol == dcol:
-                            if drow == 4:
-                                if orow == drow - 1 or \
-                                        orow == drow - 2 and \
-                                        self.board[drow - 1][dcol][0] == 0:
-                                    return orow, ocol
-                            elif orow == drow - 1:
-                                return orow, ocol
-                    else:
-                        pass
-                else:
-                    if not groups['capture']:
-                        if ocol == dcol:
-                            if drow == 3:
-                                if orow == drow + 1 or \
-                                        orow == drow + 2 and \
-                                        self.board[drow + 1][dcol][0] == 0:
-                                    return orow, ocol
-                            elif orow == drow - 1:
-                                return orow, ocol
-                    else:
-                        pass
-
-        #If the file of the pawn moving has been explictly given.
-        elif ocol is not None:
-            if self.turn:
-                if not groups['capture']:
-                    if ocol == dcol:
-                        if self.board[drow + 1][dcol] == ('P', self.turn):
-                            return drow + 1, dcol
-                        elif drow == 4 and \
-                                self.board[drow + 2][dcol] == ('P', self.turn) \
-                                and self.board[drow + 1][dcol] == (0, 0):
-                            return drow + 2, dcol
-                else:
-                    pass
-            else:
-                if not groups['capture']:
-                    if ocol == dcol:
-                        if self.board[drow - 1][dcol] == ('P', self.turn):
-                            return drow - 1, dcol
-                        elif drow == 3 and \
-                                self.board[drow - 2][dcol] == ('P', self.turn) \
-                                and self.board[drow - 1][dcol] == (0, 0):
-                            return drow - 2, dcol
-                else:
-                    pass
+            for row, col in pawns:
+                if row == orow and col == ocol:
+                    return row, col
 
         #If the rank of the pawn moving has been explicitly given.
         elif orow is not None:
-            if self.turn:
-                if not groups['capture']:
-                    if orow == drow + 1:
-                        if self.board[drow + 1][dcol] == ('P', self.turn):
-                            return drow + 1, dcol
-                    elif orow == drow + 2:
-                        if drow == 4 and \
-                                self.board[drow + 2][dcol] == ('P', self.turn) \
-                                and self.board[drow + 1][dcol] == (0, 0):
-                            return drow + 2, dcol
-                else:
-                    pass
-            else:
-                if not groups['capture']:
-                    if orow == drow - 1:
-                        if self.board[drow - 1][dcol] == ('P', self.turn):
-                            return drow - 1
-                    elif orow == drow - 2:
-                        if dcol == 3 and \
-                                self.board[drow - 2][dcol] == ('P', self.turn) \
-                                and self.board[drow - 1][dcol] == (0, 0):
-                            return drow - 2, dcol
-                else:
-                    pass
+            rowmatch = []
+            for row, col in pawns:
+                if row == orow:
+                    rowmatch.append((row, col))
 
-        #If neither the rank nor the file of the pawn moving has been
+            if len(rowmatch) == 1:
+                return rowmatch[0]
+
+        #If the file of the pawn moving has been explicitly given.
+        elif ocol is not None:
+            colmatch = []
+            for row, col in pawns:
+                if col == ocol:
+                    colmatch.append((row, col))
+
+            if len(colmatch) == 1:
+                return colmatch[0]
+
+        #If neither the rank nor the file of the pawn moving have been
         #explicitly given.
-        else:
-            if self.turn:
-                if not groups['capture']:
-                    if self.board[drow + 1][dcol] == ('P', self.turn):
-                        return drow + 1, dcol
-                    elif dcol == 4 and \
-                            self.board[drow + 2][dcol] == ('P', self.turn) \
-                            and self.board[drow + 1][dcol] == (0, 0):
-                        return drow + 2, dcol
-                else:
-                    pass
-            else:
-                if not groups['capture']:
-                    if self.board[drow - 1][dcol] == ('P', self.turn):
-                        return drow - 1, dcol
-                    elif dcol == 3 and \
-                            self.board[drow - 2][dcol] == ('P', self.turn) \
-                            and self.board[drow - 1][dcol] == (0, 0):
-                        return drow - 2, dcol
-                else:
-                    pass
+        elif len(pawns) == 1:
+            return pawns[0]
+
+        #If both the rank and file of the pawn moving have been explicitly
+        #given.
+        # if orow is not None and ocol is not None:
+        #     if self.board[orow][ocol] == ('P', self.turn):
+        #         if self.turn:
+        #             if not groups['capture']:
+        #                 if ocol == dcol:
+        #                     if drow == 4:
+        #                         if orow == drow + 1 or \
+        #                                 orow == drow + 2 and \
+        #                                 self.board[drow + 1][dcol][0] == 0:
+        #                             return orow, ocol
+        #                     elif orow == drow + 1:
+        #                         return orow, ocol
+        #             else:
+        #                 pass
+        #         else:
+        #             if not groups['capture']:
+        #                 if ocol == dcol:
+        #                     if drow == 3:
+        #                         if orow == drow - 1 or \
+        #                                 orow == drow - 2 and \
+        #                                 self.board[drow - 1][dcol][0] == 0:
+        #                             return orow, ocol
+        #                     elif orow == drow - 1:
+        #                         return orow, ocol
+        #             else:
+        #                 pass
+
+        # #If the file of the pawn moving has been explictly given.
+        # elif ocol is not None:
+        #     if self.turn:
+        #         if not groups['capture']:
+        #             if ocol == dcol:
+        #                 if self.board[drow + 1][dcol] == ('P', self.turn):
+        #                     return drow + 1, dcol
+        #                 elif drow == 4 and \
+        #                         self.board[drow + 2][dcol] == ('P', self.turn) \
+        #                         and self.board[drow + 1][dcol] == (0, 0):
+        #                     return drow + 2, dcol
+        #         else:
+        #             pass
+        #     else:
+        #         if not groups['capture']:
+        #             if ocol == dcol:
+        #                 if self.board[drow - 1][dcol] == ('P', self.turn):
+        #                     return drow - 1, dcol
+        #                 elif drow == 3 and \
+        #                         self.board[drow - 2][dcol] == ('P', self.turn) \
+        #                         and self.board[drow - 1][dcol] == (0, 0):
+        #                     return drow - 2, dcol
+        #         else:
+        #             pass
+
+        # #If the rank of the pawn moving has been explicitly given.
+        # elif orow is not None:
+        #     if self.turn:
+        #         if not groups['capture']:
+        #             if orow == drow + 1:
+        #                 if self.board[drow + 1][dcol] == ('P', self.turn):
+        #                     return drow + 1, dcol
+        #             elif orow == drow + 2:
+        #                 if drow == 4 and \
+        #                         self.board[drow + 2][dcol] == ('P', self.turn) \
+        #                         and self.board[drow + 1][dcol] == (0, 0):
+        #                     return drow + 2, dcol
+        #         else:
+        #             pass
+        #     else:
+        #         if not groups['capture']:
+        #             if orow == drow - 1:
+        #                 if self.board[drow - 1][dcol] == ('P', self.turn):
+        #                     return drow - 1, dcol
+        #             elif orow == drow - 2:
+        #                 if drow == 3 and \
+        #                         self.board[drow - 2][dcol] == ('P', self.turn) \
+        #                         and self.board[drow - 1][dcol] == (0, 0):
+        #                     return drow - 2, dcol
+        #         else:
+        #             pass
+
+        # #If neither the rank nor the file of the pawn moving has been
+        # #explicitly given.
+        # else:
+        #     import pdb; pdb.set_trace()
+        #     if self.turn:
+        #         if not groups['capture']:
+        #             if self.board[drow + 1][dcol] == ('P', self.turn):
+        #                 return drow + 1, dcol
+        #             elif drow == 4 and \
+        #                     self.board[drow + 2][dcol] == ('P', self.turn) \
+        #                     and self.board[drow + 1][dcol] == (0, 0):
+        #                 return drow + 2, dcol
+        #         else:
+        #             pass
+        #     else:
+        #         if not groups['capture']:
+        #             if self.board[drow - 1][dcol] == ('P', self.turn):
+        #                 return drow - 1, dcol
+        #             elif drow == 3 and \
+        #                     self.board[drow - 2][dcol] == ('P', self.turn) \
+        #                     and self.board[drow - 1][dcol] == (0, 0):
+        #                 return drow - 2, dcol
+        #         else:
+        #             pass
 
         raise MoveNotLegalError
 
