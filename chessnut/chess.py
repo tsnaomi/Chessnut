@@ -137,6 +137,11 @@ class ChessnutGame(object):
             #The move is obviously not legal.
             raise MoveNotLegalError
 
+        #If we haven't found any pieces that could make this move, the
+        #move is not legal.
+        if not pieces:
+            raise MoveNotLegalError
+
         orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
 
@@ -210,7 +215,9 @@ class ChessnutGame(object):
         elif len(pieces) == 1:
             return pieces[0]
 
-        raise MoveNotLegalError
+        #If we haven't found exactly one piece that should make this move,
+        #raise an appropriate exception.
+        raise MoveAmbiguousError
 
     def _pgn_move_to_coords(self, move):
         """Converts a single move in PGN notation to board-state array
