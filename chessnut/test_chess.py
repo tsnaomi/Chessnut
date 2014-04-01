@@ -1,5 +1,5 @@
 import unittest
-from chess import ChessnutGame
+from chess import ChessnutGame, MoveNotLegalError, MoveAmbiguousError
 
 
 class TestPGNToCoords(unittest.TestCase):
@@ -108,6 +108,142 @@ class TestRankToY(unittest.TestCase):
         exception is raised.
         """
         self.assertRaises(ValueError, self.c._pgn_rank_to_row, '9')
+
+
+class TestEvaluateRankAndFile(unittest.TestCase):
+    """Test the _evaluate_rank_and_file function, a helper function to
+    the evaluator functions.
+    """
+    def setUp(self):
+        self.c = ChessnutGame()
+
+    def test_no_restrictions_one_piece(self):
+        """When one piece could make a move, and rank or file have not
+        been given, assert that that single piece is returned.
+        """
+        pieces = [(1, 1)]
+        self.assertEqual(
+            self.c._evaluate_rank_and_file(pieces, None, None), pieces[0])
+
+    def test_no_restrictions_multiple_pieces(self):
+        """When more than one piece could make a move, and rank or file
+        have not been given, assert that an exception is raised.
+        """
+        pieces = [(1, 1), (1, 2)]
+        self.assertRaisess(
+            MoveAmbiguousError,
+            self.c._evaluate_rank_and_file,
+            (pieces, None, None)
+        )
+
+    def test_rank_restriction_one_piece(self):
+        """When one piece could make a move, and the rank of the piece to
+        move has been specified, assert that we see the appropriate
+        behavior.
+        """
+        pieces = [(1, 1)]
+        self.assertEqual(
+            self.c._evaluate_rank_and_file(pieces, 1, None), pieces[0])
+        self.assertRaises(
+            MoveAmbiguousError,
+            self.c._evaluate_rank_and_file,
+            (pieces, 3, None)
+        )
+
+    def test_rank_restriction_multiple_pieces(self):
+        """When more than one piece could make a move, and the rank of
+        the piece to move has been specified, assert that we see the
+        appropriate behavior.
+        """
+        pieces = [(1, 1), (2, 1)]
+        self.assertEqual(
+            self.c._evaluate_rank_and_file(pieces, 1, None), pieces[0])
+        self.assertRaises(
+            MoveAmbiguousError,
+            self.c._evaluate_rank_and_file,
+            (pieces, 3, None)
+        )
+        pieces.append((1, 2))
+        self.assertRaises(
+            MoveAmbiguousError,
+            self.c._evaluate_rank_and_file,
+            (pieces, 1, None)
+        )
+
+    def test_file_restriction_one_piece(self):
+        """When one piece could make a move, and the file of the piece to
+        move has been specified, assert that we see the appropriate
+        behavior.
+        """
+        pieces = [(1, 1)]
+        self.assertEqual(
+            self.c._evaluate_rank_and_file(pieces, None, 1), pieces[0])
+        self.assertRaises(
+            MoveAmbiguousError,
+            self.c._evaluate_rank_and_file,
+            (pieces, None, 3)
+        )
+
+    def test_file_restriction_multiple_pieces(self):
+        """When more than one piece could make a move, and the file of
+        the piece to move has been specified, assert that we see the
+        appropriate behavior.
+        """
+        pieces = [(1, 1), (1, 2)]
+        self.assertEqual(
+            self.c._evaluate_rank_and_file(pieces, None, 1), pieces[0])
+        self.assertRaises(
+            MoveAmbiguousError,
+            self.c._evaluate_rank_and_file,
+            (pieces, None, 3)
+        )
+        pieces.append((2, 1))
+        self.assertRaises(
+            MoveAmbiguousError,
+            self.c._evaluate_rank_and_file,
+            (pieces, None, 1)
+        )
+
+    def test_rank_and_file_restriction_one_piece(self):
+        """When one piece could make a move, and the rank and file of the
+        piece to move have both been specified, assert that we see the
+        appropriate behavior.
+        """
+        pieces = [(1, 1)]
+        self.assertEqual(
+            self.c._evaluate_rank_and_file(pieces, 1, 1), pieces[0])
+        self.assertRaises(
+            MoveAmbiguousError,
+            self.c._evaluate_rank_and_file,
+            (pieces, 1, 3)
+        )
+        self.assertRaises(
+            MoveAmbiguousError,
+            self.c._evaluate_rank_and_file,
+            (pieces, 3, 1)
+        )
+        self.assertRaises(
+            MoveAmbiguousError,
+            self.c._evaluate_rank_and_file,
+            (pieces, 3, 3)
+        )
+
+    def test_rank_and_file_restriction_multiple_pieces(self):
+        """When more than one piece could make a move, and the rank and
+        file of the piece to move have both been specified, assert that
+        we see the appropriate behavior.
+        """
+        pieces = [(1, 1), (1, 2), (2, 1)]
+        for row, col in pieces:
+            self.assertEqual(
+                (row, col),
+                self.c._evaluate_rank_and_file(pieces, row, col)
+        )
+        self.assertRaises(
+            MoveAmbiguousError,
+            self.c._evaluate_rank_and_file,
+            (pieces, 3, 3)
+        )
 
 
 if __name__ == '__main__':
