@@ -3,7 +3,8 @@ from chess import ChessnutGame, MoveNotLegalError
 
 
 class TestRookEvaluator(unittest.TestCase):
-    """Test the rook evaluator."""
+    """Test the rook evaluator and the horizontal component of the queen
+    evaluator."""
     def setUp(self):
         self.c = ChessnutGame()
         self.groups = {
