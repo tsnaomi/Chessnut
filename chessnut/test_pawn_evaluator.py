@@ -110,7 +110,7 @@ class TestPawnEvaluator(unittest.TestCase):
         """
         dests = [col + row for col in 'abcdefgh' for row in '12345678']
         self.groups['rank'] = '2'
-        self.groups['file'] = 'a'
+        self.groups['file'] = 'b'
         for dest in dests:
             if dest in ['b3', 'b4']:
                 continue
@@ -120,7 +120,7 @@ class TestPawnEvaluator(unittest.TestCase):
 
         self.c.turn = False
         self.groups['rank'] = '7'
-        self.groups['file'] = 'a'
+        self.groups['file'] = 'b'
         for dest in dests:
             if dest in ['b5', 'b6']:
                 continue
@@ -133,8 +133,9 @@ class TestPawnEvaluator(unittest.TestCase):
         determined legal.
         """
         self.groups['capture'] = 'x'
+
         self.groups['rank'] = '2'
-        self.groups['file'] = 'a'
+        self.groups['file'] = 'b'
         self.c.board[5][2] = ('P', False)
         self.groups['dest'] = 'c3'
         self.assertEqual(self.c._pawn_evaluator(self.groups), (6, 1))
@@ -144,11 +145,11 @@ class TestPawnEvaluator(unittest.TestCase):
 
         self.c.turn = False
         self.groups['rank'] = '7'
-        self.groups['file'] = 'a'
-        self.c.board[5][2] = ('P', True)
+        self.groups['file'] = 'b'
+        self.c.board[2][2] = ('P', True)
         self.groups['dest'] = 'c6'
         self.assertEqual(self.c._pawn_evaluator(self.groups), (1, 1))
-        self.c.board[5][0] = ('P', True)
+        self.c.board[2][0] = ('P', True)
         self.groups['dest'] = 'a6'
         self.assertEqual(self.c._pawn_evaluator(self.groups), (1, 1))
 

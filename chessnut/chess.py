@@ -123,10 +123,17 @@ class ChessnutGame(object):
                         and self.board[drow + 1 * rowmod][dcol] == (0, 0):
                     pieces.append((drow + 2 * rowmod, dcol))
             else:
-                if self.board[drow + 1 * rowmod][dcol + 1] == ('P', self.turn):
-                    pieces.append((drow + 1, dcol + 1))
-                if self.board[drow + 1 * rowmod][dcol - 1] == ('P', self.turn):
-                    pieces.append((drow + 1 * rowmod, dcol - 1))
+                try:
+                    if self.board[drow + 1 * rowmod][dcol + 1] == ('P', self.turn):
+                        pieces.append((drow + 1 * rowmod, dcol + 1))
+                except IndexError:
+                    pass
+
+                try:
+                    if self.board[drow + 1 * rowmod][dcol - 1] == ('P', self.turn):
+                        pieces.append((drow + 1 * rowmod, dcol - 1))
+                except IndexError:
+                    pass
 
         except IndexError:
             #If an IndexError is raised, then the player has specified a
