@@ -12,9 +12,12 @@ requires = [
     'transaction',
     'pyramid_tm',
     'pyramid_debugtoolbar',
+    'pyramid_jinja2',
     'zope.sqlalchemy',
     'waitress',
-    'python-social-auth',
+    'cryptacular',
+    'wtforms',
+    'psycopg2',
     ]
 
 setup(name='chessnut',
