@@ -10,8 +10,8 @@ class TestRookEvaluator(unittest.TestCase):
         self.groups = {
             'piece': None,
             'dest': None,
-            'rank': None,
-            'file': None,
+            'rank': '4',
+            'file': 'e',
             'capture': None,
             'check': None,
             'checkmate': None,
