@@ -9,12 +9,23 @@ class TestKnightEvaluator(unittest.TestCase):
         self.groups = {
             'piece': 'N',
             'dest': None,
-            'rank': None,
-            'file': None,
+            'rank': '4',
+            'file': 'e',
             'capture': None,
             'check': None,
             'checkmate': None,
         }
+
+    def test_move_knight_legally(self):
+        """Move a knight in any of the eight legal configurations and
+        assert that the moves are determined legal.
+        """
+        self.c.board[6] = [(0, 0) for i in range(8)]
+        for piece in [('N', True), ('N', False)]:
+            self.c.board[4][4] = piece
+            for dest in ['d6', 'f6', 'c5', 'g5', 'c3', 'g3', 'd2', 'f2']:
+                self.groups['dest'] = dest
+                self.assertEqual(self.c._knight_evaluator(self.groups), (4, 4))
 
     def test_move_knight_forward(self):
         """Move a knight forward 2, then left or right 1, and assert that
