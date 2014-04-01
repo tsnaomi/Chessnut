@@ -177,6 +177,15 @@ class TestPawnEvaluator(unittest.TestCase):
         """Try to move a pawn sideways and assert that this move is
         determined illegal.
         """
+        self.c.board[6] = [(0, 0) for i in range(8)]
+        self.c.board[6][1] = ('P', True)
+        self.groups['dest'] = 'c2'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (6, 1))
+        self.c.turn = False
+        self.c.board[1] = [(0, 0) for i in range(8)]
+        self.c.board[1][1] = ('P', False)
+        self.groups['dest'] = 'c7'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (1, 1))
 
 
 if __name__ == '__main__':
