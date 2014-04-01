@@ -97,6 +97,36 @@ class TestRookEvaluator(unittest.TestCase):
                 self.groups['dest'] = dest
                 self.assertEqual(evaluator(self.groups), (4, 4))
 
+    def test_move_rook_diagonally(self):
+        """Try to move a rook diagonally and assert that move is determined
+        illegal.
+        """
+        for piece in [('R', True), ('R', False)]:
+            self.groups['piece'] = piece[0]
+            evaluator = self.c._get_evaluator(piece[0])
+            self.c.turn = piece[1]
+            self.c.board[4][4] = piece
+            for dest in ['d3', 'd5', 'f3', 'f5']:
+                self.groups['dest'] = dest
+                self.assertRaises(MoveNotLegalError, evaluator, self.groups)
+
+    def test_capture_rook_diagonally(self):
+        """Attempt to capture diagonally with a rook and assert that the
+        move is determined illegal.
+        """
+        self.groups['capture'] = 'x'
+        for piece in [('R', True), ('R', False)]:
+            for i in [3, 4, 5]:
+                for j in [3, 4, 5]:
+                    self.c.board[i][j] = ('P', not piece[1])
+            self.groups['piece'] = piece[0]
+            evaluator = self.c._get_evaluator(piece[0])
+            self.c.turn = piece[1]
+            self.c.board[4][4] = piece
+            for dest in ['d3', 'd5', 'f3', 'f5']:
+                self.groups['dest'] = dest
+                self.assertRaises(MoveNotLegalError, evaluator, self.groups)
+
 
 if __name__ == '__main__':
     unittest.main()
