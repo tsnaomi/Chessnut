@@ -21,7 +21,7 @@ class TestPawnEvaluator(unittest.TestCase):
         determined legal and is made.
         """
         self.groups['dest'] = 'b3'
-        self.assertEqual(self.c._pawn_evaluator(self.groups), (1, 6))
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (6, 1))
         self.c.turn = False
         self.groups['dest'] = 'b6'
         self.assertEqual(self.c._pawn_evaluator(self.groups), (1, 1))
