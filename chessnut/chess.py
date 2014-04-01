@@ -103,31 +103,39 @@ class ChessnutGame(object):
 
         #Compile a list of pawns that could make the given move.
         pieces = []
-        if self.turn:
-            if not groups['capture']:
-                if self.board[drow + 1][dcol] == ('P', self.turn) and \
-                        self.board[drow][dcol] == (0, 0):
-                    pieces.append((drow + 1, dcol))
-                elif drow == 4 and \
-                        self.board[drow + 2][dcol] == ('P', self.turn) and \
-                        self.board[drow + 1][dcol] == (0, 0) and \
-                        self.board[drow][dcol] == (0, 0):
-                    pieces.append((drow + 2, dcol))
-            else:
-                pass
+        try:
+            if self.turn:
+                if not groups['capture']:
+                    if self.board[drow + 1][dcol] == ('P', self.turn) and \
+                            self.board[drow][dcol] == (0, 0):
+                        pieces.append((drow + 1, dcol))
+                    elif drow == 4 and \
+                            self.board[drow + 2][dcol] == ('P', self.turn) and \
+                            self.board[drow + 1][dcol] == (0, 0) and \
+                            self.board[drow][dcol] == (0, 0):
+                        pieces.append((drow + 2, dcol))
+                else:
+                    pass
 
-        else:
-            if not groups['capture']:
-                if self.board[drow - 1][dcol] == ('P', self.turn) and \
-                        self.board[drow][dcol] == (0, 0):
-                    pieces.append((drow - 1, dcol))
-                elif drow == 3 and \
-                        self.board[drow - 2][dcol] == ('P', self.turn) and \
-                        self.board[drow - 1][dcol] == (0, 0) and \
-                        self.board[drow][dcol] == (0, 0):
-                    pieces.append((drow - 2, dcol))
             else:
-                pass
+                if not groups['capture']:
+                    if self.board[drow - 1][dcol] == ('P', self.turn) and \
+                            self.board[drow][dcol] == (0, 0):
+                        pieces.append((drow - 1, dcol))
+                    elif drow == 3 and \
+                            self.board[drow - 2][dcol] == ('P', self.turn) and \
+                            self.board[drow - 1][dcol] == (0, 0) and \
+                            self.board[drow][dcol] == (0, 0):
+                        pieces.append((drow - 2, dcol))
+                else:
+                    pass
+
+        except IndexError:
+            #If an IndexError is raised, then the player has specified a
+            #space on the top or bottom of the board, and the game logic
+            #is looking for a pawn above or below the board to move to it.
+            #The move is obviously not legal.
+            raise MoveNotLegalError
 
         orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None

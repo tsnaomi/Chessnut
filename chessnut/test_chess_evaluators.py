@@ -124,7 +124,7 @@ class TestPawnEvaluator(unittest.TestCase):
         self.assertRaises(
             MoveNotLegalError, self.c._pawn_evaluator, self.groups)
         self.c.turn = False
-        self.c.board[2][1] = ('K', True)
+        self.c.board[2][1] = ('K', False)
         self.groups['dest'] = 'b6'
         self.assertRaises(
             MoveNotLegalError, self.c._pawn_evaluator, self.groups)
@@ -133,16 +133,45 @@ class TestPawnEvaluator(unittest.TestCase):
         """Try to move a pawn diagonally when not capturing and assert
         that this move is determined illegal.
         """
+        self.groups['dest'] = 'b3'
+        self.groups['rank'] = '2'
+        self.groups['file'] = 'a'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
+        self.c.turn = False
+        self.groups['dest'] = 'b6'
+        self.groups['rank'] = '7'
+        self.groups['file'] = 'a'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
 
     def test_move_pawn_forward_2_not_start(self):
         """Try to move a pawn forward two spaces not from its starting
         position and assert that this move is determined illegal.
         """
+        self.c.board[5][1] = ('P', True)
+        self.groups['dest'] = 'b5'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
+        self.c.turn = False
+        self.c.board[2][1] = ('P', False)
+        self.groups['dest'] = 'b4'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
 
     def test_move_pawn_backward(self):
         """Try to move a pawn backwards and assert that this move is
         determined illegal.
         """
+        self.c.board[0][1] = (0, 0)
+        self.groups['dest'] = 'b1'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
+        self.c.turn = False
+        self.c.board[7][1] = (0, 0)
+        self.groups['dest'] = 'b8'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
 
     def test_move_pawn_sideways(self):
         """Try to move a pawn sideways and assert that this move is
