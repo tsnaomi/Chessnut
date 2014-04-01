@@ -14,6 +14,10 @@ class ChessnutGame(object):
             self.pgn = game
             self.board = self._pgn_to_board(game)
             self.image_name = self._board_to_image()
+        else:
+            self.pgn = None
+            self.board = self._initialize_chessboard()
+            self.image_name = None
 
     def __call__(self, move):
         """Takes as its argument the move being attempted an evaluates
@@ -96,8 +100,8 @@ class ChessnutGame(object):
         specified.
         """
         dx, dy = self._pgn_move_to_coords(groups['dest'])
-        ox = self._pgn_file_to_x(groups['file'])
-        oy = self._pgn_rank_to_y(groups['rank'])
+        oy = self._pgn_file_to_col(groups['file']) if groups['file'] else None
+        ox = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
 
         #If both the rank and file of the pawn moving have been explicitly
         #given.
@@ -191,6 +195,7 @@ class ChessnutGame(object):
         #If neither the rank nor the file of the pawn moving has been
         #explicitly given.
         else:
+            import pdb; pdb.set_trace()
             if self.turn:
                 if not groups['capture']:
                     if self.board[dx][dy + 1][0] == 'P' and \
@@ -256,22 +261,21 @@ class ChessnutGame(object):
         if len(move) != 2:
             raise ValueError("_pgn_move_to_coords got input of length != 2")
 
-        return self._pgn_file_to_x(move[0]), self._pgn_rank_to_y(move[1])
+        return self._pgn_file_to_col(move[0]), self._pgn_rank_to_row(move[1])
 
-    def _pgn_file_to_x(self, _file):
-        """Convert a lettered file to its x-position in the 2D board array.
-        """
+    def _pgn_file_to_col(self, _file):
+        """Convert a lettered file to its column in the 2D board array."""
         if _file not in 'abcdefgh':
             raise ValueError(
-                "_pgn_file_to_x got %s (not a valid file)" % _file
+                "_pgn_file_to_col got %s (not a valid file)" % _file
             )
         return ord(_file) - 97
 
-    def _pgn_rank_to_y(self, rank):
-        """Convert a numbered rank to its y-position in the 2D board array."""
+    def _pgn_rank_to_row(self, rank):
+        """Convert a numbered rank to its row in the 2D board array."""
         if rank not in '12345678':
             raise ValueError(
-                "_pgn_rank_to_y got %s (not a valid rank)" % rank
+                "_pgn_rank_to_row got %s (not a valid rank)" % rank
             )
         return (8 - int(rank))
 

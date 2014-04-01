@@ -55,7 +55,7 @@ class TestPGNToCoords(unittest.TestCase):
 
 
 class TestFileToX(unittest.TestCase):
-    """Test _pgn_file_to_x."""
+    """Test _pgn_file_to_col."""
     def setUp(self):
         self.c = ChessnutGame()
 
@@ -73,17 +73,17 @@ class TestFileToX(unittest.TestCase):
         ]
 
         for initial, expected in conversions:
-            self.assertEqual(self.c._pgn_file_to_x(initial), expected)
+            self.assertEqual(self.c._pgn_file_to_col(initial), expected)
 
     def test_invalid_file(self):
         """Try to get x coordinate of an invalid file and assert that an
         exception is raised.
         """
-        self.assertRaises(ValueError, self.c._pgn_file_to_x, 'i')
+        self.assertRaises(ValueError, self.c._pgn_file_to_col, 'i')
 
 
 class TestRankToY(unittest.TestCase):
-    """Test _pgn_rank_to_y."""
+    """Test _pgn_rank_to_row."""
     def setUp(self):
         self.c = ChessnutGame()
 
@@ -101,13 +101,13 @@ class TestRankToY(unittest.TestCase):
         ]
 
         for initial, expected in conversions:
-            self.assertEqual(self.c._pgn_rank_to_y(initial), expected)
+            self.assertEqual(self.c._pgn_rank_to_row(initial), expected)
 
     def test_invalid_rank(self):
         """Try to get y coordinate of an invalid rank and assert that an
         exception is raised.
         """
-        self.assertRaises(ValueError, self.c._pgn_rank_to_y, '9')
+        self.assertRaises(ValueError, self.c._pgn_rank_to_row, '9')
 
 
 if __name__ == '__main__':
