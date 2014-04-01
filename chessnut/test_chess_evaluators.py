@@ -1,5 +1,5 @@
 import unittest
-from chess import ChessnutGame
+from chess import ChessnutGame, MoveNotLegalError, NotationParseError
 
 
 class TestPawnEvaluator(unittest.TestCase):
@@ -18,7 +18,7 @@ class TestPawnEvaluator(unittest.TestCase):
 
     def test_move_pawn_forward_1(self):
         """Move a pawn forward one space and assert that this move is
-        determined legal and is made.
+        determined legal.
         """
         self.groups['dest'] = 'b3'
         self.assertEqual(self.c._pawn_evaluator(self.groups), (6, 1))
@@ -28,44 +28,125 @@ class TestPawnEvaluator(unittest.TestCase):
 
     def test_move_exact_pawn_forward_1(self):
         """Use SAN to specify a specific pawn be moved forward one space
-        and assert that this move is determined legal and is made.
+        and assert that this move is determined legal.
         """
+        self.groups['dest'] = 'b3'
+        self.groups['rank'] = '2'
+        self.groups['file'] = 'b'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (6, 1))
+        self.c.turn = False
+        self.groups['dest'] = 'b6'
+        self.groups['rank'] = '7'
+        self.groups['file'] = 'b'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (1, 1))
+
+    def test_move_rank_pawn_forward_1(self):
+        """Use SAN to specify that a pawn from a certain rank should be
+        moved forward and assert that this move is determined legal.
+        """
+        self.groups['dest'] = 'b3'
+        self.groups['rank'] = '2'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (6, 1))
+        self.c.turn = False
+        self.groups['dest'] = 'b6'
+        self.groups['rank'] = '7'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (1, 1))
+
+    def test_move_file_pawn_forward_1(self):
+        """Use SAN to specify that a pawn from a certain file should be
+        moved forward and assert that this move is determined legal.
+        """
+        self.groups['dest'] = 'b3'
+        self.groups['file'] = 'b'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (6, 1))
+        self.c.turn = False
+        self.groups['dest'] = 'b6'
+        self.groups['file'] = 'b'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (1, 1))
 
     def test_move_pawn_forward_2_from_start(self):
         """Move a pawn forward two spaces on its first move and assert
-        that this move is determined legal and is made.
+        that this move is determined legal.
         """
+        self.groups['dest'] = 'b4'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (6, 1))
+        self.c.turn = False
+        self.groups['dest'] = 'b5'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (1, 1))
 
     def test_move_exact_pawn_forward_2_from_start(self):
         """Use SAN to specify a specific pawn be moved forward two spaces
         from its starting position and assert that this move is determined
-        legal and is made.
+        legal.
         """
+        self.groups['dest'] = 'b4'
+        self.groups['rank'] = '2'
+        self.groups['file'] = 'b'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (6, 1))
+        self.c.turn = False
+        self.groups['dest'] = 'b5'
+        self.groups['rank'] = '7'
+        self.groups['file'] = 'b'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (1, 1))
+
+    def test_move_rank_pawn_forward_2_from_start(self):
+        """Use SAN to specify that a pawn from a specific rank be moved
+        forward two spaces from its starting position and assert that this
+        move is determined legal.
+        """
+        self.groups['dest'] = 'b4'
+        self.groups['rank'] = '2'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (6, 1))
+        self.c.turn = False
+        self.groups['dest'] = 'b5'
+        self.groups['rank'] = '7'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (1, 1))
+
+    def test_move_file_pawn_forward_2_from_start(self):
+        """Use SAN to specify that a pawn from a specific file be moved
+        forward two spaces from its starting position and assert that this
+        move is determined legal.
+        """
+        self.groups['dest'] = 'b4'
+        self.groups['file'] = 'b'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (6, 1))
+        self.c.turn = False
+        self.groups['dest'] = 'b5'
+        self.groups['file'] = 'b'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (1, 1))
 
     def test_move_pawn_forward_blocked(self):
         """Try to move a pawn forward when it is blocked and assert that
-        this move is determined illegal and is not made.
+        this move is determined illegal.
         """
+        self.c.board[5][1] = ('K', True)
+        self.groups['dest'] = 'b3'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
+        self.c.turn = False
+        self.c.board[2][1] = ('K', True)
+        self.groups['dest'] = 'b6'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
 
     def test_move_pawn_diagonally_not_capture(self):
         """Try to move a pawn diagonally when not capturing and assert
-        that this move is determined illegal and is not made.
+        that this move is determined illegal.
         """
 
     def test_move_pawn_forward_2_not_start(self):
         """Try to move a pawn forward two spaces not from its starting
-        position and assert that this move is determined illegal and is
-        not made.
+        position and assert that this move is determined illegal.
         """
 
     def test_move_pawn_backward(self):
         """Try to move a pawn backwards and assert that this move is
-        determined illegal and is not made.
+        determined illegal.
         """
 
     def test_move_pawn_sideways(self):
         """Try to move a pawn sideways and assert that this move is
-        determined illegal and is not made.
+        determined illegal.
         """
 
 
