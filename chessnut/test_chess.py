@@ -145,7 +145,7 @@ class TestEvaluateRankAndFile(unittest.TestCase):
         self.assertEqual(
             self.c._evaluate_rank_and_file(pieces, 1, None), pieces[0])
         self.assertRaises(
-            MoveAmbiguousError,
+            MoveNotLegalError,
             self.c._evaluate_rank_and_file,
             pieces, 3, None
         )
@@ -159,7 +159,7 @@ class TestEvaluateRankAndFile(unittest.TestCase):
         self.assertEqual(
             self.c._evaluate_rank_and_file(pieces, 1, None), pieces[0])
         self.assertRaises(
-            MoveAmbiguousError,
+            MoveNotLegalError,
             self.c._evaluate_rank_and_file,
             pieces, 3, None
         )
@@ -179,7 +179,7 @@ class TestEvaluateRankAndFile(unittest.TestCase):
         self.assertEqual(
             self.c._evaluate_rank_and_file(pieces, None, 1), pieces[0])
         self.assertRaises(
-            MoveAmbiguousError,
+            MoveNotLegalError,
             self.c._evaluate_rank_and_file,
             pieces, None, 3
         )
@@ -193,7 +193,7 @@ class TestEvaluateRankAndFile(unittest.TestCase):
         self.assertEqual(
             self.c._evaluate_rank_and_file(pieces, None, 1), pieces[0])
         self.assertRaises(
-            MoveAmbiguousError,
+            MoveNotLegalError,
             self.c._evaluate_rank_and_file,
             pieces, None, 3
         )
@@ -213,17 +213,17 @@ class TestEvaluateRankAndFile(unittest.TestCase):
         self.assertEqual(
             self.c._evaluate_rank_and_file(pieces, 1, 1), pieces[0])
         self.assertRaises(
-            MoveAmbiguousError,
+            MoveNotLegalError,
             self.c._evaluate_rank_and_file,
             pieces, 1, 3
         )
         self.assertRaises(
-            MoveAmbiguousError,
+            MoveNotLegalError,
             self.c._evaluate_rank_and_file,
             pieces, 3, 1
         )
         self.assertRaises(
-            MoveAmbiguousError,
+            MoveNotLegalError,
             self.c._evaluate_rank_and_file,
             pieces, 3, 3
         )
@@ -240,7 +240,7 @@ class TestEvaluateRankAndFile(unittest.TestCase):
                 self.c._evaluate_rank_and_file(pieces, row, col)
         )
         self.assertRaises(
-            MoveAmbiguousError,
+            MoveNotLegalError,
             self.c._evaluate_rank_and_file,
             pieces, 3, 3
         )

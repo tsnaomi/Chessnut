@@ -183,41 +183,42 @@ class ChessnutGame(object):
         been requested made (if any), determine whether there is exactly
         one piece that can make the given move and return it, if so.
         """
+        valid = []
         #If both the rank and file of the piece moving have been explicitly
         #given.
         if orow is not None and ocol is not None:
             for row, col in pieces:
                 if row == orow and col == ocol:
-                    return row, col
+                    valid.append((row, col))
 
         #If the rank of the piece moving has been explicitly given.
         elif orow is not None:
-            rowmatch = []
             for row, col in pieces:
                 if row == orow:
-                    rowmatch.append((row, col))
-
-            if len(rowmatch) == 1:
-                return rowmatch[0]
+                    valid.append((row, col))
 
         #If the file of the piece moving has been explicitly given.
         elif ocol is not None:
-            colmatch = []
             for row, col in pieces:
                 if col == ocol:
-                    colmatch.append((row, col))
-
-            if len(colmatch) == 1:
-                return colmatch[0]
+                    valid.append((row, col))
 
         #If neither the rank nor the file of the piece moving have been
         #explicitly given.
-        elif len(pieces) == 1:
-            return pieces[0]
+        else:
+            valid = pieces
 
-        #If we haven't found exactly one piece that should make this move,
-        #raise an appropriate exception.
-        raise MoveAmbiguousError
+        #If more than one piece could make this move, raise a
+        #MoveAmbiguousError.
+        if len(valid) > 1:
+            raise MoveAmbiguousError
+
+        #If not pieces could make this move, raise a MoveNotLegalError.
+        if len(valid) < 1:
+            raise MoveNotLegalError
+
+        #If we have exactly one piece, return it.
+        return valid[0]
 
     def _pgn_move_to_coords(self, move):
         """Converts a single move in PGN notation to board-state array
