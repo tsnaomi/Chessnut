@@ -57,6 +57,23 @@ class TestKnightEvaluator(unittest.TestCase):
                 self.groups['dest'] = dest
                 self.assertEqual(self.c._knight_evaluator(self.groups), (4, 4))
 
+    def test_move_knight_illegally(self):
+        """Attempt to move a knight to every space on the board except
+        those spaces which are legal and assert that each move is
+        determined illegal.
+        """
+        self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
+        for piece in [('N', True), ('N', False)]:
+            self.c.turn = piece[1]
+            self.c.board[4][4] = piece
+            dests = [col + row for col in 'abcdefgh' for row in '12345678']
+            for dest in dests:
+                if dest in ['d6', 'f6', 'c5', 'g5', 'c3', 'g3', 'd2', 'f2']:
+                    continue
+                self.groups['dest'] = dest
+                self.assertRaises(
+                    MoveNotLegalError, self.c._knight_evaluator, self.groups)
+
 
 if __name__ == '__main__':
     unittest.main()
