@@ -82,8 +82,8 @@ class TestBishopEvaluator(unittest.TestCase):
                 self.assertRaises(MoveNotLegalError, evaluator, self.groups)
 
     def test_capture_diagonally(self):
-        """Attempt capture diagonally with a bishop (or queen) and assert
-        that the move is determined legal.
+        """Attempt to capture diagonally with a bishop (or queen) and
+        assert that the move is determined legal.
         """
         self.groups['capture'] = 'x'
         for piece in [('B', True), ('B', False), ('Q', True), ('Q', False)]:
