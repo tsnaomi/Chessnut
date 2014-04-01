@@ -190,5 +190,80 @@ class TestPawnEvaluator(unittest.TestCase):
             MoveNotLegalError, self.c._pawn_evaluator, self.groups)
 
 
+class TestRookEvaluator(unittest.TestCase):
+    """Test the rook evaluator."""
+    def setUp(self):
+        self.c = ChessnutGame()
+        self.groups = {
+            'piece': 'R',
+            'dest': None,
+            'rank': None,
+            'file': None,
+            'capture': None,
+            'check': None,
+            'checkmate': None,
+        }
+
+
+class TestKnightEvaluator(unittest.TestCase):
+    """Test the knight evaluator."""
+    def setUp(self):
+        self.c = ChessnutGame()
+        self.groups = {
+            'piece': 'N',
+            'dest': None,
+            'rank': None,
+            'file': None,
+            'capture': None,
+            'check': None,
+            'checkmate': None,
+        }
+
+
+class TestBishopEvaluator(unittest.TestCase):
+    """Test the bishop evaluator."""
+    def setUp(self):
+        self.c = ChessnutGame()
+        self.groups = {
+            'piece': 'B',
+            'dest': None,
+            'rank': None,
+            'file': None,
+            'capture': None,
+            'check': None,
+            'checkmate': None,
+        }
+
+
+class TestQueenEvaluator(unittest.TestCase):
+    """Test the queen evaluator."""
+    def setUp(self):
+        self.c = ChessnutGame()
+        self.groups = {
+            'piece': 'Q',
+            'dest': None,
+            'rank': None,
+            'file': None,
+            'capture': None,
+            'check': None,
+            'checkmate': None,
+        }
+
+
+class TestKingEvaluator(unittest.TestCase):
+    """Test the king evaluator."""
+    def setUp(self):
+        self.c = ChessnutGame()
+        self.groups = {
+            'piece': 'K',
+            'dest': None,
+            'rank': None,
+            'file': None,
+            'capture': None,
+            'check': None,
+            'checkmate': None,
+        }
+
+
 if __name__ == '__main__':
     unittest.main()
