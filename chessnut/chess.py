@@ -155,10 +155,27 @@ class ChessnutGame(object):
 
         #Compile a list of rooks that could make the given move.
         pieces = []
-        if not groups['capture']:
-            pass
-        else:
-            pass
+
+        #Check whether there's already a piece at the destination cell.
+        if self.board[drow][dcol] != (0, 0):
+            if self.board[drow][dcol][1] == self.turn or \
+                    not groups['capture']:
+                raise MoveNotLegalError
+
+        #Look for rooks in each of the four horizontal directions from
+        #the destination cell.
+        for rowmod, colmod in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
+            row, col = drow, dcol
+            while True:
+                row += rowmod
+                col += colmod
+                try:
+                    if self.board[row][col] != (0, 0):
+                        if self.board[row][col] == ('R', self.turn):
+                            pieces.append((row, col))
+                        break
+                except IndexError:
+                    break
 
         if not pieces:
             raise MoveNotLegalError
@@ -178,7 +195,39 @@ class ChessnutGame(object):
         """Return the coordinates of the bishop that will be making the
         move specified.
         """
-        raise MoveNotLegalError
+        dcol, drow = self._pgn_move_to_coords(groups['dest'])
+
+        #Compile a list of rooks that could make the given move.
+        pieces = []
+
+        #Check whether there's already a piece at the destination cell.
+        if self.board[drow][dcol] != (0, 0):
+            if self.board[drow][dcol][1] == self.turn or \
+                    not groups['capture']:
+                raise MoveNotLegalError
+
+        #Look for bishops in each of the four diagonal directions from
+        #the destination cell.
+        for rowmod, colmod in [(-1, -1), (1, -1), (-1, 1), (1, 1)]:
+            row, col = drow, dcol
+            while True:
+                row += rowmod
+                col += colmod
+                try:
+                    if self.board[row][col] != (0, 0):
+                        if self.board[row][col] == ('B', self.turn):
+                            pieces.append((row, col))
+                        break
+                except IndexError:
+                    break
+
+        if not pieces:
+            raise MoveNotLegalError
+
+        orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
+        ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
+
+        return self._evaluate_rank_and_file(pieces, orow, ocol)
 
     def _king_evaluator(self, groups):
         """Return the coordinates of the king that will be making the
@@ -190,7 +239,40 @@ class ChessnutGame(object):
         """Return the coordinates of the queen that will be making the
         move specified.
         """
-        raise MoveNotLegalError
+        dcol, drow = self._pgn_move_to_coords(groups['dest'])
+
+        #Compile a list of rooks that could make the given move.
+        pieces = []
+
+        #Check whether there's already a piece at the destination cell.
+        if self.board[drow][dcol] != (0, 0):
+            if self.board[drow][dcol][1] == self.turn or \
+                    not groups['capture']:
+                raise MoveNotLegalError
+
+        #Look for queens in each of the four diagonal directions and each
+        #of the four diagonal directions from the destination cell.
+        for rowmod, colmod in [(-1, -1), (1, -1), (-1, 1), (1, 1),
+                               (-1, 0), (1, 0), (0, 1), (0, -1)]:
+            row, col = drow, dcol
+            while True:
+                row += rowmod
+                col += colmod
+                try:
+                    if self.board[row][col] != (0, 0):
+                        if self.board[row][col] == ('Q', self.turn):
+                            pieces.append((row, col))
+                        break
+                except IndexError:
+                    break
+
+        if not pieces:
+            raise MoveNotLegalError
+
+        orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
+        ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
+
+        return self._evaluate_rank_and_file(pieces, orow, ocol)
 
     def _evaluate_rank_and_file(self, pieces, orow, ocol):
         """Given a list of pieces that could potentially make any given
