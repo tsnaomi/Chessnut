@@ -4,11 +4,11 @@ from chess import ChessnutGame, MoveNotLegalError
 
 class TestRookEvaluator(unittest.TestCase):
     """Test the rook evaluator and the horizontal component of the queen
-    evaluator."""
+    evaluator (as they share the same logic)."""
     def setUp(self):
         self.c = ChessnutGame()
         self.groups = {
-            'piece': 'R',
+            'piece': None,
             'dest': None,
             'rank': None,
             'file': None,
@@ -17,73 +17,85 @@ class TestRookEvaluator(unittest.TestCase):
             'checkmate': None,
         }
 
-    def test_move_rook_forward(self):
-        """Move a rook forward several spaces and assert that this move
-        is determined legal.
+    def test_move_horizontally_one_space(self):
+        """Move a rook (or queen) horizontally one space and assert that
+        this move is determined legal.
         """
-        pass
+        for piece in [('R', True), ('R', False), ('Q', True), ('Q', False)]:
+            self.groups['piece'] = piece[0]
+            evaluator = self.c._get_evaluator(piece[0])
+            self.c.turn = piece[1]
+            self.c.board[4][4] = piece
+            for dest in ['e3', 'e5', 'd4', 'f4']:
+                self.groups['dest'] = dest
+                self.assertEqual(evaluator(self.groups), (4, 4))
 
-    def test_move_rook_backward(self):
-        """Move a rook backward several spaces and assert that this move
-        is determined legal.
+    def test_move_horizontally_several_spaces(self):
+        """Move a rook (or queen) horizontally several spaces and assert
+        that this move is determined legal.
         """
-        pass
+        self.c.board[1] = [(0, 0) for i in range(8)]
+        self.c.board[6] = [(0, 0) for i in range(8)]
+        for piece in [('R', True), ('R', False), ('Q', True), ('Q', False)]:
+            self.groups['piece'] = piece[0]
+            evaluator = self.c._get_evaluator(piece[0])
+            self.c.turn = piece[1]
+            self.c.board[4][4] = piece
+            for dest in ['e2', 'e6', 'c4', 'g4']:
+                self.groups['dest'] = dest
+                self.assertEqual(evaluator(self.groups), (4, 4))
 
-    def test_move_rook_left(self):
-        """Move a rook left several spaces and assert that this move is
-        determined legal.
+    def test_move_horizontally_blocked_space(self):
+        """Attempt to move a rook (or queen) horizontally to a space
+        that is blocked and assert that the move is determined illegal.
         """
-        pass
+        for piece in [('R', True), ('R', False), ('Q', True), ('Q', False)]:
+            for i in [3, 4, 5]:
+                for j in [3, 4, 5]:
+                    self.c.board[i][j] = ('P', piece[1])
+            self.groups['piece'] = piece[0]
+            evaluator = self.c._get_evaluator(piece[0])
+            self.c.turn = piece[1]
+            self.c.board[4][4] = piece
+            for dest in ['e3', 'e5', 'd4', 'f4']:
+                self.groups['dest'] = dest
+                self.assertRaises(MoveNotLegalError, evaluator, self.groups)
 
-    def test_move_rook_right(self):
-        """Move a rook right several spaces and assert that this move is
-        determined legal.
+    def test_move_horizontally_blocked_path(self):
+        """Attempt to move a rook (or queen) horizontally to a space the
+        path to which is blocked and assert that the move is determined
+        illegal.
         """
-        pass
+        self.c.board[1] = [(0, 0) for i in range(8)]
+        self.c.board[6] = [(0, 0) for i in range(8)]
+        for piece in [('R', True), ('R', False), ('Q', True), ('Q', False)]:
+            for i in [3, 4, 5]:
+                for j in [3, 4, 5]:
+                    self.c.board[i][j] = ('P', piece[1])
+            self.groups['piece'] = piece[0]
+            evaluator = self.c._get_evaluator(piece[0])
+            self.c.turn = piece[1]
+            self.c.board[4][4] = piece
+            for dest in ['e2', 'e6', 'c4', 'g4']:
+                self.groups['dest'] = dest
+                self.assertRaises(MoveNotLegalError, evaluator, self.groups)
 
-    def test_move_rook_forward_blocked(self):
-        """Try to move a rook forward to a space it is blocked from
-        reaching and assert that this move is determined illegal.
+    def test_capture_horizontally(self):
+        """Attempt to capture horizontally with a rook (or queen) and
+        assert that the move is determined legal.
         """
-        pass
-
-    def test_move_rook_backward_blocked(self):
-        """Try to move a rook backward to a space it is blocked from
-        reaching and assert that this move is determined illegal.
-        """
-        pass
-
-    def test_move_rook_left_blocked(self):
-        """Try to move a rook left to a space it is blocked from
-        reaching and assert that this move is determined illegal.
-        """
-        pass
-
-    def test_move_rook_right_blocked(self):
-        """Try to move a rook right to a space it is blocked from
-        reaching and assert that this move is determined illegal.
-        """
-        pass
-
-    def test_capture_rook_forward(self):
-        """Capture a piece in front of a rook and assert that this move
-        is determined legal.
-        """
-
-    def test_capture_rook_backward(self):
-        """Capture a piece behind a rook and assert that this move is
-        determined legal.
-        """
-
-    def test_capture_rook_left(self):
-        """Capture a piece to a rook's left and assert that this move is
-        determined legal.
-        """
-
-    def test_capture_rook_right(self):
-        """Capture a piece to a rook's right and assert that this move
-        is determined legal.
-        """
+        self.groups['capture'] = 'x'
+        for piece in [('R', True), ('R', False), ('Q', True), ('Q', False)]:
+            for i in [3, 4, 5]:
+                for j in [3, 4, 5]:
+                    self.c.board[i][j] = ('P', not piece[1])
+            self.groups['piece'] = piece[0]
+            evaluator = self.c._get_evaluator(piece[0])
+            self.c.turn = piece[1]
+            self.c.board[4][4] = piece
+            for dest in ['e3', 'e5', 'd4', 'f4']:
+                self.groups['dest'] = dest
+                self.assertEqual(evaluator(self.groups), (4, 4))
 
 
 if __name__ == '__main__':
