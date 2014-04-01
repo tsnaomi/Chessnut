@@ -189,7 +189,38 @@ class ChessnutGame(object):
         """Return the coordinates of the knight that will be making the
         move specified.
         """
-        raise MoveNotLegalError
+        dcol, drow = self._pgn_move_to_coords(groups['dest'])
+
+        #Compile a list of knights that could make the given move.
+        pieces = []
+
+        #Check whether there's already a piece at the destination cell.
+        if self.board[drow][dcol] != (0, 0) and \
+                (self.board[drow][dcol][1] == self.turn or
+                 not groups['capture']):
+            raise MoveNotLegalError
+
+        #Look for knights in each of the legal spaces surrounding the
+        #destination cell.
+        for rowmod, colmod in [(-2, -1), (-2, 1), (2, -1), (2, 1),
+                               (-1, -2), (-1, 2), (1, -2), (1, 2)]:
+            row, col = drow, dcol
+            row += rowmod
+            col += colmod
+            try:
+                if self.board[row][col] != (0, 0):
+                    if self.board[row][col] == ('N', self.turn):
+                        pieces.append((row, col))
+            except IndexError:
+                pass
+
+        if not pieces:
+            raise MoveNotLegalError
+
+        orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
+        ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
+
+        return self._evaluate_rank_and_file(pieces, orow, ocol)
 
     def _bishop_evaluator(self, groups):
         """Return the coordinates of the bishop that will be making the
