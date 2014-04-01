@@ -88,16 +88,75 @@ class TestKnightEvaluator(unittest.TestCase):
         """Move a knight forward 2 then right 1 when another piece blocks
         that location and assert that this move is determined illegal.
         """
+        self.c.board[5][0] = ('P', True)
+        self.groups['dest'] = 'a3'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
+        self.c.board[5][2] = ('P', True)
+        self.groups['dest'] = 'c3'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
+        self.c.turn = False
+        self.c.board[2][0] = ('P', False)
+        self.groups['dest'] = 'a6'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
+        self.c.board[2][2] = ('P', False)
+        self.groups['dest'] = 'c6'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
 
     def test_move_knight_backward_blocked(self):
         """Move a knight backward 2 then right 1 when another piece blocks
         that location and assert that this move is determined illegal.
         """
+        self.c.board[3][1] = ('N', True)
+        self.c.board[7][1] = (0, 0)
+        self.c.board[5][0] = ('P', True)
+        self.groups['dest'] = 'a3'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
+        self.c.board[5][2] = ('P', True)
+        self.groups['dest'] = 'c3'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
+        self.c.turn = False
+        self.c.board[4][1] = ('N', False)
+        self.c.board[0][1] = (0, 0)
+        self.c.board[2][0] = ('P', False)
+        self.groups['dest'] = 'a6'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
+        self.c.board[2][2] = ('P', False)
+        self.groups['dest'] = 'c6'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
 
     def test_move_knight_left_blocked(self):
         """Move a knight left 2 then up 1 when another piece blocks
         that location and assert that this move is determined illegal.
         """
+        self.c.board[3][2] = ('N', True)
+        self.c.board[7][1] = (0, 0)
+        self.c.board[4][0] = ('P', True)
+        self.groups['dest'] = 'a4'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
+        self.c.board[2][0] = ('P', True)
+        self.groups['dest'] = 'a6'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
+        self.c.turn = False
+        self.c.board[4][2] = ('N', False)
+        self.c.board[0][1] = (0, 0)
+        self.c.board[5][0] = ('P', False)
+        self.groups['dest'] = 'a3'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
+        self.c.board[3][0] = ('P', False)
+        self.groups['dest'] = 'a5'
+        self.assertRaises(
+            MoveNotLegalError, self.c._knight_evaluator, self.groups)
 
     def test_move_knight_right_blocked(self):
         """Move a knight right 2 then up 1 when another piece blocks
