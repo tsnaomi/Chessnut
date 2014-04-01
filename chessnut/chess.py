@@ -157,10 +157,10 @@ class ChessnutGame(object):
         pieces = []
 
         #Check whether there's already a piece at the destination cell.
-        if self.board[drow][dcol] != (0, 0):
-            if self.board[drow][dcol][1] == self.turn or \
-                    not groups['capture']:
-                raise MoveNotLegalError
+        if self.board[drow][dcol] != (0, 0) and \
+                (self.board[drow][dcol][1] == self.turn or
+                 not groups['capture']):
+            raise MoveNotLegalError
 
         #Look for rooks in each of the four horizontal directions from
         #the destination cell.
@@ -201,10 +201,10 @@ class ChessnutGame(object):
         pieces = []
 
         #Check whether there's already a piece at the destination cell.
-        if self.board[drow][dcol] != (0, 0):
-            if self.board[drow][dcol][1] == self.turn or \
-                    not groups['capture']:
-                raise MoveNotLegalError
+        if self.board[drow][dcol] != (0, 0) and \
+                (self.board[drow][dcol][1] == self.turn or
+                 not groups['capture']):
+            raise MoveNotLegalError
 
         #Look for bishops in each of the four diagonal directions from
         #the destination cell.
@@ -233,7 +233,39 @@ class ChessnutGame(object):
         """Return the coordinates of the king that will be making the
         move specified.
         """
-        raise MoveNotLegalError
+        dcol, drow = self._pgn_move_to_coords(groups['dest'])
+
+        #Compile a list of rooks that could make the given move.
+        pieces = []
+
+        #Check whether there's already a piece at the destination cell.
+        if self.board[drow][dcol] != (0, 0) and \
+                (self.board[drow][dcol][1] == self.turn or
+                 not groups['capture']):
+            raise MoveNotLegalError
+
+        #Look for kings in a single space in each of the four horizontal
+        #directions and each of the four diagonal directions from the
+        #destination cell.
+        for rowmod, colmod in [(-1, -1), (1, -1), (-1, 1), (1, 1),
+                               (-1, 0), (1, 0), (0, 1), (0, -1)]:
+            row, col = drow, dcol
+            row += rowmod
+            col += colmod
+            try:
+                if self.board[row][col] != (0, 0):
+                    if self.board[row][col] == ('K', self.turn):
+                        pieces.append((row, col))
+            except IndexError:
+                pass
+
+        if not pieces:
+            raise MoveNotLegalError
+
+        orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
+        ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
+
+        return self._evaluate_rank_and_file(pieces, orow, ocol)
 
     def _queen_evaluator(self, groups):
         """Return the coordinates of the queen that will be making the
@@ -245,13 +277,13 @@ class ChessnutGame(object):
         pieces = []
 
         #Check whether there's already a piece at the destination cell.
-        if self.board[drow][dcol] != (0, 0):
-            if self.board[drow][dcol][1] == self.turn or \
-                    not groups['capture']:
-                raise MoveNotLegalError
+        if self.board[drow][dcol] != (0, 0) and \
+                (self.board[drow][dcol][1] == self.turn or
+                 not groups['capture']):
+            raise MoveNotLegalError
 
-        #Look for queens in each of the four diagonal directions and each
-        #of the four diagonal directions from the destination cell.
+        #Look for queens in each of the four horizontal directions and
+        #each of the four diagonal directions from the destination cell.
         for rowmod, colmod in [(-1, -1), (1, -1), (-1, 1), (1, 1),
                                (-1, 0), (1, 0), (0, 1), (0, -1)]:
             row, col = drow, dcol
