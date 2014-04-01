@@ -130,10 +130,10 @@ class TestEvaluateRankAndFile(unittest.TestCase):
         have not been given, assert that an exception is raised.
         """
         pieces = [(1, 1), (1, 2)]
-        self.assertRaisess(
+        self.assertRaises(
             MoveAmbiguousError,
             self.c._evaluate_rank_and_file,
-            (pieces, None, None)
+            pieces, None, None
         )
 
     def test_rank_restriction_one_piece(self):
@@ -147,7 +147,7 @@ class TestEvaluateRankAndFile(unittest.TestCase):
         self.assertRaises(
             MoveAmbiguousError,
             self.c._evaluate_rank_and_file,
-            (pieces, 3, None)
+            pieces, 3, None
         )
 
     def test_rank_restriction_multiple_pieces(self):
@@ -161,13 +161,13 @@ class TestEvaluateRankAndFile(unittest.TestCase):
         self.assertRaises(
             MoveAmbiguousError,
             self.c._evaluate_rank_and_file,
-            (pieces, 3, None)
+            pieces, 3, None
         )
         pieces.append((1, 2))
         self.assertRaises(
             MoveAmbiguousError,
             self.c._evaluate_rank_and_file,
-            (pieces, 1, None)
+            pieces, 1, None
         )
 
     def test_file_restriction_one_piece(self):
@@ -181,7 +181,7 @@ class TestEvaluateRankAndFile(unittest.TestCase):
         self.assertRaises(
             MoveAmbiguousError,
             self.c._evaluate_rank_and_file,
-            (pieces, None, 3)
+            pieces, None, 3
         )
 
     def test_file_restriction_multiple_pieces(self):
@@ -195,13 +195,13 @@ class TestEvaluateRankAndFile(unittest.TestCase):
         self.assertRaises(
             MoveAmbiguousError,
             self.c._evaluate_rank_and_file,
-            (pieces, None, 3)
+            pieces, None, 3
         )
         pieces.append((2, 1))
         self.assertRaises(
             MoveAmbiguousError,
             self.c._evaluate_rank_and_file,
-            (pieces, None, 1)
+            pieces, None, 1
         )
 
     def test_rank_and_file_restriction_one_piece(self):
@@ -215,17 +215,17 @@ class TestEvaluateRankAndFile(unittest.TestCase):
         self.assertRaises(
             MoveAmbiguousError,
             self.c._evaluate_rank_and_file,
-            (pieces, 1, 3)
+            pieces, 1, 3
         )
         self.assertRaises(
             MoveAmbiguousError,
             self.c._evaluate_rank_and_file,
-            (pieces, 3, 1)
+            pieces, 3, 1
         )
         self.assertRaises(
             MoveAmbiguousError,
             self.c._evaluate_rank_and_file,
-            (pieces, 3, 3)
+            pieces, 3, 3
         )
 
     def test_rank_and_file_restriction_multiple_pieces(self):
@@ -242,7 +242,7 @@ class TestEvaluateRankAndFile(unittest.TestCase):
         self.assertRaises(
             MoveAmbiguousError,
             self.c._evaluate_rank_and_file,
-            (pieces, 3, 3)
+            pieces, 3, 3
         )
 
 
