@@ -402,9 +402,46 @@ class TestIsCheck(unittest.TestCase):
             for piece, row, col in pieces:
                 self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
                 self.c.board[row][col] = (piece, not turn)
-                print "checking %s" % piece
-                #import pdb; pdb.set_trace()
                 self.assertFalse(self.c._is_check(4, 4))
+
+
+class TestIsCheckmate(unittest.TestCase):
+    """Test the _is_checkmate function."""
+    def setUp(self):
+        self.c = ChessnutGame()
+
+    def test_is_checkmate_empty_board(self):
+        """Completely empty the board and assert that no space registers
+        as checkmate.
+        """
+        self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
+        for i in range(8):
+            for j in range(8):
+                self.assertFalse(self.c._is_checkmate(i, j))
+
+    def test_is_checkmate_all_threatened(self):
+        """Place a row of enemy queens along one side of the board and
+        verify that every space registers as checkmated for the relevant
+        player.
+        """
+        self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
+        for turn in [True, False]:
+            self.c.board[0] = [('Q', not turn) for i in range(8)]
+            self.c.turn = turn
+            for i in range(8):
+                for j in range(8):
+                    self.assertTrue(self.c._is_checkmate(i, j))
+
+    def test_stalemate_is_not_checkmate(self):
+        """Create a stalemate and assert that it does not register as a
+        checkmate.
+        """
+        self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
+        for turn in [True, False]:
+            self.c.turn = turn
+            self.c.board[0][0] = ('K', turn)
+            self.c.board[2][1] = ('Q', not turn)
+            self.assertFalse(self.c._is_checkmate(0, 0))
 
 
 if __name__ == '__main__':

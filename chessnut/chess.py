@@ -557,14 +557,25 @@ class ChessnutGame(object):
         """Determines whether the space denoted by the given row and
         column is currently under checkmate.
         """
+        #If any space surrounding the king can be moved to without putting
+        #the king in check, we do not have a checkmate. The space on which
+        #the king rests is included; it evaluates to False when we check
+        #if we can move there, so doesn't harm anything.
         for i in range(row - 1, row + 2):
+            if i < 0:
+                continue
             for j in range(col - 1, col + 2):
+                if j < 0:
+                    continue
                 try:
-                    if self.board[i][j] == (0, 0) and not self._is_check(i, j):
+                    if self.board[i][j][1] != self.turn and \
+                            not self._is_check(i, j):
                         return False
                 except (IndexError, ValueError):
                     pass
 
+        #If the king cannot move anywhere, but is safe on its current square,
+        #we do not have a checkmate (but we might have a stalemate).
         if not self._is_check(row, col):
             return False
 
