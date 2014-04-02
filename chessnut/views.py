@@ -6,15 +6,23 @@ from .models import (
     )
 import tweepy
 from pyramid.httpexceptions import HTTPFound
+from apscheduler.scheduler import Scheduler
+from gevent.queue import Queue as gqueue
+
+sched = Scheduler()
+sched.start()
+
+consumer_key =
+consumer_secret =
+
+move_queue = gqueue()
+
+# @sched.interval_schedule(seconds=90)
 
 
 @view_config(route_name='index', renderer='base.jinja2')
 def test_view(request):
     return {}
-
-
-consumer_key = 'key'
-consumer_secret = 'secret'
 
 
 @view_config(route_name='login', renderer='string')
@@ -41,6 +49,7 @@ def tw_auth(request):
     session = request.session
     verifier = request.GET.get('oauth_verifier')
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    api = tweepy.API(auth)
     token = session.get('request_token')
     del request.session['request_token']
     auth.set_request_token(token[0], token[1])
@@ -52,11 +61,12 @@ def tw_auth(request):
 
     key = auth.access_token.key
     secret = auth.access_token.secret
+    twuser = api.me()
 
     user = TwUser.get_by_secret(secret)
 
     if not user:
-        user = TwUser(key, secret)
+        user = TwUser(key, secret, twuser.id)
         DBSession.add(user)
 
     user = TwUser.get_by_secret(secret)
@@ -74,14 +84,12 @@ def logout(request):
     return "Logged out, bra"
 
 
-@view_config(route_name='post', renderer='string')
-def test_post(request):
-    if request.session.get('user_id', 0):
-        user = TwUser.get_by_id(request.session['user_id'])
-        key, secret = user.key, user.secret
-        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-        auth.set_access_token(key, secret)
-        api = tweepy.API(auth)
-        api.update_status("test session management")
-        return "Success"
-    return "Not Logged in"
+@view_config(route_name='mentions', renderer='string')
+def get_moves(request):
+    user = TwUser.get_by_id(1)
+    key, secret = user.key, user.secret
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(key, secret)
+    api = tweepy.API(auth)
+    import pdb; pdb.set_trace()
+    return api.mentions()

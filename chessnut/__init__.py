@@ -43,6 +43,6 @@ def main(global_config, **settings):
     config.add_route('twauth', '/twauth')
     config.add_route('index', '/index')
     config.add_route('register', '/register')
-    config.add_route('post', '/post')
+    config.add_route('mentions', '/mentions')
     config.scan()
     return config.make_wsgi_app()

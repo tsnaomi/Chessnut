@@ -5,6 +5,7 @@ from sqlalchemy import (
     Unicode,
     DateTime,
     ForeignKey,
+    BigInteger,
     )
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -84,10 +85,12 @@ class TwUser(Base):
     id = Column(Integer, primary_key=True)
     key = Column(Unicode(80))
     secret = Column(Unicode(80))
+    user_id = Column(BigInteger)
 
-    def __init__(self, key, secret):
+    def __init__(self, key, secret, user_id):
         self.key = key
         self.secret = secret
+        self.user_id = user_id
 
     @classmethod
     def get_by_id(cls, id):
@@ -96,6 +99,10 @@ class TwUser(Base):
     @classmethod
     def get_by_secret(cls, secret):
         return DBSession.query(cls).filter(cls.secret == secret).first()
+
+    @classmethod
+    def get_by_user_id(cls, user_id):
+        return DBSession.query(cls).filter(cls.user_id == user_id).first()
 
 
 class Game(Base):
