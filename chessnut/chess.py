@@ -14,11 +14,18 @@ class ChessnutGame(object):
         #False means black's turn, True means white's.
         self.turn = True
 
+        self.is_over = False
+        self.winner = None
+
         #Keep track of whether each player can queenside or kingside castle
         self.white_kingside = True
         self.white_queenside = True
         self.black_kingside = True
         self.black_queenside = True
+
+        #Keep track of where the king currently is for each player.
+        self.white_king = (7, 4)
+        self.black_king = (0, 4)
 
         self.move_count = 0
         self.board = self._initialize_chessboard()
@@ -39,6 +46,9 @@ class ChessnutGame(object):
         it, if legal. Set attributes on the class representing the changed
         state of the game.
         """
+        if self.is_over:
+            raise GameOverError
+
         #Attempt to parse the SAN notation.
         match = re.match(
             r'^(?P<piece>[RNBKQP])?(?P<file>[a-z])?(?P<rank>\d)?(?P<capture>x)?(?P<dest>\w\d)(?P<check>\+)?(?P<checkmate>#)?$',
@@ -62,7 +72,34 @@ class ChessnutGame(object):
 
             self.board[orow][ocol], self.board[drow][dcol] = (0, 0), self.board[orow][ocol]
 
-            #TO DO: en passant capture, stalemate
+            #If the king was just moved, update its position.
+            if groups['piece'] == 'K' and self.turn:
+                self.white_king = (drow, dcol)
+            elif groups['piece'] == 'K':
+                self.black_king = (drow, dcol)
+
+            #If, at the end of any move, either king is under checkmate,
+            #then the game is over.
+            if self._is_checkmate(*self.white_king):
+                self.is_over = True
+                self.winner = False
+            if self._is_checkmate(*self.black_king):
+                self.is_over = True
+                self.winner = True
+
+            #If, at the end of any move, that player's king is under
+            #check, then that move was illegal. The player must act to
+            #take their king out of check.
+            if self.turn and self._is_check(*self.white_king):
+                raise MoveNotLegalError(
+                    "Player's king was under check at the end of their turn.")
+            elif self._is_check(*self.black_king):
+                raise MoveNotLegalError(
+                    "Player's king was under check at the end of their turn.")
+
+            #TO DO: en passant capture, stalemate, end game on checkmate,
+            #forfeit, promotion, check legality of a move based on whether
+            #the king is checked.
 
             #Keep track of whether or not each player is still allowed to
             #castle. The first time a piece is moved from these locations,
@@ -494,9 +531,9 @@ class ChessnutGame(object):
             if self.board[row][col] != (0, 0):
                 raise MoveNotLegalError
 
-        # for col in [2, 3, 4]:
-        #     if self._is_check(row, col):
-        #         raise MoveNotLegalError
+        for col in [2, 3, 4]:
+            if self._is_check(row, col):
+                raise MoveNotLegalError
 
         self.board[row][4], self.board[row][0] = (0, 0), (0, 0)
         self.board[row][2], self.board[row][3] = \
@@ -519,9 +556,9 @@ class ChessnutGame(object):
             if self.board[row][col] != (0, 0):
                 raise MoveNotLegalError
 
-        # for col in [4, 5, 6]:
-        #     if self._is_check(row, col):
-        #         raise MoveNotLegalError
+        for col in [4, 5, 6]:
+            if self._is_check(row, col):
+                raise MoveNotLegalError
 
         self.board[row][4], self.board[row][7] = (0, 0), (0, 0)
         self.board[row][6], self.board[row][5] = \
@@ -745,5 +782,12 @@ class MoveAmbiguousError(ChessnutError):
 class NotationParseError(ChessnutError):
     """Exception raised when a player submits chess notation that the
     game logic can't parse.
+    """
+    pass
+
+
+class GameOverError(ChessnutError):
+    """Exception raised when we try to evaluate a move, but this game
+    has ended.
     """
     pass
