@@ -8,6 +8,8 @@ class ChessnutGame(object):
         """Takes as argument the game referenced (possibly as a PGN)
         string - details TBD.
         """
+        game = game.rstrip()
+
         #False means black's turn, True means white's.
         self.turn = True
 
@@ -17,58 +19,28 @@ class ChessnutGame(object):
         self.black_kingside = True
         self.black_queenside = True
 
+        self.move_count = 0
+        self.board = self._initialize_chessboard()
+        self.pgn = game
+        self.image_string = None
+
         if game is not None:
-            self.pgn = game
-            self.board = self._pgn_to_board(game)
-            self.image_string = None
-        else:
-            self.pgn = None
-            self.board = self._initialize_chessboard()
-            self.image_string = None
+            self._reconstruct_incoming_game(game)
 
     def __call__(self, move):
         """Takes as its argument the move being attempted an evaluates
         that move, making it if it's legal.
         """
-        self._evaluate_move(move)
+        self.evaluate_move(move)
 
-    def _pgn_to_board(self, game):
-        """Converts PGN notation to a 2D array representing board state."""
-        self.board = self._initialize_chessboard()
-        moves = re.split(r'\s?\d+\.\s', self.pgn)
-
-        self.move_count = 0
-        for move in moves:
-            self.move_count += 1
-            half_moves = move.split()
-
-            for half_move in half_moves:
-                self._evaluate_move(half_move)
-
-            if len(half_moves) == 1:
-                self.turn = False
-
-    def _board_to_image_string(self):
-        """Converts the board state to an image string."""
-        string = ''
-        for row in self.board:
-            for cell in row:
-                if cell[1] is False:
-                    string += cell[0].lower()
-                elif cell[1] is True:
-                    string += cell[0]
-                else:
-                    string += str(cell[0])
-
-        return string
-
-    def _evaluate_move(self, move):
+    def evaluate_move(self, move):
         """Take in a move in PGN/SAN notation, evaluate it, and perform
-        it, if legal.
+        it, if legal. Set attributes on the class representing the changed
+        state of the game.
         """
         #Attempt to parse the SAN notation.
         match = re.match(
-            r'(?P<piece>[RNBKQP])?(?P<file>[a-z])?(?P<rank>\d)?(?P<capture>x)?(?P<dest>\w\d)(?P<check>+)?(?P<checkmate>#)?',
+            r'^(?P<piece>[RNBKQP])?(?P<file>[a-z])?(?P<rank>\d)?(?P<capture>x)?(?P<dest>\w\d)(?P<check>+)?(?P<checkmate>#)?$',
             move
         )
 
@@ -110,18 +82,64 @@ class ChessnutGame(object):
             elif (orow, ocol) == (7, 7):
                 self.white_kingside = False
 
+            #Construct an image string representing this board state and
+            #the move just made.
+            self.image_string = "%s%s%s%s%s" % \
+                (self._board_to_image_string(), orow, ocol, drow, dcol)
+
         if not match:
             match = re.match(r'[0O]-[0O]-[0O]', move)
             if match:
                 self._queenside_evaluator()
+
+            self.image_string = "%s%sQC" % \
+                (self._board_to_image_string(), ('W' if self.turn else 'B'))
 
         if not match:
             match = re.match(r'[0O]-[0O]', move)
             if match:
                 self._kingside_evaluator()
 
+            self.image_string = "%s%sKC" % \
+                (self._board_to_image_string(), ('W' if self.turn else 'B'))
+
         if not match:
             raise NotationParseError
+
+        #If we made a legal move, update the pgn game-state string.
+        prefix = (" %s. " % str(self.move_count + 1)) if self.turn else " "
+        self.pgn += "%s%s" % (prefix, move)
+
+    def _reconstruct_incoming_game(self, game):
+        """Walks through the PGN-represented game used to instantiate
+        this game object and performs every move annotated, reconstructing
+        a game in the state proscribed.
+        """
+        moves = re.split(r'\s?\d+\.\s', game)
+
+        for move in moves:
+            self.move_count += 1
+            half_moves = move.split()
+
+            for half_move in half_moves:
+                self.evaluate_move(half_move)
+
+            if len(half_moves) == 1:
+                self.turn = False
+
+    def _board_to_image_string(self):
+        """Converts the board state to an image string."""
+        string = ''
+        for row in self.board:
+            for cell in row:
+                if cell[1] is False:
+                    string += cell[0].lower()
+                elif cell[1] is True:
+                    string += cell[0]
+                else:
+                    string += str(cell[0])
+
+        return string
 
     def _get_evaluator(self, piece):
         """Return the appropriate evaluator callable for the piece passed
