@@ -349,6 +349,63 @@ class TestIsCheck(unittest.TestCase):
             for j in range(8):
                 self.assertFalse(self.c._is_check(i, j))
 
+    def test_is_check_all_threatened(self):
+        """Place a row of enemy queens along one side of the board and
+        verify that every space registers as checked for the relevant
+        player.
+        """
+        self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
+        for turn in [True, False]:
+            self.c.board[0] = [('Q', not turn) for i in range(8)]
+            self.c.turn = turn
+            for i in range(8):
+                for j in range(8):
+                    self.assertTrue(self.c._is_check(i, j))
+
+    def test_is_check_each_piece(self):
+        """Select a single spot on the board and check it with each of
+        the different pieces, asserting that it registers as checked each
+        time.
+        """
+        pieces = [
+            ('R', 4, 0),
+            ('B', 0, 0),
+            ('N', 2, 3),
+            ('Q', 4, 0),
+            ('K', 3, 3),
+            ()
+        ]
+        for turn in [True, False]:
+            pieces[5] = ('P', 3 if turn else 5, 3)
+            self.c.turn = turn
+            for piece, row, col in pieces:
+                self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
+                self.c.board[row][col] = (piece, not turn)
+                self.assertTrue(self.c._is_check(4, 4))
+
+    def test_is_check_not_each_piece(self):
+        """Select a single spot on the board and place one of each of the
+        different pieces at a space around it that doesn't check it, and
+        assert that it never registers as checked.
+        """
+        pieces = [
+            ('R', 3, 0),
+            ('B', 0, 1),
+            ('N', 2, 2),
+            ('Q', 3, 0),
+            ('K', 2, 2),
+            ()
+        ]
+        for turn in [True, False]:
+            pieces[5] = ('P', 3 if turn else 5, 1)
+            self.c.turn = turn
+            for piece, row, col in pieces:
+                self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
+                self.c.board[row][col] = (piece, not turn)
+                print "checking %s" % piece
+                #import pdb; pdb.set_trace()
+                self.assertFalse(self.c._is_check(4, 4))
+
 
 if __name__ == '__main__':
     unittest.main()
