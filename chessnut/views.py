@@ -5,9 +5,10 @@ from .models import (
     TwUser,
     SinceId
     )
-from .moves import (
+from .twitter import (
     # get_moves,
     execute_moves,
+    media_tweet,
     # send_tweet,
     # send_error,
     )
@@ -19,7 +20,8 @@ from gevent.queue import Queue as gqueue
 sched = Scheduler()
 sched.start()
 
-
+consumer_key = ''
+consumer_secret = ''
 
 move_queue = gqueue()
 
@@ -98,5 +100,5 @@ def logout(request):
 
 @view_config(route_name='mentions', renderer='string')
 def get_move(request):
-    send_error(15854617, u'game2')
+    media_tweet()
     return "Sent, buddy"
