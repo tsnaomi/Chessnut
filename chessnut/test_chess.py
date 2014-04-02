@@ -238,12 +238,67 @@ class TestEvaluateRankAndFile(unittest.TestCase):
             self.assertEqual(
                 (row, col),
                 self.c._evaluate_rank_and_file(pieces, row, col)
-        )
+            )
         self.assertRaises(
             MoveNotLegalError,
             self.c._evaluate_rank_and_file,
             pieces, 3, 3
         )
+
+
+class TestCastlingEvaluators(unittest.TestCase):
+    """Test the castling logic evaluators."""
+    def setUp(self):
+        self.c = ChessnutGame()
+        self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
+        self.c.board[0][0] = ('R', False)
+        self.c.board[0][7] = ('R', False)
+        self.c.board[0][4] = ('K', False)
+        self.c.board[7][0] = ('R', True)
+        self.c.board[7][7] = ('R', True)
+        self.c.board[7][4] = ('K', True)
+
+    def test_perform_kingside_castling(self):
+        """Perform a kingside castle and assert that the move succeeds
+        and alters the board and game variables as expected.
+        """
+        self.c._kingside_evaluator()
+        self.assertEqual(self.c.board[7][6], ('K', True))
+        self.assertEqual(self.c.board[7][5], ('R', True))
+        self.assertEqual(self.c.board[7][4], (0, 0))
+        self.assertEqual(self.c.board[7][7], (0, 0))
+        self.assertFalse(self.c.white_kingside)
+        self.assertFalse(self.c.white_queenside)
+
+        self.c.turn = False
+        self.c._kingside_evaluator()
+        self.assertEqual(self.c.board[0][6], ('K', False))
+        self.assertEqual(self.c.board[0][5], ('R', False))
+        self.assertEqual(self.c.board[0][4], (0, 0))
+        self.assertEqual(self.c.board[0][7], (0, 0))
+        self.assertFalse(self.c.black_kingside)
+        self.assertFalse(self.c.black_queenside)
+
+    def test_perform_queenside_castling(self):
+        """Perform a queenside castle and assert that the move succeeds
+        and alters the board and game variables as expected.
+        """
+        self.c._queenside_evaluator()
+        self.assertEqual(self.c.board[7][2], ('K', True))
+        self.assertEqual(self.c.board[7][3], ('R', True))
+        self.assertEqual(self.c.board[7][4], (0, 0))
+        self.assertEqual(self.c.board[7][0], (0, 0))
+        self.assertFalse(self.c.white_kingside)
+        self.assertFalse(self.c.white_queenside)
+
+        self.c.turn = False
+        self.c._queenside_evaluator()
+        self.assertEqual(self.c.board[0][2], ('K', False))
+        self.assertEqual(self.c.board[0][3], ('R', False))
+        self.assertEqual(self.c.board[0][4], (0, 0))
+        self.assertEqual(self.c.board[0][0], (0, 0))
+        self.assertFalse(self.c.black_kingside)
+        self.assertFalse(self.c.black_queenside)
 
 
 if __name__ == '__main__':

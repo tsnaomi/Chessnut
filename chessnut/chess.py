@@ -79,7 +79,26 @@ class ChessnutGame(object):
 
             self.board[orow][ocol], self.board[drow][dcol] = (0, 0), self.board[orow][ocol]
 
-            #TO DO: castling, en passant capture, check and checkmate
+            #TO DO: en passant capture, check and checkmate
+
+            #Keep track of whether or not each player is still allowed to
+            #castle. The first time a piece is moved from these locations,
+            #the piece must be a king or a rook, so we take away the
+            #relevant castling privilege.
+            if (orow, ocol) == (0, 4):
+                self.white_kingside = False
+                self.white_queenside = False
+            elif (orow, ocol) == (7, 4):
+                self.black_kingside = False
+                self.black_queenside = False
+            elif (orow, ocol) == (0, 0):
+                self.black_queenside = False
+            elif (orow, ocol) == (0, 7):
+                self.black_kingside = False
+            elif (orow, ocol) == (7, 0):
+                self.white_queenside = False
+            elif (orow, ocol) == (7, 7):
+                self.white_kingside = False
 
         if not match:
             match = re.match(r'[0O]-[0O]-[0O]', move)
@@ -207,18 +226,7 @@ class ChessnutGame(object):
         orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
 
-        piece = self._evaluate_rank_and_file(pieces, orow, ocol)
-
-        if piece == (0, 0):
-            self.black_queenside = False
-        if piece == (0, 7):
-            self.black_kingside = False
-        if piece == (7, 0):
-            self.white_queenside = False
-        if piece == (7, 7):
-            self.white_kingside = False
-
-        return piece
+        return self._evaluate_rank_and_file(pieces, orow, ocol)
 
     def _knight_evaluator(self, groups):
         """Return the coordinates of the knight that will be making the
@@ -334,16 +342,7 @@ class ChessnutGame(object):
         orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
 
-        piece = self._evaluate_rank_and_file(pieces, orow, ocol)
-
-        if self.turn:
-            self.white_kingside = False
-            self.white_queenside = False
-        else:
-            self.black_kingside = False
-            self.black_queenside = False
-
-        return piece
+        return self._evaluate_rank_and_file(pieces, orow, ocol)
 
     def _queen_evaluator(self, groups):
         """Return the coordinates of the queen that will be making the
@@ -439,13 +438,13 @@ class ChessnutGame(object):
             if self.board[row][col] != (0, 0):
                 raise MoveNotLegalError
 
-        for col in [2, 3, 4]:
-            if self._is_check(row, col):
-                raise MoveNotLegalError
+        # for col in [2, 3, 4]:
+        #     if self._is_check(row, col):
+        #         raise MoveNotLegalError
 
         self.board[row][4], self.board[row][0] = (0, 0), (0, 0)
         self.board[row][2], self.board[row][3] = \
-            ('K', self.turn), ('R'. self.turn)
+            ('K', self.turn), ('R', self.turn)
 
         if self.turn:
             self.white_queenside, self.white_kingside = False, False
@@ -464,13 +463,13 @@ class ChessnutGame(object):
             if self.board[row][col] != (0, 0):
                 raise MoveNotLegalError
 
-        for col in [4, 5, 6]:
-            if self._is_check(row, col):
-                raise MoveNotLegalError
+        # for col in [4, 5, 6]:
+        #     if self._is_check(row, col):
+        #         raise MoveNotLegalError
 
         self.board[row][4], self.board[row][7] = (0, 0), (0, 0)
         self.board[row][6], self.board[row][5] = \
-            ('K', self.turn), ('R'. self.turn)
+            ('K', self.turn), ('R', self.turn)
 
         if self.turn:
             self.white_queenside, self.white_kingside = False, False
