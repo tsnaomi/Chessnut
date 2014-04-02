@@ -157,6 +157,22 @@ class TestPawnEvaluator(unittest.TestCase):
         """Attempt to capture a piece in front of a pawn and assert that
         this move is determined illegal.
         """
+        self.groups['capture'] = 'x'
+
+        self.c.board[5][1] = ('K', True)
+        self.groups['rank'] = '2'
+        self.groups['file'] = 'b'
+        self.groups['dest'] = 'b3'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
+
+        self.c.turn = False
+        self.c.board[2][1] = ('K', False)
+        self.groups['rank'] = '7'
+        self.groups['file'] = 'b'
+        self.groups['dest'] = 'b6'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
 
     def test_en_passant_capture(self):
         """Capture an enemy pawn en passant and assert that this move is

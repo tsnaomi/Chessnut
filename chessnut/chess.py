@@ -10,29 +10,36 @@ class ChessnutGame(object):
         """
         #False means black's turn, True means white's.
         self.turn = True
+
+        #Keep track of whether each player can queenside or kingside castle
+        self.white_kingside = True
+        self.white_queenside = True
+        self.black_kingside = True
+        self.black_queenside = True
+
         if game is not None:
             self.pgn = game
             self.board = self._pgn_to_board(game)
-            self.image_name = self._board_to_image()
+            self.image_string = None
         else:
             self.pgn = None
             self.board = self._initialize_chessboard()
-            self.image_name = None
+            self.image_string = None
 
     def __call__(self, move):
         """Takes as its argument the move being attempted an evaluates
         that move, making it if it's legal.
         """
-        pass
+        self._evaluate_move(move)
 
     def _pgn_to_board(self, game):
         """Converts PGN notation to a 2D array representing board state."""
         board = self._initialize_chessboard()
         moves = re.split(r'\s?\d+\.\s', self.pgn)
 
-        move_count = 0
+        self.move_count = 0
         for move in moves:
-            move_count += 1
+            self.move_count += 1
             half_moves = move.split()
 
             for half_move in half_moves:
@@ -41,8 +48,8 @@ class ChessnutGame(object):
             if len(half_moves) == 1:
                 self.turn = False
 
-    def _board_to_image(self, pgn):
-        """Converts the board state to an image filename."""
+    def _board_to_image_string(self):
+        """Converts the board state to an image string."""
         pass
 
     def _evaluate_move(self, move):
@@ -55,25 +62,41 @@ class ChessnutGame(object):
             move
         )
 
+        if match:
+            groups = match.groupdict()
+            if groups['piece'] is None:
+                groups['piece'] = 'P'
+
+            evaluator = self._get_evaluator(groups['piece'])
+
+            #orow and ocol are origin x and origin y, the x and y coordinates from
+            #which the piece is moving.
+            orow, ocol = evaluator(groups)
+
+            #drow and dcol are destination x and destination y, the x and y
+            #coordinates to which the piece is moving.
+            drow, dcol = self._pgn_move_to_coords(groups['dest'])
+
+            self.board[orow][ocol], self.board[drow][dcol] = (0, 0), self.board[orow][ocol]
+
+            #TO DO: castling, en passant capture, check and checkmate
+
+        if not match:
+            match = re.match(r'[0O]-[0O]-[0O]', move)
+
+            if match:
+                pass
+                #check castling logic
+
+        if not match:
+            match = re.match(r'[0O]-[0O]', move)
+
+            if match:
+                pass
+                #check castling logic
+
         if not match:
             raise NotationParseError
-
-        groups = match.groupdict()
-        groups.setdefault('piece', 'P')
-
-        evaluator = self._get_evaluator(groups['piece'])
-
-        #orow and ocol are origin x and origin y, the x and y coordinates from
-        #which the piece is moving.
-        orow, ocol = evaluator(groups)
-
-        #drow and dcol are destination x and destination y, the x and y
-        #coordinates to which the piece is moving.
-        drow, dcol = self._pgn_move_to_coords(groups['dest'])
-
-        self.board[orow][ocol], self.board[drow][dcol] = 0, self.board[orow][ocol]
-
-        #TO DO: castling, en passant capture, check and checkmate
 
     def _get_evaluator(self, piece):
         """Return the appropriate evaluator callable for the piece passed
@@ -92,7 +115,7 @@ class ChessnutGame(object):
         elif piece == 'Q':
             return self._queen_evaluator
 
-        raise ValueError(
+        raise NotationParseError(
             "_get_evaluator recieved a letter not corresponding to an evaluator.")
 
     def _pawn_evaluator(self, groups):
@@ -188,7 +211,9 @@ class ChessnutGame(object):
         orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
 
-        return self._evaluate_rank_and_file(pieces, orow, ocol)
+        piece = self._evaluate_rank_and_file(pieces, orow, ocol)
+        #check for castling
+        return piece
 
     def _knight_evaluator(self, groups):
         """Return the coordinates of the knight that will be making the
@@ -301,7 +326,15 @@ class ChessnutGame(object):
         orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
 
-        return self._evaluate_rank_and_file(pieces, orow, ocol)
+        piece = self._evaluate_rank_and_file(pieces, orow, ocol)
+        if self.board[piece[0]][piece[1]][1]:
+            self.white_kingside = False
+            self.white_queenside = False
+        else:
+            self.black_kingside = False
+            self.black_queenside = False
+
+        return piece
 
     def _queen_evaluator(self, groups):
         """Return the coordinates of the queen that will be making the
