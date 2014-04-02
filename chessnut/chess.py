@@ -498,14 +498,84 @@ class ChessnutGame(object):
         """Determines whether the space denoted by the given row and
         column is currently under check.
         """
+        try:
+            dest = self._coords_to_pgn_move(row, col)
+        except ValueError:
+            return False
 
-        return False
+        groups = {
+            'piece': None,
+            'dest': dest,
+            'rank': None,
+            'file': None,
+            'capture': 'x',
+            'check': None,
+            'checkmate': None,
+        }
+
+        check = False
+
+        dummy = False
+        if self.board[row][col] == (0, 0):
+            dummy = True
+            self.board[row][col] = ('P', not self.turn)
+
+        for piece in ['P', 'R', 'N', 'B', 'Q', 'K']:
+            evaluator = self._get_evaluator(piece)
+            groups['piece'] = piece
+            try:
+                evaluator(groups)
+                check = True
+                break
+            except MoveAmbiguousError:
+                check = True
+                break
+            except MoveNotLegalError:
+                pass
+
+        if dummy:
+            self.board[row][col] = (0, 0)
+
+        return check
 
     def _is_checkmate(self, row, col):
-        """Determines whether teh space denoted by the given row and
+        """Determines whether the space denoted by the given row and
         column is currently under checkmate.
         """
+        for i in range(row - 1, row + 2):
+            for j in range(col - 1, col + 2):
+                try:
+                    if self.board[i][j] == (0, 0) and not self._is_check(i, j):
+                        return False
+                except (IndexError, ValueError):
+                    pass
+
+        if not self._is_check(row, col):
+            return False
+
+        return True
+
+    def _is_stalemate(self, row, column):
+        """Determines whether the game has ended in a stalemate (the
+        player whose turn it is only has a king remaining, and that king
+        is not under check, but also cannot move without becoming checked).
+        """
         return False
+
+    def _only_king_remains(self, turn=None):
+        """Determines whether a king is the only piece remaining for the
+        given player. Used to determine whether a game has ended in
+        stalemate.
+        """
+        if turn is None:
+            turn = self.turn
+
+        for row in self.board:
+            for cell in row:
+                if cell[0] != 'K' and cell[1] == turn:
+                    return False
+
+        return True
 
     def _pgn_move_to_coords(self, move):
         """Converts a single move in PGN notation to board-state array
@@ -532,6 +602,28 @@ class ChessnutGame(object):
                 "_pgn_rank_to_row got %s (not a valid rank)" % rank
             )
         return (8 - int(rank))
+
+    def _coords_to_pgn_move(self, row, col):
+        """Converts a row and column in the board-state array to a position
+        in PGN (SAN) notation.
+        """
+        return self._col_to_pgn_file(col) + self._row_to_pgn_rank(row)
+
+    def _row_to_pgn_rank(self, row):
+        """Convert a row in the 2D board array to a numbered rank."""
+        if not (0 <= row <= 7):
+            raise ValueError(
+                "_row_to_pgn_rank got %s (not a valid row)" % row
+            )
+        return str(8 - row)
+
+    def _col_to_pgn_file(self, col):
+        """Convert a column in the 2D board array to a lettered file."""
+        if not (0 <= col <= 7):
+            raise ValueError(
+                "_col_to_pgn_file got %s (not a valid column)" % col
+            )
+        return chr(col + 97)
 
     def _initialize_chessboard(self):
         """Creates a 2D array representing an initial chessboard."""
