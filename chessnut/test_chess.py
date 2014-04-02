@@ -22,14 +22,14 @@ class TestPGNToCoords(unittest.TestCase):
         received.
         """
         conversions = [
-            ('a1', (0, 7)),
-            ('b4', (1, 4)),
-            ('c7', (2, 1)),
-            ('d3', (3, 5)),
-            ('e2', (4, 6)),
-            ('f6', (5, 2)),
-            ('g5', (6, 3)),
-            ('h8', (7, 0)),
+            ('a1', (7, 0)),
+            ('b4', (4, 1)),
+            ('c7', (1, 2)),
+            ('d3', (5, 3)),
+            ('e2', (6, 4)),
+            ('f6', (2, 5)),
+            ('g5', (3, 6)),
+            ('h8', (0, 7)),
         ]
 
         for initial, expected in conversions:
@@ -108,6 +108,40 @@ class TestRankToY(unittest.TestCase):
         exception is raised.
         """
         self.assertRaises(ValueError, self.c._pgn_rank_to_row, '9')
+
+
+class TestCoordsToMove(unittest.TestCase):
+    """Test the _coords_to_pgn_move function."""
+    def setUp(self):
+        self.c = ChessnutGame()
+
+    def test_coords_to_move_all_moves_unique(self):
+        """Assert that every valid pair of coordinates returns a unique move.
+        """
+        coords = [(a, b) for a in range(8) for b in range(8)]
+        moves = set()
+        for row, col in coords:
+            moves.add(self.c._coords_to_pgn_move(row, col))
+
+        self.assertEqual(len(moves), len(coords))
+
+    def test_coords_to_move(self):
+        """Test several coordinate pairs and assert that the correct moves
+        are received.
+        """
+        conversions = [
+            ('a1', (7, 0)),
+            ('b4', (4, 1)),
+            ('c7', (1, 2)),
+            ('d3', (5, 3)),
+            ('e2', (6, 4)),
+            ('f6', (2, 5)),
+            ('g5', (3, 6)),
+            ('h8', (0, 7)),
+        ]
+
+        for expected, initial in conversions:
+            self.assertEqual(self.c._coords_to_pgn_move(*initial), expected)
 
 
 class TestEvaluateRankAndFile(unittest.TestCase):
@@ -299,6 +333,21 @@ class TestCastlingEvaluators(unittest.TestCase):
         self.assertEqual(self.c.board[0][0], (0, 0))
         self.assertFalse(self.c.black_kingside)
         self.assertFalse(self.c.black_queenside)
+
+
+class TestIsCheck(unittest.TestCase):
+    """Test the _is_check function of the game."""
+    def setUp(self):
+        self.c = ChessnutGame()
+
+    def test_is_check_empty_board(self):
+        """Completely empty the board and assert that no space registers
+        as checked for either player.
+        """
+        self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
+        for i in range(8):
+            for j in range(8):
+                self.assertFalse(self.c._is_check(i, j))
 
 
 if __name__ == '__main__':

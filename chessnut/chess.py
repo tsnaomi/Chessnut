@@ -140,7 +140,7 @@ class ChessnutGame(object):
         if turn is None:
             turn = self.turn
 
-        dcol, drow = self._pgn_move_to_coords(groups['dest'])
+        drow, dcol = self._pgn_move_to_coords(groups['dest'])
 
         #Check whether there's already a piece at the destination cell.
         if self.board[drow][dcol] != (0, 0) and \
@@ -200,7 +200,7 @@ class ChessnutGame(object):
         if turn is None:
             turn = self.turn
 
-        dcol, drow = self._pgn_move_to_coords(groups['dest'])
+        drow, dcol = self._pgn_move_to_coords(groups['dest'])
 
         #Compile a list of rooks that could make the given move.
         pieces = []
@@ -241,7 +241,7 @@ class ChessnutGame(object):
         if turn is None:
             turn = self.turn
 
-        dcol, drow = self._pgn_move_to_coords(groups['dest'])
+        drow, dcol = self._pgn_move_to_coords(groups['dest'])
 
         #Compile a list of knights that could make the given move.
         pieces = []
@@ -281,7 +281,7 @@ class ChessnutGame(object):
         if turn is None:
             turn = self.turn
 
-        dcol, drow = self._pgn_move_to_coords(groups['dest'])
+        drow, dcol = self._pgn_move_to_coords(groups['dest'])
 
         #Compile a list of rooks that could make the given move.
         pieces = []
@@ -322,7 +322,7 @@ class ChessnutGame(object):
         if turn is None:
             turn = self.turn
 
-        dcol, drow = self._pgn_move_to_coords(groups['dest'])
+        drow, dcol = self._pgn_move_to_coords(groups['dest'])
 
         if self._is_check(drow, dcol):
             raise MoveNotLegalError
@@ -366,7 +366,7 @@ class ChessnutGame(object):
         if turn is None:
             turn = self.turn
 
-        dcol, drow = self._pgn_move_to_coords(groups['dest'])
+        drow, dcol = self._pgn_move_to_coords(groups['dest'])
 
         #Compile a list of rooks that could make the given move.
         pieces = []
@@ -516,15 +516,16 @@ class ChessnutGame(object):
         check = False
 
         dummy = False
-        if self.board[row][col] == (0, 0):
+        if self.board[row][col][1] != self.turn:
+            old_space = self.board[row][col]
             dummy = True
-            self.board[row][col] = ('P', not self.turn)
+            self.board[row][col] = ('P', self.turn)
 
-        for piece in ['P', 'R', 'N', 'B', 'Q', 'K']:
+        for piece in ['P', 'R', 'N', 'B', 'Q']:
             evaluator = self._get_evaluator(piece)
             groups['piece'] = piece
             try:
-                evaluator(groups)
+                evaluator(groups, turn=not self.turn)
                 check = True
                 break
             except MoveAmbiguousError:
@@ -533,8 +534,22 @@ class ChessnutGame(object):
             except MoveNotLegalError:
                 pass
 
+        #The King evaluator uses _is_check to determine whether the move
+        #the king wants to make is legal (as the king cannot move into
+        #check). Using the king evaluator here thus causes infinite
+        #recursion. We have to check separately whether the given spot
+        #is under threat from an enemy king.
+        for i in range(row - 1, row + 2):
+            for j in range(col - 1, col + 2):
+                try:
+                    if self.board[i][j] == ('K', not self.turn):
+                        check = True
+                        break
+                except IndexError:
+                    pass
+
         if dummy:
-            self.board[row][col] = (0, 0)
+            self.board[row][col] = old_space
 
         return check
 
@@ -585,7 +600,7 @@ class ChessnutGame(object):
         if len(move) != 2:
             raise ValueError("_pgn_move_to_coords got input of length != 2")
 
-        return self._pgn_file_to_col(move[0]), self._pgn_rank_to_row(move[1])
+        return self._pgn_rank_to_row(move[1]), self._pgn_file_to_col(move[0])
 
     def _pgn_file_to_col(self, _file):
         """Convert a lettered file to its column in the 2D board array."""
