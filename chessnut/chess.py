@@ -8,7 +8,8 @@ class ChessnutGame(object):
         """Takes as argument the game referenced (possibly as a PGN)
         string - details TBD.
         """
-        game = game.rstrip()
+        if isinstance(game, str):
+            game = game.rstrip()
 
         #False means black's turn, True means white's.
         self.turn = True
@@ -21,7 +22,7 @@ class ChessnutGame(object):
 
         self.move_count = 0
         self.board = self._initialize_chessboard()
-        self.pgn = game
+        self.pgn = ''
         self.image_string = None
 
         if game is not None:
@@ -40,7 +41,7 @@ class ChessnutGame(object):
         """
         #Attempt to parse the SAN notation.
         match = re.match(
-            r'^(?P<piece>[RNBKQP])?(?P<file>[a-z])?(?P<rank>\d)?(?P<capture>x)?(?P<dest>\w\d)(?P<check>+)?(?P<checkmate>#)?$',
+            r'^(?P<piece>[RNBKQP])?(?P<file>[a-z])?(?P<rank>\d)?(?P<capture>x)?(?P<dest>\w\d)(?P<check>\+)?(?P<checkmate>#)?$',
             move
         )
 
@@ -85,7 +86,7 @@ class ChessnutGame(object):
             #Construct an image string representing this board state and
             #the move just made.
             self.image_string = "%s%s%s%s%s" % \
-                (self._board_to_image_string(), orow, ocol, drow, dcol)
+                (self._board_to_image_string(), ocol, orow, dcol, drow)
 
         if not match:
             match = re.match(r'[0O]-[0O]-[0O]', move)
@@ -106,9 +107,16 @@ class ChessnutGame(object):
         if not match:
             raise NotationParseError
 
+        #If white has just made a move, then we're entering a new move
+        #(pair of half_moves) from a PGN perspective. Increment the
+        #move_count.
+        if self.turn:
+            self.move_count += 1
+
         #If we made a legal move, update the pgn game-state string.
-        prefix = (" %s. " % str(self.move_count + 1)) if self.turn else " "
+        prefix = (" %s. " % str(self.move_count)) if self.turn else " "
         self.pgn += "%s%s" % (prefix, move)
+        self.pgn = self.pgn.strip()
 
     def _reconstruct_incoming_game(self, game):
         """Walks through the PGN-represented game used to instantiate
@@ -117,15 +125,17 @@ class ChessnutGame(object):
         """
         moves = re.split(r'\s?\d+\.\s', game)
 
+        #Because the split field appears at the front of the string being
+        #split, we always end up with an empty string as the first element
+        #in the moves array. Get rid of it.
+        moves.pop(0)
+
         for move in moves:
-            self.move_count += 1
             half_moves = move.split()
 
             for half_move in half_moves:
                 self.evaluate_move(half_move)
-
-            if len(half_moves) == 1:
-                self.turn = False
+                self.turn = not self.turn
 
     def _board_to_image_string(self):
         """Converts the board state to an image string."""
