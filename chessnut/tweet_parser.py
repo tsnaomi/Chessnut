@@ -3,7 +3,7 @@ import re
 
 def tweet_parser(tweet):
     """Takes in a unicode-formatted tweet and returns a dictionary of the
-    game name, owner, opponent, move, and extra message.
+    game name opponent, move, and extra message.
     """
     tweet = tweet.encode()
 
