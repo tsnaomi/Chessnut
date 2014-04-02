@@ -34,7 +34,7 @@ class ChessnutGame(object):
 
     def _pgn_to_board(self, game):
         """Converts PGN notation to a 2D array representing board state."""
-        board = self._initialize_chessboard()
+        self.board = self._initialize_chessboard()
         moves = re.split(r'\s?\d+\.\s', self.pgn)
 
         self.move_count = 0
@@ -50,7 +50,17 @@ class ChessnutGame(object):
 
     def _board_to_image_string(self):
         """Converts the board state to an image string."""
-        pass
+        string = ''
+        for row in self.board:
+            for cell in row:
+                if cell[1] is False:
+                    string += cell[0].lower()
+                elif cell[1] is True:
+                    string += cell[0]
+                else:
+                    string += str(cell[0])
+
+        return string
 
     def _evaluate_move(self, move):
         """Take in a move in PGN/SAN notation, evaluate it, and perform
@@ -79,7 +89,7 @@ class ChessnutGame(object):
 
             self.board[orow][ocol], self.board[drow][dcol] = (0, 0), self.board[orow][ocol]
 
-            #TO DO: en passant capture, check and checkmate
+            #TO DO: en passant capture, stalemate
 
             #Keep track of whether or not each player is still allowed to
             #castle. The first time a piece is moved from these locations,

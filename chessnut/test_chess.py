@@ -2,6 +2,29 @@ import unittest
 from chess import ChessnutGame, MoveNotLegalError, MoveAmbiguousError
 
 
+class TestBoardToImageString(unittest.TestCase):
+    """Test _board_to_image_string."""
+    def setUp(self):
+        self.c = ChessnutGame()
+
+    def test_empty_board_string(self):
+        self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
+        string = self.c._board_to_image_string()
+        self.assertEqual(len(string), 64)
+        self.assertEqual(string, ''.join(['0' for i in range(64)]))
+
+    def test_initial_board_string(self):
+        string = self.c._board_to_image_string()
+        self.assertEqual(len(string), 64)
+        expected = \
+            'rnbqkbnr' + \
+            ''.join(['p' for i in range(8)]) + \
+            ''.join(['0' for i in range(32)]) + \
+            ''.join(['P' for i in range(8)]) + \
+            'RNBQKBNR'
+        self.assertEqual(string, expected)
+
+
 class TestPGNToCoords(unittest.TestCase):
     """Test _pgn_move_to_coords."""
     def setUp(self):
