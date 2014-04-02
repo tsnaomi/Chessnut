@@ -69,12 +69,12 @@ class ChessnutGame(object):
 
             evaluator = self._get_evaluator(groups['piece'])
 
-            #orow and ocol are origin x and origin y, the x and y coordinates from
-            #which the piece is moving.
+            #orow and ocol are origin row and origin column, the row and
+            #column from which the piece is moving.
             orow, ocol = evaluator(groups)
 
-            #drow and dcol are destination x and destination y, the x and y
-            #coordinates to which the piece is moving.
+            #drow and dcol are destination row and destination column,
+            #the row and column to which the piece is moving.
             drow, dcol = self._pgn_move_to_coords(groups['dest'])
 
             self.board[orow][ocol], self.board[drow][dcol] = (0, 0), self.board[orow][ocol]
@@ -83,17 +83,13 @@ class ChessnutGame(object):
 
         if not match:
             match = re.match(r'[0O]-[0O]-[0O]', move)
-
             if match:
-                pass
-                #check castling logic
+                self._queenside_evaluator()
 
         if not match:
             match = re.match(r'[0O]-[0O]', move)
-
             if match:
-                pass
-                #check castling logic
+                self._kingside_evaluator()
 
         if not match:
             raise NotationParseError
@@ -305,6 +301,9 @@ class ChessnutGame(object):
         """
         dcol, drow = self._pgn_move_to_coords(groups['dest'])
 
+        if self._is_check(drow, dcol):
+            raise MoveNotLegalError
+
         #Compile a list of rooks that could make the given move.
         pieces = []
 
@@ -427,6 +426,56 @@ class ChessnutGame(object):
 
         #If we have exactly one piece, return it.
         return valid[0]
+
+    def _queenside_evaluator(self):
+        """Evaluator for queenside castling logic. Performs queenside
+        castle for the current player, if legal, or raises an exception.
+        """
+        if self.turn and not self.white_queenside or not self.black_queenside:
+            raise MoveNotLegalError
+
+        row = 7 if self.turn else 0
+        for col in [1, 2, 3]:
+            if self.board[row][col] != (0, 0):
+                raise MoveNotLegalError
+
+        for col in [2, 3, 4]:
+            if self._is_check(row, col):
+                raise MoveNotLegalError
+
+        self.board[row][4], self.board[row][0] = (0, 0), (0, 0)
+        self.board[row][2], self.board[row][3] = \
+            ('K', self.turn), ('R'. self.turn)
+
+        if self.turn:
+            self.white_queenside, self.white_kingside = False, False
+        else:
+            self.black_queenside, self.black_kingside = False, False
+
+    def _kingside_evaluator(self):
+        """Evaluator for kingside castling logic. Performs kingside
+        castle for the current player, if legal, or raises an exception.
+        """
+        if self.turn and not self.white_kingside or not self.black_kingside:
+            raise MoveNotLegalError
+
+        row = 7 if self.turn else 0
+        for col in [5, 6]:
+            if self.board[row][col] != (0, 0):
+                raise MoveNotLegalError
+
+        for col in [4, 5, 6]:
+            if self._is_check(row, col):
+                raise MoveNotLegalError
+
+        self.board[row][4], self.board[row][7] = (0, 0), (0, 0)
+        self.board[row][6], self.board[row][5] = \
+            ('K', self.turn), ('R'. self.turn)
+
+        if self.turn:
+            self.white_queenside, self.white_kingside = False, False
+        else:
+            self.black_queenside, self.black_kingside = False, False
 
     def _pgn_move_to_coords(self, move):
         """Converts a single move in PGN notation to board-state array
