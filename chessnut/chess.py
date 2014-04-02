@@ -212,7 +212,16 @@ class ChessnutGame(object):
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
 
         piece = self._evaluate_rank_and_file(pieces, orow, ocol)
-        #check for castling
+
+        if piece == (0, 0):
+            self.black_queenside = False
+        if piece == (0, 7):
+            self.black_kingside = False
+        if piece == (7, 0):
+            self.white_queenside = False
+        if piece == (7, 7):
+            self.white_kingside = False
+
         return piece
 
     def _knight_evaluator(self, groups):
@@ -327,7 +336,8 @@ class ChessnutGame(object):
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
 
         piece = self._evaluate_rank_and_file(pieces, orow, ocol)
-        if self.board[piece[0]][piece[1]][1]:
+
+        if self.turn:
             self.white_kingside = False
             self.white_queenside = False
         else:
