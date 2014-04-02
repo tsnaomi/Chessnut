@@ -133,19 +133,22 @@ class ChessnutGame(object):
         raise NotationParseError(
             "_get_evaluator recieved a letter not corresponding to an evaluator.")
 
-    def _pawn_evaluator(self, groups):
+    def _pawn_evaluator(self, groups, turn=None):
         """Return the coordinates of the pawn that will be making the move
         specified.
         """
+        if turn is None:
+            turn = self.turn
+
         dcol, drow = self._pgn_move_to_coords(groups['dest'])
 
         #Check whether there's already a piece at the destination cell.
         if self.board[drow][dcol] != (0, 0) and \
-                (self.board[drow][dcol][1] == self.turn or
+                (self.board[drow][dcol][1] == turn or
                  not groups['capture']):
             raise MoveNotLegalError
 
-        if self.turn:
+        if turn:
             rowmod = 1
         else:
             rowmod = -1
@@ -154,21 +157,21 @@ class ChessnutGame(object):
         pieces = []
         try:
             if not groups['capture']:
-                if self.board[drow + 1 * rowmod][dcol] == ('P', self.turn):
+                if self.board[drow + 1 * rowmod][dcol] == ('P', turn):
                     pieces.append((drow + 1 * rowmod, dcol))
-                elif drow == (4 if self.turn else 3) and \
-                        self.board[drow + 2 * rowmod][dcol] == ('P', self.turn) \
+                elif drow == (4 if turn else 3) and \
+                        self.board[drow + 2 * rowmod][dcol] == ('P', turn) \
                         and self.board[drow + 1 * rowmod][dcol] == (0, 0):
                     pieces.append((drow + 2 * rowmod, dcol))
             else:
                 try:
-                    if self.board[drow + 1 * rowmod][dcol + 1] == ('P', self.turn):
+                    if self.board[drow + 1 * rowmod][dcol + 1] == ('P', turn):
                         pieces.append((drow + 1 * rowmod, dcol + 1))
                 except IndexError:
                     pass
 
                 try:
-                    if self.board[drow + 1 * rowmod][dcol - 1] == ('P', self.turn):
+                    if self.board[drow + 1 * rowmod][dcol - 1] == ('P', turn):
                         pieces.append((drow + 1 * rowmod, dcol - 1))
                 except IndexError:
                     pass
@@ -190,10 +193,13 @@ class ChessnutGame(object):
 
         return self._evaluate_rank_and_file(pieces, orow, ocol)
 
-    def _rook_evaluator(self, groups):
+    def _rook_evaluator(self, groups, turn=None):
         """Return the coordinates of the rook that will be making the move
         specified.
         """
+        if turn is None:
+            turn = self.turn
+
         dcol, drow = self._pgn_move_to_coords(groups['dest'])
 
         #Compile a list of rooks that could make the given move.
@@ -201,7 +207,7 @@ class ChessnutGame(object):
 
         #Check whether there's already a piece at the destination cell.
         if self.board[drow][dcol] != (0, 0) and \
-                (self.board[drow][dcol][1] == self.turn or
+                (self.board[drow][dcol][1] == turn or
                  not groups['capture']):
             raise MoveNotLegalError
 
@@ -214,7 +220,7 @@ class ChessnutGame(object):
                 col += colmod
                 try:
                     if self.board[row][col] != (0, 0):
-                        if self.board[row][col] == ('R', self.turn):
+                        if self.board[row][col] == ('R', turn):
                             pieces.append((row, col))
                         break
                 except IndexError:
@@ -228,10 +234,13 @@ class ChessnutGame(object):
 
         return self._evaluate_rank_and_file(pieces, orow, ocol)
 
-    def _knight_evaluator(self, groups):
+    def _knight_evaluator(self, groups, turn=None):
         """Return the coordinates of the knight that will be making the
         move specified.
         """
+        if turn is None:
+            turn = self.turn
+
         dcol, drow = self._pgn_move_to_coords(groups['dest'])
 
         #Compile a list of knights that could make the given move.
@@ -239,7 +248,7 @@ class ChessnutGame(object):
 
         #Check whether there's already a piece at the destination cell.
         if self.board[drow][dcol] != (0, 0) and \
-                (self.board[drow][dcol][1] == self.turn or
+                (self.board[drow][dcol][1] == turn or
                  not groups['capture']):
             raise MoveNotLegalError
 
@@ -252,7 +261,7 @@ class ChessnutGame(object):
             col += colmod
             try:
                 if self.board[row][col] != (0, 0):
-                    if self.board[row][col] == ('N', self.turn):
+                    if self.board[row][col] == ('N', turn):
                         pieces.append((row, col))
             except IndexError:
                 pass
@@ -265,10 +274,13 @@ class ChessnutGame(object):
 
         return self._evaluate_rank_and_file(pieces, orow, ocol)
 
-    def _bishop_evaluator(self, groups):
+    def _bishop_evaluator(self, groups, turn=None):
         """Return the coordinates of the bishop that will be making the
         move specified.
         """
+        if turn is None:
+            turn = self.turn
+
         dcol, drow = self._pgn_move_to_coords(groups['dest'])
 
         #Compile a list of rooks that could make the given move.
@@ -276,7 +288,7 @@ class ChessnutGame(object):
 
         #Check whether there's already a piece at the destination cell.
         if self.board[drow][dcol] != (0, 0) and \
-                (self.board[drow][dcol][1] == self.turn or
+                (self.board[drow][dcol][1] == turn or
                  not groups['capture']):
             raise MoveNotLegalError
 
@@ -289,7 +301,7 @@ class ChessnutGame(object):
                 col += colmod
                 try:
                     if self.board[row][col] != (0, 0):
-                        if self.board[row][col] == ('B', self.turn):
+                        if self.board[row][col] == ('B', turn):
                             pieces.append((row, col))
                         break
                 except IndexError:
@@ -303,10 +315,13 @@ class ChessnutGame(object):
 
         return self._evaluate_rank_and_file(pieces, orow, ocol)
 
-    def _king_evaluator(self, groups):
+    def _king_evaluator(self, groups, turn=None):
         """Return the coordinates of the king that will be making the
         move specified.
         """
+        if turn is None:
+            turn = self.turn
+
         dcol, drow = self._pgn_move_to_coords(groups['dest'])
 
         if self._is_check(drow, dcol):
@@ -317,7 +332,7 @@ class ChessnutGame(object):
 
         #Check whether there's already a piece at the destination cell.
         if self.board[drow][dcol] != (0, 0) and \
-                (self.board[drow][dcol][1] == self.turn or
+                (self.board[drow][dcol][1] == turn or
                  not groups['capture']):
             raise MoveNotLegalError
 
@@ -331,7 +346,7 @@ class ChessnutGame(object):
             col += colmod
             try:
                 if self.board[row][col] != (0, 0):
-                    if self.board[row][col] == ('K', self.turn):
+                    if self.board[row][col] == ('K', turn):
                         pieces.append((row, col))
             except IndexError:
                 pass
@@ -344,10 +359,13 @@ class ChessnutGame(object):
 
         return self._evaluate_rank_and_file(pieces, orow, ocol)
 
-    def _queen_evaluator(self, groups):
+    def _queen_evaluator(self, groups, turn=None):
         """Return the coordinates of the queen that will be making the
         move specified.
         """
+        if turn is None:
+            turn = self.turn
+
         dcol, drow = self._pgn_move_to_coords(groups['dest'])
 
         #Compile a list of rooks that could make the given move.
@@ -355,7 +373,7 @@ class ChessnutGame(object):
 
         #Check whether there's already a piece at the destination cell.
         if self.board[drow][dcol] != (0, 0) and \
-                (self.board[drow][dcol][1] == self.turn or
+                (self.board[drow][dcol][1] == turn or
                  not groups['capture']):
             raise MoveNotLegalError
 
@@ -369,7 +387,7 @@ class ChessnutGame(object):
                 col += colmod
                 try:
                     if self.board[row][col] != (0, 0):
-                        if self.board[row][col] == ('Q', self.turn):
+                        if self.board[row][col] == ('Q', turn):
                             pieces.append((row, col))
                         break
                 except IndexError:
@@ -419,7 +437,7 @@ class ChessnutGame(object):
         if len(valid) > 1:
             raise MoveAmbiguousError
 
-        #If not pieces could make this move, raise a MoveNotLegalError.
+        #If no pieces could make this move, raise a MoveNotLegalError.
         if len(valid) < 1:
             raise MoveNotLegalError
 
@@ -475,6 +493,19 @@ class ChessnutGame(object):
             self.white_queenside, self.white_kingside = False, False
         else:
             self.black_queenside, self.black_kingside = False, False
+
+    def _is_check(self, row, col):
+        """Determines whether the space denoted by the given row and
+        column is currently under check.
+        """
+
+        return False
+
+    def _is_checkmate(self, row, col):
+        """Determines whether teh space denoted by the given row and
+        column is currently under checkmate.
+        """
+        return False
 
     def _pgn_move_to_coords(self, move):
         """Converts a single move in PGN notation to board-state array
