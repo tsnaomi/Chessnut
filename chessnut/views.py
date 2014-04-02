@@ -3,6 +3,13 @@ from pyramid.view import view_config
 from .models import (
     DBSession,
     TwUser,
+    SinceId
+    )
+from .moves import (
+    # get_moves,
+    execute_moves,
+    # send_tweet,
+    # send_error,
     )
 import tweepy
 from pyramid.httpexceptions import HTTPFound
@@ -12,12 +19,17 @@ from gevent.queue import Queue as gqueue
 sched = Scheduler()
 sched.start()
 
-consumer_key =
-consumer_secret =
+
 
 move_queue = gqueue()
 
 # @sched.interval_schedule(seconds=90)
+# def moves():
+#     since_id = SinceId.get_by_id(1)
+#     since_id = get_moves(move_queue, since_id)
+#     execute_moves(move_queue)
+#     DBSession.commit()
+#     return None
 
 
 @view_config(route_name='index', renderer='base.jinja2')
@@ -85,11 +97,6 @@ def logout(request):
 
 
 @view_config(route_name='mentions', renderer='string')
-def get_moves(request):
-    user = TwUser.get_by_id(1)
-    key, secret = user.key, user.secret
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(key, secret)
-    api = tweepy.API(auth)
-    import pdb; pdb.set_trace()
-    return api.mentions()
+def get_move(request):
+    send_error(15854617, u'game2')
+    return "Sent, buddy"

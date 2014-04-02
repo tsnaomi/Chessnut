@@ -122,3 +122,16 @@ class Game(Base):
     @classmethod
     def get_by_gameid(cls, game_id):
         return DBSession.query(cls).filter(cls.game_id == game_id).first()
+
+
+class SinceId(Base):
+    __tablename__ = 'since_id'
+    id = Column(Integer, primary_key=True)
+    value = Column(BigInteger)
+
+    def __init__(self, value):
+        self.value = value
+
+    @classmethod
+    def get_by_id(cls, id):
+        return DBSession.query(cls).filter(cls.id == id).first()
