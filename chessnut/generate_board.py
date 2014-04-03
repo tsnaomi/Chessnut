@@ -3,7 +3,7 @@
 from os.path import isfile
 from PIL import Image
 
-start = 'rnbqkbnrpppppppp00000000000000000000000000000000PPPPPPPPRNBQKBNR1112'
+start = 'rnbqkbnrpppppppp00000000000000000000000000000000PPPPPPPPRNBQKBNR'
 
 
 def board(state=start):
