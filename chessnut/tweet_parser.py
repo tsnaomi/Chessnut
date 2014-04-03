@@ -8,7 +8,7 @@ def tweet_parser(tweet):
     tweet = tweet.encode()
 
     match = re.match(
-        r'^@\w{11} (@(?P<opponent>[^\s]+) )?#(?P<game>\w+) (?P<move>[^\s]+) (?P<message>.*)$',
+        r'^@\w{11} (@(?P<opponent>[^\s]+) )?#(?P<game>\w+)( (?P<move>[^\s]+))?( (?P<message>.*))?$',
         tweet
     )
 
