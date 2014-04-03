@@ -323,6 +323,10 @@ class TestCastlingEvaluators(unittest.TestCase):
         self.assertEqual(self.c.board[row][7], (0, 0))
         self.assertFalse(self.c.white_kingside)
         self.assertFalse(self.c.white_queenside)
+        self.assertEqual(
+            self.c.white_king if turn else self.c.black_king,
+            (7, 6) if turn else (0, 6)
+        )
 
     def _queenside_performed(self, turn):
         row = 7 if turn else 0
@@ -332,6 +336,10 @@ class TestCastlingEvaluators(unittest.TestCase):
         self.assertEqual(self.c.board[row][0], (0, 0))
         self.assertFalse(self.c.white_kingside)
         self.assertFalse(self.c.white_queenside)
+        self.assertEqual(
+            self.c.white_king if turn else self.c.black_king,
+            (7, 2) if turn else (0, 2)
+        )
 
     def test_perform_kingside_castling(self):
         """Perform a kingside castle and assert that the move succeeds
