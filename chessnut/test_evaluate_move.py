@@ -117,6 +117,21 @@ class TestEvaluateMove(unittest.TestCase):
         """Set up several checkmates and assert that they end the game
         with the correct player being declared winner.
         """
+        for turn in [True, False]:
+            self.c = ChessnutGame()
+            self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
+            self.c.black_king = (0, 0)
+            self.c.white_king = (0, 0)
+            self.c.board[0][0] = ('K', not turn)
+            self.c.board[1][0] = ('P', not turn)
+            self.c.board[0][1] = ('B', not turn)
+            self.c.board[3][1] = ('B', turn)
+
+            self.c.turn = turn
+
+            self.c('Bb5c6')
+            self.assertTrue(self.c.is_over)
+            self.assertTrue(self.c.winner if turn else not self.c.winner)
 
     def test_end_game_on_forfeit(self):
         """End the game on a forfeit and assert that the game ends with

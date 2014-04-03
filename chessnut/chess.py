@@ -133,10 +133,10 @@ class ChessnutGame(object):
         self.turn = not self.turn
         if not self.turn and self._is_checkmate(*self.black_king):
             self.is_over = True
-            self.winner = False
+            self.winner = True
         elif self.turn and self._is_checkmate(*self.white_king):
             self.is_over = True
-            self.winner = True
+            self.winner = False
         self.turn = not self.turn
 
         #If, at the end of any move, that player's king is under
