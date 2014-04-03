@@ -437,6 +437,32 @@ class TestCastlingEvaluators(unittest.TestCase):
         self.assertRaises(
             MoveNotLegalError, self.c._queenside_evaluator)
 
+    def test_kingside_castling_rook_captured(self):
+        """My castling logic check only looks to see whether a rook or
+        king has ever moved. If a rook is captured without having moved,
+        its corresponding castling logic is not modified. Assert that
+        castling still can't be performed when the kingside rook has been
+        removed from the board.
+        """
+        for turn in [True, False]:
+            self.c.turn = turn
+            row = 7 if turn else 0
+            self.c.board[row][7] = (0, 0)
+            self.assertRaises(MoveNotLegalError, self.c._kingside_evaluator)
+
+    def test_queenside_castling_rook_captured(self):
+        """My castling logic check only looks to see whether a rook or
+        king has ever moved. If a rook is captured without having moved,
+        its corresponding castling logic is not modified. Assert that
+        castling still can't be performed when the queenside rook has been
+        removed from the board.
+        """
+        for turn in [True, False]:
+            self.c.turn = turn
+            row = 7 if turn else 0
+            self.c.board[row][0] = (0, 0)
+            self.assertRaises(MoveNotLegalError, self.c._queenside_evaluator)
+
 
 class TestIsCheck(unittest.TestCase):
     """Test the _is_check function of the game."""
