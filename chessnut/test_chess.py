@@ -388,6 +388,14 @@ class TestCastlingEvaluators(unittest.TestCase):
         rook and/or king is blocked and assert that the operation is
         determined illegal.
         """
+        for turn in [True, False]:
+            self.c.turn = turn
+            row = 7 if turn else 0
+            for col in [5, 6]:
+                self.c.board[row][col] = ('P', turn)
+                self.assertRaises(
+                    MoveNotLegalError, self.c._queenside_evaluator)
+                self.c.board[row][col] = (0, 0)
 
     def test_queenside_castling_blocked(self):
         """Attempt to perform queenside castling when the path for the
