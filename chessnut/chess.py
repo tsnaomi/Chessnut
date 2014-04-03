@@ -70,7 +70,8 @@ class ChessnutGame(object):
             #the row and column to which the piece is moving.
             drow, dcol = self._pgn_move_to_coords(groups['dest'])
 
-            self.board[orow][ocol], self.board[drow][dcol] = (0, 0), self.board[orow][ocol]
+            self.board[orow][ocol], self.board[drow][dcol] = \
+                (0, 0), self.board[orow][ocol]
 
             #If the king was just moved, update its position.
             if groups['piece'] == 'K' and self.turn:
@@ -78,9 +79,7 @@ class ChessnutGame(object):
             elif groups['piece'] == 'K':
                 self.black_king = (drow, dcol)
 
-            #TO DO: en passant capture, stalemate, end game on checkmate,
-            #forfeit, promotion, check legality of a move based on whether
-            #the king is checked.
+            #TO DO: en passant capture, stalemate, forfeit, promotion
 
             #Keep track of whether or not each player is still allowed to
             #castle. The first time a piece is moved from these locations,
