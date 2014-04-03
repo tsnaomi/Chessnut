@@ -40,7 +40,6 @@ def tweet_parser(tweet):
 
 
 def get_api(user):
-    user = TwUser.get_by_user_id(user)
     key, secret = user.key, user.secret
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(key, secret)
@@ -55,7 +54,7 @@ def get_moves(since_id):
     for i in mentions[-1::-1]:
         movequeue.put(i)
         since_id.value = long(i.id) + long(1)
-    return since_id, movequeue
+    return since_id.value, movequeue
 
 
 def execute_moves(movequeue):
@@ -64,15 +63,16 @@ def execute_moves(movequeue):
         move = movequeue.get()
         text, user_id, user = move.text, move.user.id, move.user.screen_name
         parsed = tweet_parser(text)
+        current_twuser = TwUser.get_by_user_id(user_id)
         #assume it's a move and give it a shot
         try:
             game = Game.get_by_name(parsed['game'])
-            if game.is_turn(user_id):
+            if game.is_turn(current_twuser.id):
                 game_update = cg(game.pgn)
-                game_update(parsed['move'])
+                game_update(parsed['move'].encode())
                 game.pgn = game_update.pgn
-                image_url = board(cg.image_string)
-                send_user_tweet(user_id, image_url, game)
+                # image_url = board(cg.image_string)
+                send_user_tweet(current_twuser, game_update.image_string, game)
                 game.end_turn()
             else:
                 send_error(user_id, 'notyourturn')
@@ -80,7 +80,7 @@ def execute_moves(movequeue):
             #this means it should be a challenge
             if parsed['opponent'] and parsed['game']:
                 challenge = Challenge.get_by_name(parsed['game'])
-                opponent = TwUser.get_by_user_id(user_id)
+                opponent = current_twuser
                 if challenge is not None and opponent is not None:
                     if challenge.owner_sn == parsed['opponent'] and challenge.opponent == user:
                         challenge.accept(opponent.id)
@@ -91,7 +91,7 @@ def execute_moves(movequeue):
                     send_error(user_id, error='register')
                 else:
                     #making sure user_id is registered with us
-                    owner = TwUser.get_by_user_id(user_id)
+                    owner = current_twuser
                     try:
                         challenge = Challenge(parsed['game'],
                                               owner.id,
@@ -101,7 +101,7 @@ def execute_moves(movequeue):
                         DBSession.add(challenge)
                         send_challenge(user_id, parsed['opponent'])
                     #this is for the unregistered
-                    except TypeError:
+                    except AttributeError:
                         send_error(user_id, error='register')
                     #should be preventing duplicate game names here
                     except:
@@ -113,10 +113,15 @@ def execute_moves(movequeue):
     return None
 
 
-def send_user_tweet(user, gamename, image_url):
+def send_user_tweet(user, image_url, game):
     api = get_api(user)
-    opponent = u'lordsheepy'
-    tweet = u"@%s Gamename: %s Boardstate: %s" % (opponent, gamename, image_url)
+    user = TwUser.get_by_id(game.owner).user_id
+    if game.turn == user:
+        opponent = TwUser.get_by_id(game.opponent).user_id
+    else:
+        opponent = user
+    opponent = api.get_user(opponent).screen_name
+    tweet = u"@%s #%s Boardstate: %s" % (opponent, game.name, image_url)
     api.update_status(tweet)
     return
 

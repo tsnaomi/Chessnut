@@ -100,10 +100,10 @@ class Game(Base):
 
     def end_turn(self):
         if self.turn == self.owner:
-            self.turn == self.opponent
+            self.turn = self.opponent
             return True
         elif self.turn == self.opponent:
-            self.turn == self.owner
+            self.turn = self.owner
             return True
         return False
 

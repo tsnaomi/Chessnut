@@ -101,6 +101,7 @@ def logout(request):
 def get_move(request):
 
     since_id = SinceId.get_by_id(1)
-    since_id, tweet_queue = get_moves(since_id)
+    value, tweet_queue = get_moves(since_id)
     execute_moves(tweet_queue)
+    since_id.value = value
     return "well, stuff happened"
