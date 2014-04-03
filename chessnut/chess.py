@@ -565,6 +565,11 @@ class ChessnutGame(object):
         else:
             self.black_queenside, self.black_kingside = False, False
 
+        if self.turn:
+            self.white_king = (7, 2)
+        else:
+            self.black_king = (0, 2)
+
     def _kingside_evaluator(self):
         """Evaluator for kingside castling logic. Performs kingside
         castle for the current player, if legal, or raises an exception.
@@ -593,6 +598,11 @@ class ChessnutGame(object):
             self.white_queenside, self.white_kingside = False, False
         else:
             self.black_queenside, self.black_kingside = False, False
+
+        if self.turn:
+            self.white_king = (7, 6)
+        else:
+            self.black_king = (0, 6)
 
     def _is_check(self, row, col):
         """Determines whether the space denoted by the given row and
