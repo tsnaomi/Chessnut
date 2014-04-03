@@ -86,10 +86,10 @@ class ChessnutGame(object):
             #castle. The first time a piece is moved from these locations,
             #the piece must be a king or a rook, so we take away the
             #relevant castling privilege.
-            if (orow, ocol) == (0, 4):
+            if (orow, ocol) == (7, 4):
                 self.white_kingside = False
                 self.white_queenside = False
-            elif (orow, ocol) == (7, 4):
+            elif (orow, ocol) == (0, 4):
                 self.black_kingside = False
                 self.black_queenside = False
             elif (orow, ocol) == (0, 0):

@@ -83,9 +83,33 @@ class TestEvaluateMove(unittest.TestCase):
         castling and assert that the castling tracking is correctly
         updated.
         """
+        self.c.board[1] = [(0, 0) for i in range(8)]
+        self.c.board[6] = [(0, 0) for i in range(8)]
+
+        for turn in [True, False]:
+            self.c.turn = turn
+            self.c('Ra1a2' if turn else 'Ra8a7')
+            self.assertFalse(
+                self.c.white_queenside if turn else self.c.black_queenside)
+            self.c('Rh1h2' if turn else 'Rh8h7')
+            self.assertFalse(
+                self.c.white_kingside if turn else self.c.black_kingside)
+
+        self.c.black_kingside = True
+        self.c.black_queenside = True
+        self.c.white_kingside = True
+        self.c.white_queenside = True
+
+        for turn in [True, False]:
+            self.c.turn = turn
+            self.c('Ke2' if turn else 'Ke7')
+            self.assertFalse(
+                self.c.white_queenside if turn else self.c.black_queenside)
+            self.assertFalse(
+                self.c.white_kingside if turn else self.c.black_kingside)
 
     def test_king_tracking(self):
-        """Moves kings around and assert that the game correctly keeps
+        """Move kings around and assert that the game correctly keeps
         track of their position.
         """
 
