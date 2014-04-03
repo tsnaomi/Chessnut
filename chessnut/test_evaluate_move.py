@@ -51,6 +51,12 @@ class TestEvaluateMove(unittest.TestCase):
         """Evaluate a variety of illegal moves and assert that they don't
         change the board.
         """
+        test_moves = ['Nb1d2', 'c7c7', 'd2c4', 'Qd8a5', 'Rh1h4', 'Bc8a6']
+        for move in test_moves:
+            self.assertRaises(MoveNotLegalError, self.c, move)
+            self.assertEqual(
+                self.original_board, self.c._board_to_image_string())
+            self.c.turn = not self.c.turn
 
     def test_evaluate_moves_not_relieving_check(self):
         """Evaluate a variety of moves that should be illegal because
