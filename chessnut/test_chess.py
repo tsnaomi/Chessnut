@@ -394,7 +394,7 @@ class TestCastlingEvaluators(unittest.TestCase):
             for col in [5, 6]:
                 self.c.board[row][col] = ('P', turn)
                 self.assertRaises(
-                    MoveNotLegalError, self.c._queenside_evaluator)
+                    MoveNotLegalError, self.c._kingside_evaluator)
                 self.c.board[row][col] = (0, 0)
 
     def test_queenside_castling_blocked(self):
@@ -402,18 +402,40 @@ class TestCastlingEvaluators(unittest.TestCase):
         rook and/or king is blocked and assert that the operation is
         determined illegal.
         """
+        for turn in [True, False]:
+            self.c.turn = turn
+            row = 7 if turn else 0
+            for col in [2, 3, 4]:
+                self.c.board[row][col] = ('P', turn)
+                self.assertRaises(
+                    MoveNotLegalError, self.c._queenside_evaluator)
+                self.c.board[row][col] = (0, 0)
 
     def test_kingside_castling_no_longer_allowed(self):
         """Attempt to perform kingside castling when the rook and/or
         king have already moved and assert that the move is determined
         illegal.
         """
+        self.c.white_kingside = False
+        self.assertRaises(
+            MoveNotLegalError, self.c._kingside_evaluator)
+        self.c.turn = False
+        self.c.black_kingside = False
+        self.assertRaises(
+            MoveNotLegalError, self.c._kingside_evaluator)
 
-    def test_queen_castling_no_longer_allowed(self):
+    def test_queenside_castling_no_longer_allowed(self):
         """Attempt to perform queenside castling when the rook and/or
         king have already moved and assert that the move is determined
         illegal.
         """
+        self.c.white_queenside = False
+        self.assertRaises(
+            MoveNotLegalError, self.c._queenside_evaluator)
+        self.c.turn = False
+        self.c.black_queenside = False
+        self.assertRaises(
+            MoveNotLegalError, self.c._queenside_evaluator)
 
 
 class TestIsCheck(unittest.TestCase):

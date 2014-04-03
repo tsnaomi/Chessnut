@@ -527,6 +527,10 @@ class ChessnutGame(object):
             raise MoveNotLegalError
 
         row = 7 if self.turn else 0
+        if self.board[row][4] != ('K', self.turn) or \
+                self.board[row][0] != ('R', self.turn):
+            raise MoveNotLegalError
+
         for col in [1, 2, 3]:
             if self.board[row][col] != (0, 0):
                 raise MoveNotLegalError
@@ -552,6 +556,10 @@ class ChessnutGame(object):
             raise MoveNotLegalError
 
         row = 7 if self.turn else 0
+        if self.board[row][4] != ('K', self.turn) or \
+                self.board[row][7] != ('R', self.turn):
+            raise MoveNotLegalError
+
         for col in [5, 6]:
             if self.board[row][col] != (0, 0):
                 raise MoveNotLegalError
