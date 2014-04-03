@@ -678,8 +678,48 @@ class ChessnutGame(object):
                 except (IndexError, ValueError):
                     pass
 
-        #If the king cannot move anywhere, but is safe on its current square,
-        #we do not have a checkmate (but we might have a stalemate).
+        #If any space around the king can be moved to or captured to by
+        #another piece of the same color, and doing so removes the king
+        #from check, then we do not have a checkmate.
+        for i in range(row - 1, row + 2):
+            if i < 0 or i > 7:
+                continue
+            for j in range(col - 1, col + 2):
+                if j < 0 or j > 7:
+                    continue
+                for piece in ['P', 'R', 'N', 'B', 'Q']:
+                    for capture in [None, 'x']:
+                        groups = {
+                            'piece': piece,
+                            'dest': self._coords_to_pgn_move(i, j),
+                            'rank': None,
+                            'file': None,
+                            'capture': capture,
+                            'check': None,
+                            'checkmate': None,
+                        }
+                        evaluator = self._get_evaluator(piece)
+                        try:
+                            evaluator(groups)
+                            old_space, self.board[i][j] = \
+                                self.board[i][j], ('P', self.turn)
+                            relieved = not self._is_check(row, col)
+                            self.board[i][j] = old_space
+                            if relieved:
+                                return False
+                        except MoveNotLegalError:
+                            continue
+                        except MoveAmbiguousError:
+                            old_space, self.board[i][j] = \
+                                self.board[i][j], ('P', self.turn)
+                            relieved = not self._is_check(row, col)
+                            self.board[i][j] = old_space
+                            if relieved:
+                                return False
+
+        #If the king cannot move anywhere, and no other piece can save
+        #it, but it is safe on its current square, then we do not have a
+        #checkmate (but we might have a stalemate).
         if not self._is_check(row, col):
             return False
 
