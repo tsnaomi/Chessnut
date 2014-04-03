@@ -112,6 +112,16 @@ class TestEvaluateMove(unittest.TestCase):
         """Move kings around and assert that the game correctly keeps
         track of their position.
         """
+        self.c.board[1] = [(0, 0) for i in range(8)]
+        self.c.board[6] = [(0, 0) for i in range(8)]
+
+        for turn in [True, False]:
+            self.c.turn = turn
+            self.c('Ke2' if turn else 'Ke7')
+            self.assertEqual(
+                self.c.white_king if turn else self.c.black_king,
+                (6, 4) if turn else (1, 4)
+            )
 
     def test_end_game_on_checkmate(self):
         """Set up several checkmates and assert that they end the game
