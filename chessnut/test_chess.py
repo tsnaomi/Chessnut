@@ -323,6 +323,10 @@ class TestCastlingEvaluators(unittest.TestCase):
         self.assertEqual(self.c.board[row][7], (0, 0))
         self.assertFalse(self.c.white_kingside)
         self.assertFalse(self.c.white_queenside)
+        self.assertEqual(
+            self.c.white_king if turn else self.c.black_king,
+            (7, 6) if turn else (0, 6)
+        )
 
     def _queenside_performed(self, turn):
         row = 7 if turn else 0
@@ -332,6 +336,10 @@ class TestCastlingEvaluators(unittest.TestCase):
         self.assertEqual(self.c.board[row][0], (0, 0))
         self.assertFalse(self.c.white_kingside)
         self.assertFalse(self.c.white_queenside)
+        self.assertEqual(
+            self.c.white_king if turn else self.c.black_king,
+            (7, 2) if turn else (0, 2)
+        )
 
     def test_perform_kingside_castling(self):
         """Perform a kingside castle and assert that the move succeeds
@@ -560,6 +568,22 @@ class TestIsCheckmate(unittest.TestCase):
             for i in range(8):
                 for j in range(8):
                     self.assertTrue(self.c._is_checkmate(i, j))
+
+    def test_is_checkmate_can_be_blocked(self):
+        """Create a situation in which the only way to relieve a checkmate is
+        to block the threat with a friendly piece and assert that this
+        situation does not register as a checkmate.
+        """
+        self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
+        for turn in [True, False]:
+            self.c.board[0][0] = ('K', turn)
+            self.c.board[1][0] = ('P', turn)
+            self.c.board[0][1] = ('R', turn)
+            self.c.board[2][2] = ('B', not turn)
+
+            self.c.turn = turn
+
+            self.assertFalse(self.c._is_checkmate(0, 0))
 
     def test_stalemate_is_not_checkmate(self):
         """Create a stalemate and assert that it does not register as a
