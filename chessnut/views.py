@@ -6,7 +6,7 @@ from .models import (
     SinceId
     )
 from .twitter import (
-    # get_moves,
+    get_moves,
     execute_moves,
     media_tweet,
     # send_tweet,
@@ -27,11 +27,11 @@ move_queue = gqueue()
 
 # @sched.interval_schedule(seconds=90)
 # def moves():
-#     since_id = SinceId.get_by_id(1)
-#     since_id = get_moves(move_queue, since_id)
-#     execute_moves(move_queue)
-#     DBSession.commit()
-#     return None
+    # since_id = SinceId.get_by_id(1)
+    # since_id = get_moves(move_queue, since_id)
+    # execute_moves(move_queue)
+    # DBSession.commit()
+    # return None
 
 
 @view_config(route_name='index', renderer='base.jinja2')
@@ -100,5 +100,8 @@ def logout(request):
 
 @view_config(route_name='mentions', renderer='string')
 def get_move(request):
-    media_tweet()
-    return "Sent, buddy"
+    since_id = SinceId.get_by_id(1)
+    since_id = get_moves(move_queue, since_id)
+    execute_moves(move_queue)
+    DBSession.commit()
+    return "well, stuff happened"
