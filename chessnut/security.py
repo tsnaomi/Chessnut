@@ -1,5 +1,5 @@
 from pyramid.security import Allow, Everyone, Authenticated, ALL_PERMISSIONS
-from .models import User, Game
+from .models import Game
 
 
 ADMINS = []
@@ -22,18 +22,6 @@ class Root(object):
 
     def __init__(self, request):
         pass
-
-
-class UserFactory(object):
-
-    def __init__(self, request):
-        self.request = request
-
-    def __getitem__(self, key):
-        user = User.get_by_username(key)
-        user.__parent__ = self
-        user.__name__ = key
-        return user
 
 
 class GameFactory(object):

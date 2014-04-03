@@ -20,10 +20,9 @@ from gevent.queue import Queue as gqueue
 sched = Scheduler()
 sched.start()
 
-consumer_key = ''
-consumer_secret = ''
+consumer_key = 'a1QFgBvoQNnSbshCghSwg'
+consumer_secret = '9niiLlNcfJYR4W4u5kNwQjEZEXE81HBwkHA6hRw4QU'
 
-move_queue = gqueue()
 
 # @sched.interval_schedule(seconds=90)
 # def moves():
@@ -100,8 +99,8 @@ def logout(request):
 
 @view_config(route_name='mentions', renderer='string')
 def get_move(request):
+
     since_id = SinceId.get_by_id(1)
-    since_id = get_moves(move_queue, since_id)
-    execute_moves(move_queue)
-    DBSession.commit()
+    since_id, tweet_queue = get_moves(since_id)
+    execute_moves(tweet_queue)
     return "well, stuff happened"

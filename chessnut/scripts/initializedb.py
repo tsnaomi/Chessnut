@@ -11,7 +11,6 @@ from pyramid.paster import (
 
 from ..models import (
     DBSession,
-    User,
     Base,
     SinceId,
     )
@@ -33,8 +32,6 @@ def main(argv=sys.argv):
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.create_all(engine)
-    with transaction.manager:
-        since_id = SinceId(0)
-        DBSession.add(since_id)
-    #     admin = User(username=u'admin', password=u'admin', email="admin@admin.com")
-    #     DBSession.add(admin)
+    # with transaction.manager:
+        # since_id = SinceId(0)
+        # DBSession.add(since_id)

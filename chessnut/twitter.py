@@ -5,32 +5,35 @@ from .models import (
     Challenge,
     )
 import sqlalchemy as sa
+import transaction
 from .generate_board import board
 from .chess import ChessnutGame as cg
+from gevent.queue import Queue as gqueue
 import tweepy
 import os
 import re
 
 
-consumer_key = ''
-consumer_secret = ''
+consumer_key = 'a1QFgBvoQNnSbshCghSwg'
+consumer_secret = '9niiLlNcfJYR4W4u5kNwQjEZEXE81HBwkHA6hRw4QU'
 
 
 def tweet_parser(tweet):
     """Takes in a unicode-formatted tweet and returns a dictionary of the
     game name opponent, move, and extra message.
     """
-    tweet = tweet.encode('utf-8')
+    tweet = tweet.encode()
 
     match = re.match(
-        r'^@\w{11} (@(?P<opponent>[^\s]+) )?#(?P<game>\w+) (?P<move>[^\s]+) (?P<message>.*)$',
+        r'^@\w{11} (@(?P<opponent>[^\s]+) )?#(?P<game>[\w\d]+)( (?P<move>[^\s]+))?( (?P<message>.*))?$',
         tweet
     )
 
     if match:
         group = match.groupdict()
-        for k, v in group:
-            group[k] = v.decode('utf-8')
+        for k, v in group.iteritems():
+            if v:
+                group[k] = v.decode('utf-8')
         return group
     else:
         raise ValueError("Tweet not formatted correctly.")
@@ -45,60 +48,68 @@ def get_api(user):
     return api
 
 
-def get_moves(movequeue, since_id):
+def get_moves(since_id):
     api = get_api(2422730102)
     mentions = api.mentions_timeline()
+    movequeue = gqueue()
     for i in mentions[-1::-1]:
         movequeue.put(i)
-        since_id.value = i.id_str
-    return since_id
+        since_id.value = long(i.id) + long(1)
+    return since_id, movequeue
 
 
 def execute_moves(movequeue):
     size = movequeue.qsize()
     for i in xrange(size):
         move = movequeue.get()
-        text, user = move.text, move.user.id
+        text, user_id, user = move.text, move.user.id, move.user.screen_name
         parsed = tweet_parser(text)
-        #if there is no move, we have to figure out what it is
-        if not parsed['move']:
+        #assume it's a move and give it a shot
+        try:
+            game = Game.get_by_name(parsed['game'])
+            if game.is_turn(user_id):
+                game_update = cg(game.pgn)
+                game_update(parsed['move'])
+                game.pgn = game_update.pgn
+                image_url = board(cg.image_string)
+                send_user_tweet(user_id, image_url, game)
+                game.end_turn()
+            else:
+                send_error(user_id, 'notyourturn')
+        except:
             #this means it should be a challenge
             if parsed['opponent'] and parsed['game']:
                 challenge = Challenge.get_by_name(parsed['game'])
-                #determining if it is accepting or declaring a challenge
-                if challenge.opponent == parsed['opponent'] and challenge.owner == user:
-                    challenge.accept()
-                    send_game_start(parsed['game'], user, parsed['opponent'])
+                opponent = TwUser.get_by_user_id(user_id)
+                if challenge is not None and opponent is not None:
+                    if challenge.owner_sn == parsed['opponent'] and challenge.opponent == user:
+                        challenge.accept(opponent.id)
+                        send_game_start(parsed['game'], parsed['opponent'], user)
+                    else:
+                        send_error(user_id, error='notyourgame')
+                elif challenge is not None:
+                    send_error(user_id, error='register')
                 else:
-                    #making sure user is registered with us
-                    owner = TwUser.get_by_user_id(user)
+                    #making sure user_id is registered with us
+                    owner = TwUser.get_by_user_id(user_id)
                     try:
                         challenge = Challenge(parsed['game'],
                                               owner.id,
-                                              parsed['opponent'])
-                        send_challenge(user, parsed['opponent'])
+                                              parsed['opponent'],
+                                              user,
+                                              )
+                        DBSession.add(challenge)
+                        send_challenge(user_id, parsed['opponent'])
                     #this is for the unregistered
                     except TypeError:
-                        send_error(user, error='register')
+                        send_error(user_id, error='register')
                     #should be preventing duplicate game names here
                     except:
-                        send_error(user, error='gamename')
+                        send_error(user_id, error='gamename')
             #formatting problems get grabbed here
             else:
-                send_error(user, error='format')
+                send_error(user_id, error='format')
         #and this is just us handling a normal move
-        else:
-            try:
-                game = Game.get_by_name(parsed['game'])
-                if game.is_turn(user):
-                    game_update = cg(game.pgn)
-                    game_update(parsed['move'])
-                    game.pgn = game_update.pgn
-                    image_url = board(cg.image_string)
-                    send_user_tweet(user, image_url, game)
-                    game.end_turn()
-            except cg.ChessnutError as e:
-                send_error(user, error=e)
     return None
 
 
@@ -117,32 +128,37 @@ def send_challenge(user, opponent):
     cn_api = get_api(2422730102)
     opponent = api.get_user(opponent)
     user = api.get_user(user)
-    challengetweet = u"@%s You have been challenged to a game of chess by \
-        @%s" % (opponent.screen_name, user.screen_name)
+    challengetweet = u"@%s I'm challengeing you to a game of chess" % opponent.screen_name
     if not TwUser.get_by_user_id(opponent.id):
-        cn_api.update_status(u"@%s has challenged you to a game of chess! Join\
-            by visiting %s") % (user.screen_name, 'url goes here')
+        newuser_tweet = u"@%s @%s has challenged you to a game of chess! Join by visiting %s" % (opponent.screen_name, user.screen_name, 'url goes here')
+        cn_api.update_status(newuser_tweet)
     api.update_status(challengetweet)
     return
 
 
 def send_game_start(name, owner, opponent):
     """sends start game tweet to owner and opponent"""
-    pass
+    api = get_api(2422730102)
+    tweet = u"The game begins at #%s. @%s has the first move. @%s is the opponent" % (name, owner, opponent)
+    api.update_status(tweet)
+    return
 
 
 def send_error(user, error='default'):
     error_dict = {
-        'default': u"There was a general error",
-        'register': u"you have to reigster to challenge people",
-        'gamename': u"that name is already taken",
-        'format': u"Your last tweet had formatting issues",
+        'default': u"@%s There was a general error",
+        'register': u"@%s you have to register to challenge people",
+        'gamename': u"@%s that game name is already taken",
+        'format': u"@%s Your last tweet had formatting issues",
+        'notyourgame': u"@%s that is not your game",
+        'notyourturn': u"@%s it isn't your turn yet",
     }
     api = get_api(2422730102)  # the user_id of @chessnutapp
     user = api.get_user(user)
     user = user.screen_name
     tweet = error_dict[error]
-    api.update_status(tweet)
+    tweet = tweet % user
+    # api.update_status(tweet)
     return None
 
 
