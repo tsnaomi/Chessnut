@@ -78,29 +78,6 @@ class ChessnutGame(object):
             elif groups['piece'] == 'K':
                 self.black_king = (drow, dcol)
 
-            #If, at the end of any move, either king is under checkmate,
-            #then the game is over. We have to flip the turn bit here so
-            #that we can evaluate whether the king is checkmated from the
-            #other player's perspective.
-            self.turn = not self.turn
-            if not self.turn and self._is_checkmate(*self.black_king):
-                self.is_over = True
-                self.winner = False
-            elif self.turn and self._is_checkmate(*self.white_king):
-                self.is_over = True
-                self.winner = True
-            self.turn = not self.turn
-
-            #If, at the end of any move, that player's king is under
-            #check, then that move was illegal. The player must act to
-            #take their king out of check.
-            if self.turn and self._is_check(*self.white_king):
-                raise MoveNotLegalError(
-                    "Player's king was under check at the end of their turn.")
-            elif not self.turn and self._is_check(*self.black_king):
-                raise MoveNotLegalError(
-                    "Player's king was under check at the end of their turn.")
-
             #TO DO: en passant capture, stalemate, end game on checkmate,
             #forfeit, promotion, check legality of a move based on whether
             #the king is checked.
@@ -147,6 +124,30 @@ class ChessnutGame(object):
 
         if not match:
             raise NotationParseError
+
+        #If, at the end of any move, either king is under checkmate,
+        #then the game is over. We have to flip the turn bit here so
+        #that we can evaluate whether the king is checkmated from the
+        #other player's perspective.
+        #import pdb; pdb.set_trace()
+        self.turn = not self.turn
+        if not self.turn and self._is_checkmate(*self.black_king):
+            self.is_over = True
+            self.winner = False
+        elif self.turn and self._is_checkmate(*self.white_king):
+            self.is_over = True
+            self.winner = True
+        self.turn = not self.turn
+
+        #If, at the end of any move, that player's king is under
+        #check, then that move was illegal. The player must act to
+        #take their king out of check.
+        if self.turn and self._is_check(*self.white_king):
+            raise MoveNotLegalError(
+                "Player's king was under check at the end of their turn.")
+        elif not self.turn and self._is_check(*self.black_king):
+            raise MoveNotLegalError(
+                "Player's king was under check at the end of their turn.")
 
         #If white has just made a move, then we're entering a new move
         #(pair of half_moves) from a PGN perspective. Increment the
@@ -615,7 +616,7 @@ class ChessnutGame(object):
         check = False
 
         dummy = False
-        if self.board[row][col][1] != self.turn:
+        if self.board[row][col][1] is not self.turn:
             old_space = self.board[row][col]
             dummy = True
             self.board[row][col] = ('P', self.turn)
@@ -671,7 +672,7 @@ class ChessnutGame(object):
                 if j < 0:
                     continue
                 try:
-                    if self.board[i][j][1] != self.turn and \
+                    if self.board[i][j][1] is not self.turn and \
                             not self._is_check(i, j):
                         return False
                 except (IndexError, ValueError):

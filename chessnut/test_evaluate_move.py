@@ -22,17 +22,18 @@ class TestEvaluateMove(unittest.TestCase):
         self.original_board = \
             ''.join([''.join(row) for row in self.board_array])
 
-    def _make_test_move(self, move):
+    def _make_test_move(self, move=None):
         """Make a test move in the test board array and then return the
         entire array as an image string for comparison.
         """
-        if len(move) == 5:
-            move = move[1:]
-        orow, ocol = self.c._pgn_move_to_coords(move[:2])
-        drow, dcol = self.c._pgn_move_to_coords(move[2:])
+        if move:
+            if len(move) == 5:
+                move = move[1:]
+            orow, ocol = self.c._pgn_move_to_coords(move[:2])
+            drow, dcol = self.c._pgn_move_to_coords(move[2:])
 
-        self.board_array[drow][dcol], self.board_array[orow][ocol] = \
-            self.board_array[orow][ocol], '0'
+            self.board_array[drow][dcol], self.board_array[orow][ocol] = \
+                self.board_array[orow][ocol], '0'
 
         return ''.join([''.join(row) for row in self.board_array])
 
@@ -59,12 +60,23 @@ class TestEvaluateMove(unittest.TestCase):
             self.c.turn = not self.c.turn
 
     def test_evaluate_moves_not_relieving_check(self):
-        """Evaluate a variety of moves that should be illegal because
-        they don't remove the king from check and assert that they are
+        """Evaluate a some moves that should be illegal because they
+        don't remove the king from check and assert that they are
         correctly determined illegal.
         """
         self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
-        #self.board_array =
+
+        self.c.board[0][4] = ('K', False)
+        self.c.board[7][4] = ('K', True)
+        self.c.board[3][4] = ('Q', True)
+        self.c.board[4][4] = ('Q', False)
+        self.c.board[1][0] = ('P', False)
+        self.c.board[6][0] = ('P', True)
+
+        #import pdb; pdb.set_trace()
+        self.assertRaises(MoveNotLegalError, self.c, 'a2a3')
+        self.c.turn = False
+        self.assertRaises(MoveNotLegalError, self.c, 'a7a6')
 
     def test_castling_logic_tracking(self):
         """Evaluate a variety of moves that should disallow future
