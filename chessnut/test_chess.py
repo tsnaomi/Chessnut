@@ -315,47 +315,153 @@ class TestCastlingEvaluators(unittest.TestCase):
         self.c.board[7][7] = ('R', True)
         self.c.board[7][4] = ('K', True)
 
+    def _kingside_performed(self, turn):
+        row = 7 if turn else 0
+        self.assertEqual(self.c.board[row][6], ('K', turn))
+        self.assertEqual(self.c.board[row][5], ('R', turn))
+        self.assertEqual(self.c.board[row][4], (0, 0))
+        self.assertEqual(self.c.board[row][7], (0, 0))
+        self.assertFalse(self.c.white_kingside)
+        self.assertFalse(self.c.white_queenside)
+
+    def _queenside_performed(self, turn):
+        row = 7 if turn else 0
+        self.assertEqual(self.c.board[row][2], ('K', turn))
+        self.assertEqual(self.c.board[row][3], ('R', turn))
+        self.assertEqual(self.c.board[row][4], (0, 0))
+        self.assertEqual(self.c.board[row][0], (0, 0))
+        self.assertFalse(self.c.white_kingside)
+        self.assertFalse(self.c.white_queenside)
+
     def test_perform_kingside_castling(self):
         """Perform a kingside castle and assert that the move succeeds
         and alters the board and game variables as expected.
         """
         self.c._kingside_evaluator()
-        self.assertEqual(self.c.board[7][6], ('K', True))
-        self.assertEqual(self.c.board[7][5], ('R', True))
-        self.assertEqual(self.c.board[7][4], (0, 0))
-        self.assertEqual(self.c.board[7][7], (0, 0))
-        self.assertFalse(self.c.white_kingside)
-        self.assertFalse(self.c.white_queenside)
+        self._kingside_performed(True)
 
+        self.c.board[7] = [(0, 0) for i in range(8)]
         self.c.turn = False
         self.c._kingside_evaluator()
-        self.assertEqual(self.c.board[0][6], ('K', False))
-        self.assertEqual(self.c.board[0][5], ('R', False))
-        self.assertEqual(self.c.board[0][4], (0, 0))
-        self.assertEqual(self.c.board[0][7], (0, 0))
-        self.assertFalse(self.c.black_kingside)
-        self.assertFalse(self.c.black_queenside)
+        self._kingside_performed(False)
 
     def test_perform_queenside_castling(self):
         """Perform a queenside castle and assert that the move succeeds
         and alters the board and game variables as expected.
         """
         self.c._queenside_evaluator()
-        self.assertEqual(self.c.board[7][2], ('K', True))
-        self.assertEqual(self.c.board[7][3], ('R', True))
-        self.assertEqual(self.c.board[7][4], (0, 0))
-        self.assertEqual(self.c.board[7][0], (0, 0))
-        self.assertFalse(self.c.white_kingside)
-        self.assertFalse(self.c.white_queenside)
+        self._queenside_performed(True)
 
+        self.c.board[7] = [(0, 0) for i in range(8)]
         self.c.turn = False
         self.c._queenside_evaluator()
-        self.assertEqual(self.c.board[0][2], ('K', False))
-        self.assertEqual(self.c.board[0][3], ('R', False))
-        self.assertEqual(self.c.board[0][4], (0, 0))
-        self.assertEqual(self.c.board[0][0], (0, 0))
-        self.assertFalse(self.c.black_kingside)
-        self.assertFalse(self.c.black_queenside)
+        self._queenside_performed(False)
+
+    def test_kingside_castling_checked(self):
+        """Attempt to perform kingside castling when the king is checked
+        or would move into or through check and assert that the move is
+        determined illegal.
+        """
+        for turn in [True, False]:
+            self.c.turn = turn
+            for col in [4, 5, 6]:
+                self.c.board[1][col] = ('Q', not turn)
+                self.assertRaises(
+                    MoveNotLegalError, self.c._kingside_evaluator)
+                self.c.board[1] = [(0, 0) for i in range(8)]
+
+    def test_queenside_castling_checked(self):
+        """Attempt to perform queenside castling when the king is checked
+        or would move into or through check and assert that the move is
+        determined illegal.
+        """
+        for turn in [True, False]:
+            self.c.turn = turn
+            for col in [2, 3, 4]:
+                self.c.board[1][col] = ('Q', not turn)
+                self.assertRaises(
+                    MoveNotLegalError, self.c._queenside_evaluator)
+                self.c.board[1] = [(0, 0) for i in range(8)]
+
+    def test_kingside_castling_blocked(self):
+        """Attempt to perform kingside castling when the path for the
+        rook and/or king is blocked and assert that the operation is
+        determined illegal.
+        """
+        for turn in [True, False]:
+            self.c.turn = turn
+            row = 7 if turn else 0
+            for col in [5, 6]:
+                self.c.board[row][col] = ('P', turn)
+                self.assertRaises(
+                    MoveNotLegalError, self.c._kingside_evaluator)
+                self.c.board[row][col] = (0, 0)
+
+    def test_queenside_castling_blocked(self):
+        """Attempt to perform queenside castling when the path for the
+        rook and/or king is blocked and assert that the operation is
+        determined illegal.
+        """
+        for turn in [True, False]:
+            self.c.turn = turn
+            row = 7 if turn else 0
+            for col in [2, 3, 4]:
+                self.c.board[row][col] = ('P', turn)
+                self.assertRaises(
+                    MoveNotLegalError, self.c._queenside_evaluator)
+                self.c.board[row][col] = (0, 0)
+
+    def test_kingside_castling_no_longer_allowed(self):
+        """Attempt to perform kingside castling when the rook and/or
+        king have already moved and assert that the move is determined
+        illegal.
+        """
+        self.c.white_kingside = False
+        self.assertRaises(
+            MoveNotLegalError, self.c._kingside_evaluator)
+        self.c.turn = False
+        self.c.black_kingside = False
+        self.assertRaises(
+            MoveNotLegalError, self.c._kingside_evaluator)
+
+    def test_queenside_castling_no_longer_allowed(self):
+        """Attempt to perform queenside castling when the rook and/or
+        king have already moved and assert that the move is determined
+        illegal.
+        """
+        self.c.white_queenside = False
+        self.assertRaises(
+            MoveNotLegalError, self.c._queenside_evaluator)
+        self.c.turn = False
+        self.c.black_queenside = False
+        self.assertRaises(
+            MoveNotLegalError, self.c._queenside_evaluator)
+
+    def test_kingside_castling_rook_captured(self):
+        """My castling logic check only looks to see whether a rook or
+        king has ever moved. If a rook is captured without having moved,
+        its corresponding castling logic is not modified. Assert that
+        castling still can't be performed when the kingside rook has been
+        removed from the board.
+        """
+        for turn in [True, False]:
+            self.c.turn = turn
+            row = 7 if turn else 0
+            self.c.board[row][7] = (0, 0)
+            self.assertRaises(MoveNotLegalError, self.c._kingside_evaluator)
+
+    def test_queenside_castling_rook_captured(self):
+        """My castling logic check only looks to see whether a rook or
+        king has ever moved. If a rook is captured without having moved,
+        its corresponding castling logic is not modified. Assert that
+        castling still can't be performed when the queenside rook has been
+        removed from the board.
+        """
+        for turn in [True, False]:
+            self.c.turn = turn
+            row = 7 if turn else 0
+            self.c.board[row][0] = (0, 0)
+            self.assertRaises(MoveNotLegalError, self.c._queenside_evaluator)
 
 
 class TestIsCheck(unittest.TestCase):
