@@ -37,12 +37,17 @@ def main(global_config, **settings):
 
     # views
     config.add_static_view('static', 'static', cache_max_age=3600)
+    config.add_route('front', '/front')
     config.add_route('home', '/')
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
     config.add_route('twauth', '/twauth')
-    config.add_route('index', '/index')
-    config.add_route('register', '/register')
+    # config.add_route('index', '/index')
+    # config.add_route('register', '/register')
     config.add_route('post', '/post')
+    config.add_route('notation', '/notation')
+    config.add_route('list', '/matches')  # /{id:\d+}
+    config.add_route('match', '/match')  # /{id:\d+}
+    config.add_route
     config.scan()
     return config.make_wsgi_app()

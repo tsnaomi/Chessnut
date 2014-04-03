@@ -1,32 +1,39 @@
 #!usr/bin/env Python
 
+from os.path import isfile
 from PIL import Image
 
-start = 'rnbqkbnrpppppppp00000000000000000000000000000000PPPPPPPPRNBQKBNR'
+start = 'rnbqkbnrpppppppp00000000000000000000000000000000PPPPPPPPRNBQKBNR1112'
 
 
 def board(state=start):
-    BOARD = Image.open('static/board.png').copy()
+    if isfile('static/boards/%s.png' % state):
+        return Image.open('static/boards/%s.png' % state)
+    BOARD = Image.open('static/elements/board.png').copy()
     pieces = {'b': 'bishop', 'k': 'king', 'n': 'knight', 'q': 'queen',
               'p': 'pawn', 'r': 'rook'}
-    glow = Image.open('static/glow.png')
+    glow = Image.open('static/elements/glow.png')
+    if len(state) == 67:  # CASTLING GLOWS
+        r = 0 if state[64] == "B" else 7
+        columns = [4, 5, 6, 7] if state[65] == "K" else [0, 2, 3, 4]
+        for c in columns:  # NORMAL GLOWS
+            BOARD.paste(glow, (26 + (58 * c), 11 + (58 * r)), glow)
     if len(state) == 68:
-        BOARD.paste(glow, (89 + (200 * int(state[64])),
-                           38 + (198 * int(state[65]))), glow)
-        BOARD.paste(glow, (89 + (200 * int(state[66])),
-                           38 + (198 * int(state[67]))), glow)
-    for index, i in enumerate(state[:64]):
+        BOARD.paste(glow, (26 + (58 * int(state[64])),
+                           11 + (58 * int(state[65]))), glow)
+        BOARD.paste(glow, (26 + (58 * int(state[66])),
+                           11 + (58 * int(state[67]))), glow)
+    for index, i in enumerate(state[:64]):  # PLACING PIECES ON BOARD
         if i != '0':
             c = index % 8 if i != 0 else 0
             r = (index - c) // 8 if i != 0 else 0
-            p = Image.open('static/%s.png' % pieces[i.lower()])
+            p = Image.open('static/elements/%s.png' % pieces[i.lower()])
             if i in "rnbqkbnrp":
-                BOARD.paste(p, (90 + (200 * c), 38 + (200 * r)), p)
+                BOARD.paste(p, (26 + (58 * c), 11 + (58 * r)), p)
             else:
-                BOARD.paste((91, 94, 243), (90 + (200 * c), 38 + (200 * r)), p)
+                BOARD.paste((91, 94, 243), (26 + (58 * c), 11 + (58 * r)), p)
     BOARD.save('static/boards/%s.png' % state)
-    # BOARD.show()
     return BOARD
 
 if __name__ == '__main__':
-    board()
+    board().show()

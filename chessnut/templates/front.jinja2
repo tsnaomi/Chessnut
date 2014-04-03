@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+
+{% extends 'layout.jinja2' %}
+
+{% block toolbar %}
+<!--     {#% if session.get('user_id', 0)%#}
+ -->        <p class='toolbar'>
+        <a href='{{request.route_url('list')}}'>Past Conquests</a> |
+        <a href='{{request.route_url('notation')}}'>Notation</a> |
+        <a href='{{request.route_url('logout')}}'>Sign Out</a>
+        </p>
+    <!-- {#% else %#}
+        <p class='toolbar'>
+        <a href='{{request.route_url('login')}}'>Sign In</a> | 
+        <a href='{{request.route_url('login')}}'>Join</a> |
+        <a href='{{request.route_url('notation')}}'>Notation</a>
+        </p>
+    {#% endif %}# -->
+{% endblock %}
+
+{% block body %}
