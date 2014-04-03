@@ -63,6 +63,8 @@ class TestEvaluateMove(unittest.TestCase):
         they don't remove the king from check and assert that they are
         correctly determined illegal.
         """
+        self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
+        #self.board_array =
 
     def test_castling_logic_tracking(self):
         """Evaluate a variety of moves that should disallow future
