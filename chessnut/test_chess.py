@@ -561,6 +561,22 @@ class TestIsCheckmate(unittest.TestCase):
                 for j in range(8):
                     self.assertTrue(self.c._is_checkmate(i, j))
 
+    def test_is_checkmate_can_be_blocked(self):
+        """Create a situation in which the only way to relieve a checkmate is
+        to block the threat with a friendly piece and assert that this
+        situation does not register as a checkmate.
+        """
+        self.c.board = [[(0, 0) for i in range(8)] for i in range(8)]
+        for turn in [True, False]:
+            self.c.board[0][0] = ('K', turn)
+            self.c.board[1][0] = ('P', turn)
+            self.c.board[0][1] = ('R', turn)
+            self.c.board[2][2] = ('B', not turn)
+
+            self.c.turn = turn
+
+            self.assertFalse(self.c._is_checkmate(0, 0))
+
     def test_stalemate_is_not_checkmate(self):
         """Create a stalemate and assert that it does not register as a
         checkmate.
