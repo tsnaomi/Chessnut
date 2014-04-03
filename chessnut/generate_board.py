@@ -28,7 +28,7 @@ def board(state=start):
             c = index % 8 if i != 0 else 0
             r = (index - c) // 8 if i != 0 else 0
             p = Image.open('static/elements/%s.png' % pieces[i.lower()])
-            if i in "rnbqkbnrp":
+            if i in "rnbqkp":
                 BOARD.paste(p, (26 + (58 * c), 11 + (58 * r)), p)
             else:
                 BOARD.paste((91, 94, 243), (26 + (58 * c), 11 + (58 * r)), p)
