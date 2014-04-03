@@ -79,13 +79,17 @@ class ChessnutGame(object):
                 self.black_king = (drow, dcol)
 
             #If, at the end of any move, either king is under checkmate,
-            #then the game is over.
-            if self._is_checkmate(*self.white_king):
+            #then the game is over. We have to flip the turn bit here so
+            #that we can evaluate whether the king is checkmated from the
+            #other player's perspective.
+            self.turn = not self.turn
+            if not self.turn and self._is_checkmate(*self.black_king):
                 self.is_over = True
                 self.winner = False
-            if self._is_checkmate(*self.black_king):
+            elif self.turn and self._is_checkmate(*self.white_king):
                 self.is_over = True
                 self.winner = True
+            self.turn = not self.turn
 
             #If, at the end of any move, that player's king is under
             #check, then that move was illegal. The player must act to
@@ -93,7 +97,7 @@ class ChessnutGame(object):
             if self.turn and self._is_check(*self.white_king):
                 raise MoveNotLegalError(
                     "Player's king was under check at the end of their turn.")
-            elif self._is_check(*self.black_king):
+            elif not self.turn and self._is_check(*self.black_king):
                 raise MoveNotLegalError(
                     "Player's king was under check at the end of their turn.")
 
@@ -231,6 +235,8 @@ class ChessnutGame(object):
         #Compile a list of pawns that could make the given move.
         pieces = []
         try:
+            if drow + 1 * rowmod < 0:
+                raise IndexError
             if not groups['capture']:
                 if self.board[drow + 1 * rowmod][dcol] == ('P', turn):
                     pieces.append((drow + 1 * rowmod, dcol))
@@ -293,6 +299,8 @@ class ChessnutGame(object):
             while True:
                 row += rowmod
                 col += colmod
+                if row < 0 or col < 0:
+                    break
                 try:
                     if self.board[row][col] != (0, 0):
                         if self.board[row][col] == ('R', turn):
@@ -334,6 +342,8 @@ class ChessnutGame(object):
             row, col = drow, dcol
             row += rowmod
             col += colmod
+            if row < 0 or col < 0:
+                continue
             try:
                 if self.board[row][col] != (0, 0):
                     if self.board[row][col] == ('N', turn):
@@ -374,6 +384,8 @@ class ChessnutGame(object):
             while True:
                 row += rowmod
                 col += colmod
+                if row < 0 or col < 0:
+                    break
                 try:
                     if self.board[row][col] != (0, 0):
                         if self.board[row][col] == ('B', turn):
@@ -419,6 +431,8 @@ class ChessnutGame(object):
             row, col = drow, dcol
             row += rowmod
             col += colmod
+            if row < 0 or col < 0:
+                continue
             try:
                 if self.board[row][col] != (0, 0):
                     if self.board[row][col] == ('K', turn):
@@ -460,6 +474,8 @@ class ChessnutGame(object):
             while True:
                 row += rowmod
                 col += colmod
+                if row < 0 or col < 0:
+                    break
                 try:
                     if self.board[row][col] != (0, 0):
                         if self.board[row][col] == ('Q', turn):
@@ -623,7 +639,11 @@ class ChessnutGame(object):
         #recursion. We have to check separately whether the given spot
         #is under threat from an enemy king.
         for i in range(row - 1, row + 2):
+            if i < 0:
+                continue
             for j in range(col - 1, col + 2):
+                if j < 0:
+                    continue
                 try:
                     if self.board[i][j] == ('K', not self.turn):
                         check = True

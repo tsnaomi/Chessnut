@@ -78,3 +78,7 @@ class TestEvaluateMove(unittest.TestCase):
         """End the game on a forfeit and assert that the game ends with
         the correct player as winner.
         """
+
+
+if __name__ == '__main__':
+    unittest.main()
