@@ -178,16 +178,39 @@ class TestPawnEvaluator(unittest.TestCase):
         """Capture an enemy pawn en passant and assert that this move is
         determined legal.
         """
+        self.groups['capture'] = 'x'
+
+        self.c.board[4][2] = ('P', False)
+        self.c.board[4][1] = ('P', True)
+        self.c.board[3][4] = ('P', True)
+        self.c.board[3][5] = ('P', False)
+
+        self.c.en_passant[not self.c.turn].append((4, 2))
+        self.groups['dest'] = 'c5'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (4, 1))
+
+        self.c.turn = False
+        self.c.en_passant[not self.c.turn].append((3, 4))
+        self.groups['dest'] = 'e4'
+        self.assertEqual(self.c._pawn_evaluator(self.groups), (3, 5))
 
     def test_en_passant_capture_expired(self):
         """Attempt an en passant capture after the option to capture en
         passant has expired and assert that this move is determined illegal.
         """
+        self.c.board[4][2] = ('P', False)
+        self.c.board[4][1] = ('P', True)
+        self.c.board[3][4] = ('P', True)
+        self.c.board[3][5] = ('P', False)
 
-    def test_en_passant_capture_not_pawn(self):
-        """Attempt an en passant capture on an enemy piece that isn't a
-        pawn and assert that this move is determined illegal.
-        """
+        self.groups['dest'] = 'c5'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
+
+        self.c.turn = False
+        self.groups['dest'] = 'e4'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
 
 
 if __name__ == '__main__':

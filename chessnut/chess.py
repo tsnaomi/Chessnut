@@ -27,6 +27,14 @@ class ChessnutGame(object):
         self.white_king = (7, 4)
         self.black_king = (0, 4)
 
+        #Keep track of which pawns (if any) can be en-passant captured.
+        #Pawns are in buckets according to the player they belong to.
+        self.en_passant = {True: [], False: []}
+        #Set to true when an en passant capture has just been determined
+        #to have been made by the pawn evaluator. Signals to evaluate_move
+        #that it needs to perform an en passant capture.
+        self.en_passant_capture = False
+
         self.move_count = 0
         self.board = self._initialize_chessboard()
         self.pgn = ''
@@ -49,9 +57,15 @@ class ChessnutGame(object):
         if self.is_over:
             raise GameOverError
 
+        #Any pawns in the en_passant bucket corresponding to the current
+        #player are no longer eligible for en passant capture (which
+        #must happen immediately after the pawn to be captured has moved).
+        #Clear the en passant bucket corresponding to the current player.
+        self.en_passant[self.turn] = []
+
         #Attempt to parse the SAN notation.
         match = re.match(
-            r'^(?P<piece>[RNBKQP])?(?P<file>[a-z])?(?P<rank>\d)?(?P<capture>x)?(?P<dest>\w\d)(?P<check>\+)?(?P<checkmate>#)?$',
+            r'^(?P<piece>[RNBKQP])?(?P<file>[a-h])?(?P<rank>\d)?(?P<capture>x)?(?P<dest>\w\d)(?P<check>\+)?(?P<checkmate>#)?$',
             move
         )
 
@@ -72,6 +86,13 @@ class ChessnutGame(object):
 
             self.board[orow][ocol], self.board[drow][dcol] = \
                 (0, 0), self.board[orow][ocol]
+
+            #If an en passant capture has just been performed, clear the
+            #appropriate space on the board.
+            if self.en_passant_capture:
+                self.board[drow + 1 if self.turn else drow - 1][dcol] = \
+                    (0, 0)
+                self.en_passant_capture = False
 
             #If the king was just moved, update its position.
             if groups['piece'] == 'K' and self.turn:
@@ -244,7 +265,15 @@ class ChessnutGame(object):
                         self.board[drow + 2 * rowmod][dcol] == ('P', turn) \
                         and self.board[drow + 1 * rowmod][dcol] == (0, 0):
                     pieces.append((drow + 2 * rowmod, dcol))
+                    self.en_passant[self.turn].append(
+                        (drow, dcol))
             else:
+                if self.board[drow][dcol][1] is not (not self.turn):
+                    if (drow + 1 * rowmod, dcol) not in self.en_passant[not self.turn]:
+                        raise MoveNotLegalError
+                    else:
+                        self.en_passant_capture = True
+
                 try:
                     if self.board[drow + 1 * rowmod][dcol + 1] == ('P', turn):
                         pieces.append((drow + 1 * rowmod, dcol + 1))
