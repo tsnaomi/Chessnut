@@ -178,6 +178,16 @@ class TestPawnEvaluator(unittest.TestCase):
         """Capture an enemy pawn en passant and assert that this move is
         determined legal.
         """
+        self.groups['capture'] = 'x'
+
+        self.c.board[4][2] = ('P', False)
+        #self.c.board[][] = stuff
+        self.c.board[3][4] = ('P', True)
+        self.c.board[1][5] = ('P', False)
+
+        self.groups['rank'] = '2'
+        self.groups['file'] = 'b'
+        self.groups['dest'] = 'b3'
 
     def test_en_passant_capture_expired(self):
         """Attempt an en passant capture after the option to capture en
