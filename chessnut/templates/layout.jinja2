@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 
-<link rel="shortcut icon" type='image/x-icon' href='static/favicon.ico'/>
+<link rel="shortcut icon" type='image/x-icon' href='/static/favicon.ico'/>
 
 <title>Chessnut</title>
-<link rel=stylesheet type=text/css href='static/style.css'>
+<link rel=stylesheet type=text/css href='/static/style.css'>
 <div class=page> 
-    <h1><a rel=stylesheet type=text/css href='{{request.route_url('home')}}'><img class='title' src="static/site/title.png" alt="Chessnut" height="98" width="480"></img></a></h1>
+    <h1><a rel=stylesheet type=text/css href='{{request.route_url('home')}}'><img class='title' src="/static/site/title.png" alt="Chessnut" height="98" width="480"></img></a></h1>
     <div class=metanav></div>
 
     {% block toolbar %}{% endblock %}
-
 
     {% block body %}{% endblock %}
 

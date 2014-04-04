@@ -84,15 +84,15 @@ class Game(Base):
     __tablename__ = 'game'
     game_id = Column(Integer, primary_key=True)
     name = Column(Unicode(50))
-    # owner = Column(Integer, ForeignKey('twuser.id'),
-    #                nullable=False)
-    # opponent = Column(Integer, ForeignKey('twuser.id'),
-    #                   nullable=False)
+    owner = Column(Integer, ForeignKey('twuser.id'),
+                   nullable=False)
+    opponent = Column(Integer, ForeignKey('twuser.id'),
+                      nullable=False)
     pgn = Column(UnicodeText)
     boards = Column(UnicodeText)
     turn = Column(Integer)
     is_over = Column(Boolean)
-    # is_winner = Column(Integer, ForeignKey('twuser.id'), nullable=True)
+    is_winner = Column(Integer, ForeignKey('twuser.id'), nullable=True)
 
     def __init__(self, challenge):
         self.name = challenge.name
@@ -119,9 +119,10 @@ class Game(Base):
 
     def get_boards(self):
         BOARDS = []
-        boards = self.boards.split(' ')
+        boards = self.boards[:-1].split(' ')
         for board in boards:
-            BOARDS.append('chessnut/static/boards/%s.png' % board)
+            BOARDS.append('/static/boards/%s.png' % board)
+        return BOARDS
 
     @property
     def __acl__(self):
@@ -145,6 +146,7 @@ class Game(Base):
         games.extend(DBSession.query(cls).filter(
                      cls.opponent == user_id).all())
         return games
+
 
 class SinceId(Base):
     __tablename__ = 'since_id'

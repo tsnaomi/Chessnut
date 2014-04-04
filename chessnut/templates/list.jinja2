@@ -3,35 +3,38 @@
 {% extends 'layout.jinja2' %}
 
 {% block toolbar %}
-<!--     {#% if session.get('user_id', 0)%#}
- -->        <p class='toolbar'>
-        <a href='{{request.route_url('list')}}'>Past Conquests</a> |
+    {% if session.get('user_id', 0)%}
+        <p class='toolbar'>
+        <a href='{{request.route_url('list', id=session.get('user_id', 0))}}'>Past Conquests</a> |
         <a href='{{request.route_url('notation')}}'>Notation</a> |
         <a href='{{request.route_url('logout')}}'>Sign Out</a>
         </p>
-    <!-- {#% else %#}
+    {% else %}
         <p class='toolbar'>
         <a href='{{request.route_url('login')}}'>Sign In</a> | 
         <a href='{{request.route_url('login')}}'>Join</a> |
         <a href='{{request.route_url('notation')}}'>Notation</a>
         </p>
-    {#% endif %#}-->
+    {% endif %}
 {% endblock %}
 
 
 {% block body %}
 
-<h2 class="game-name">Player's Past Conquests</h2> <!-- Player -->
+    {% if session.get('user_id', 0) == id.id %}
+        <h2 class="game-name">Your Past Conquests</h2>
+    {% else %}
+        <h2 class="game-name">@{{user.user_sn}}'s Past Conquests</h2>
+    {% endif %}
 
-    {% for game in games %}
+    {% for game in closed %}
     <div class="thumbnails">    
-        <h3 class="game-name-REALLY">Supremely Long Ass Name That Goes on Forever {{loop.index}}</h3> <!-- Game.name -->
-        <!-- {#% set x = "Won" if user_id.name == Game.winner else "Lost" %#} --> <!-- ADJUST -->
-        <!-- {#% set y = game.opponent.name if game.opponent != user.id else game.owner.name %#} --> <!-- ADJUST -->
-        <!-- <h4 class="game-players">{{x}} against {{y}}</h4> -->
-        <h4 class="game-players">Won against Lord Voldemort</h4> <!-- REMOVE -->
+        <h3 class="game-name-REALLY">#{{game.name}}</h3>
+  <!--       {#% set x = "Won" if user.user_id == game.is_winner else "Lost" %#}
+        {#% set y = game.opponent.user_sn if game.opponent != user.user_id else game.owner.user_sn %#}
+        <h4 class="game-players">#{{x}} against {{y}}#</h4> -->
         <a rel=stylesheet type=text/css href='{{request.route_url('match')}}'>
-            <img class='game-thumbnail' src={{game[-1]}} height="200" width="200"></img> <!-- Game.images[-1] -->
+        <img class='game-thumbnail' src={{game[-1]}} height="200" width="200"></img>
         </a>
     </div>
     {% endfor %}

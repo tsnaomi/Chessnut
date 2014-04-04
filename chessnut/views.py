@@ -27,33 +27,50 @@ from apscheduler.scheduler import Scheduler
 sched = Scheduler()
 sched.start()
 
-consumer_key = ''
-consumer_secret = ''
+consumer_key = 'a1QFgBvoQNnSbshCghSwg'
+consumer_secret = '9niiLlNcfJYR4W4u5kNwQjEZEXE81HBwkHA6hRw4QU'
+
+
+# @sched.interval_schedule(seconds=90)
+def moves():
+    with transaction.manager:
+        since_id = SinceId.get_by_id(1)
+        value, tweet_queue = get_moves(since_id)
+        execute_moves(tweet_queue)
+        since_id.value = value
+
+
+@view_config(route_name='moves', renderer='string')
+def moves_view(request):
+    moves()
+    return "Crap was done."
 
 
 @view_config(route_name='home', renderer='home.jinja2')
 def home_view(request):
-    if request.session.logged_in:
-        closed_games, open_games = {}, {}
-        games = Game.get_by_person(request.session.user_id)
+    if request.session.get('logged_in', 0):
+        open_games, games = {}, Game.get_by_person(request.session.get('user_id', 0))
         for game in games:
             if not game.is_over:
-                closed_games[game] = game.get_boards
-        return {'session': {}, 'closed': closed_games}
-    return {'session': {}}
+                open_games[game] = game.get_boards()
+        return {'session': request.session, 'open': open_games}
+    return {'session': request.session}
 
 
 @view_config(route_name='list', renderer='list.jinja2')
 def list_view(request):
-    id = int(request.matchdict.get('id', -1))   # ###
+    id = int(request.matchdict.get('id', -1))
     try:
+        # import pdb; pdb.set_trace()
+        user = TwUser.get_by_id(id)
         closed_games, open_games, games = {}, {}, Game.get_by_person(id)
         for game in games:
             if game.is_over:
-                closed_games[game] = game.get_boards
+                closed_games[game] = game.get_boards()
             else:
-                open_games[game] = game.get_boards
-        return {'session': {}, 'closed': closed_games, 'open': open_games}
+                open_games[game] = game.get_boards()
+        return {'id': id, 'user': user, 'session': request.session,
+                'closed': closed_games, 'open': open_games}
     except HTTPError:
         raise exception_response(404)
 
@@ -61,25 +78,14 @@ def list_view(request):
 @view_config(route_name='match', renderer='details.jinja2')
 def details_view(request):
     game = Game.get_by_name(request.matchdict.get('name', -1))
-    return {'session': {}, 'boards': game.get_boards} if game else HTTPNotFound
+    if game:
+        return {'session': request.session, 'game': game}
+    return HTTPNotFound
 
 
 @view_config(route_name='notation', renderer='notation.jinja2')
 def notation_view(request):
     return {'session': {}}
-
-# @view_config(route_name='front', renderer='front.jinja2')
-# def front_view(request):
-#     return {'session': {}}
-
-
-@sched.interval_schedule(seconds=90)
-def moves():
-    with transaction.manager:
-        since_id = SinceId.get_by_id(1)
-        value, tweet_queue = get_moves(since_id)
-        execute_moves(tweet_queue)
-        since_id.value = value
 
 
 @view_config(route_name='login', renderer='string')
@@ -99,8 +105,8 @@ def get_auth(request):
                                 auth.request_token.secret)
     session.save()
 
-    # return HTTPFound(location=redirect_url)
-    return HTTPFound(location=request.route_url('home'))
+    return HTTPFound(location=redirect_url)
+    # return HTTPFound(location=request.route_url('home'))
 
 
 @view_config(route_name='twauth', renderer='string')
