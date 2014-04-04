@@ -13,11 +13,15 @@ requires = [
     'pyramid_tm',
     'pyramid_debugtoolbar',
     'pyramid_jinja2',
+    'pyramid_beaker',
     'zope.sqlalchemy',
     'waitress',
-    'cryptacular',
+    'tweepy',
     'wtforms',
     'psycopg2',
+    'pillow',
+    'gevent',
+    'apscheduler',
     ]
 
 setup(name='chessnut',
