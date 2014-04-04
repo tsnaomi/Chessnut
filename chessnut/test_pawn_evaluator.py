@@ -203,6 +203,19 @@ class TestPawnEvaluator(unittest.TestCase):
         """Attempt an en passant capture after the option to capture en
         passant has expired and assert that this move is determined illegal.
         """
+        self.c.board[4][2] = ('P', False)
+        self.c.board[4][1] = ('P', True)
+        self.c.board[3][4] = ('P', True)
+        self.c.board[3][5] = ('P', False)
+
+        self.groups['dest'] = 'c5'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
+
+        self.c.turn = False
+        self.groups['dest'] = 'e4'
+        self.assertRaises(
+            MoveNotLegalError, self.c._pawn_evaluator, self.groups)
 
 
 if __name__ == '__main__':
