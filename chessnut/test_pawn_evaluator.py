@@ -227,6 +227,30 @@ class TestPawnEvaluator(unittest.TestCase):
             self.c.pawn_promotion = False
             self.c.turn = not self.c.turn
 
+    def test_promotion_logic_not_legal_promotion(self):
+        """Assert that the pawn promotion logic is only triggered when pawns
+        are able to be promoted.
+        """
+        self.c.board = [[(0, 0) for i in range(8)] for j in range(8)]
+        self.groups['promotion'] = 'N'
+        for row in range(7, 1, -1):
+            drow = self.c._row_to_pgn_rank(row - 1)
+            self.c.board[row] = [('P', True) for i in range(8)]
+            for dest in [_file + rank for _file in 'abcdefgh' for rank in [drow]]:
+                self.groups['dest'] = dest
+                self.c._pawn_evaluator(self.groups)
+                self.assertFalse(self.c.pawn_promotion)
+
+        self.c.board = [[(0, 0) for i in range(8)] for j in range(8)]
+        self.c.turn = False
+        for row in range(6):
+            drow = self.c._row_to_pgn_rank(row + 1)
+            self.c.board[row] = [('P', False) for i in range(8)]
+            for dest in [_file + rank for _file in 'abcdefgh' for rank in [drow]]:
+                self.groups['dest'] = dest
+                self.c._pawn_evaluator(self.groups)
+                self.assertFalse(self.c.pawn_promotion)
+
 
 if __name__ == '__main__':
     unittest.main()
