@@ -253,6 +253,30 @@ class TestEvaluateMove(unittest.TestCase):
                         self.c.board[drow][dcol], (0, 0))
                     self.c.turn = not self.c.turn
 
+    def test_pawn_promotion_not_pawns(self):
+        """Try to promote pieces that aren't pawns and assert that these
+        moves are determined illegal.
+        """
+        self.c.board = [[(0, 0) for i in range(8)] for j in range(8)]
+        self.c.white_king = (5, 0)
+        self.c.black_king = (4, 7)
+        self.c.board[5] = [('P', False) for i in range(8)]
+        self.c.board[2] = [('P', True) for i in range(8)]
+        self.c.board[6] = [('R', False) for i in range(8)]
+        self.c.board[1] = [('R', True) for i in range(8)]
+        for piece in ['R', 'B', 'N', 'Q']:
+            for join in ['', '=']:
+                for dest in [rank + _file for rank in 'abcdefgh' for _file in '81']:
+                    drow, dcol = self.c._pgn_move_to_coords(dest)
+                    self.assertRaises(
+                        MoveNotLegalError,
+                        self.c,
+                        "R%s%s%s" % (dest, join, piece)
+                    )
+                    self.assertEqual(
+                        self.c.board[drow][dcol], (0, 0))
+                    self.c.turn = not self.c.turn
+
 
 if __name__ == '__main__':
     unittest.main()
