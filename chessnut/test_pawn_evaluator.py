@@ -180,11 +180,6 @@ class TestPawnEvaluator(unittest.TestCase):
         """
         self.groups['capture'] = 'x'
 
-        # self.c.board[4][2] = ('P', False)
-        # self.c.board[6][1] = ('P', True)
-        # self.c.board[3][4] = ('P', True)
-        # self.c.board[1][5] = ('P', False)
-
         self.c.board[4][2] = ('P', False)
         self.c.board[4][1] = ('P', True)
         self.c.board[3][4] = ('P', True)

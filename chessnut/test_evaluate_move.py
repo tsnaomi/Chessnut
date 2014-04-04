@@ -165,6 +165,27 @@ class TestEvaluateMove(unittest.TestCase):
                 self.assertEqual(last_white, self.c.en_passant[True])
             self.c.turn = not self.c.turn
 
+    def test_en_passant_capture(self):
+        """Perform several en passant captures and assert that the board
+        and game variables are being modified in the correct ways.
+        """
+        self.c.board[4][2] = ('P', False)
+        self.c.board[6][1] = ('P', True)
+        self.c.board[3][4] = ('P', True)
+        self.c.board[1][5] = ('P', False)
+
+        self.c('b4')
+        self.c.turn = False
+        self.c('xb3')
+        self.assertEqual(self.c.board[4][1], (0, 0))
+        self.assertEqual(self.c.board[5][1], ('P', False))
+
+        self.c('f5')
+        self.c.turn = True
+        self.c('xf6')
+        self.assertEqual(self.c.board[3][5], (0, 0))
+        self.assertEqual(self.c.board[2][5], ('P', True))
+
 
 if __name__ == '__main__':
     unittest.main()
