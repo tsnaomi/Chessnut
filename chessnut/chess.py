@@ -269,7 +269,7 @@ class ChessnutGame(object):
                         (drow + 2 * rowmod, dcol))
             else:
                 if self.board[drow][dcol][1] is not (not self.turn):
-                    if (drow, dcol) not in self.en_passant[not self.turn]:
+                    if (drow + 1 * rowmod, dcol) not in self.en_passant[not self.turn]:
                         raise MoveNotLegalError
                     else:
                         self.en_passant_capture = True
