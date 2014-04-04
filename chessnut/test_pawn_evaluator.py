@@ -17,6 +17,7 @@ class TestPawnEvaluator(unittest.TestCase):
             'capture': None,
             'check': None,
             'checkmate': None,
+            'promotion': None,
         }
 
     def test_move_pawn_forward_one(self):
@@ -211,6 +212,20 @@ class TestPawnEvaluator(unittest.TestCase):
         self.groups['dest'] = 'e4'
         self.assertRaises(
             MoveNotLegalError, self.c._pawn_evaluator, self.groups)
+
+    def test_promotion_logic_tracking(self):
+        """Test whether the logic for pawn promotion tracking is correctly
+        triggered.
+        """
+        self.c.board[6] = [('P', False) for i in range(8)]
+        self.c.board[1] = [('P', True) for i in range(8)]
+        self.groups['promotion'] = 'N'
+        for dest in [rank + _file for rank in 'abcdefgh' for _file in '81']:
+            self.groups['dest'] = dest
+            self.c._pawn_evaluator(self.groups)
+            self.assertTrue(self.c.pawn_promotion)
+            self.c.pawn_promotion = False
+            self.c.turn = not self.c.turn
 
 
 if __name__ == '__main__':
