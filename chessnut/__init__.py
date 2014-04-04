@@ -42,12 +42,8 @@ def main(global_config, **settings):
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
     config.add_route('twauth', '/twauth')
-    # config.add_route('index', '/index')
-    # config.add_route('register', '/register')
-    config.add_route('post', '/post')
-    config.add_route('notation', '/notation')
-    config.add_route('list', '/matches')  # /{id:\d+}
-    config.add_route('match', '/match')  # /{id:\d+}
-    config.add_route
+    config.add_route('index', '/index')
+    config.add_route('register', '/register')
+    config.add_route('mentions', '/mentions')
     config.scan()
     return config.make_wsgi_app()
