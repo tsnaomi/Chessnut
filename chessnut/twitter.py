@@ -121,7 +121,6 @@ def execute_moves(movequeue):
 
 
 def send_user_tweet(user, image, game):
-    import pdb; pdb.set_trace()
     api = get_api(user)
     user = TwUser.get_by_id(game.owner).id
     if game.turn == user:
