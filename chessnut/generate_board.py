@@ -37,3 +37,4 @@ def board(state=start):
 
 if __name__ == '__main__':
     board().show()
+    # print board()

@@ -22,10 +22,11 @@
 
 {% block body %}
 
-<!-- slider source: http://codepen.io/AMKohn/pen/EKJHf -->
 
 <h2 class="game-name">Tailless Kangaroos</h2>  <!-- Game.name -->
 <!-- Owner vs. Opponent -->
+
+<!-- slider source: http://codepen.io/AMKohn/pen/EKJHf -->
 <ul class="slides">
     {% for board in boards %}  <!-- Game.images -->
     <input type="radio" name="radio-btn" id="{{ loop.index }}" checked />
