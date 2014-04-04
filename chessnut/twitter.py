@@ -4,18 +4,15 @@ from .models import (
     Game,
     Challenge,
     )
-import sqlalchemy as sa
-import transaction
 from .generate_board import board
 from .chess import ChessnutGame as cg
 from gevent.queue import Queue as gqueue
 import tweepy
-import os
 import re
 
 
-consumer_key = 'a1QFgBvoQNnSbshCghSwg'
-consumer_secret = '9niiLlNcfJYR4W4u5kNwQjEZEXE81HBwkHA6hRw4QU'
+consumer_key = ''
+consumer_secret = ''
 
 
 def tweet_parser(tweet):
@@ -47,13 +44,22 @@ def get_api(user):
     return api
 
 
+def cn_api():
+    user = TwUser.get_by_id(1)
+    key, secret = user.key, user.secret
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(key, secret)
+    api = tweepy.API(auth)
+    return api
+
+
 def get_moves(since_id):
-    api = get_api(2422730102)
-    mentions = api.mentions_timeline()
+    api = cn_api()
+    mentions = api.mentions_timeline(since_id=since_id.value)
     movequeue = gqueue()
     for i in mentions[-1::-1]:
         movequeue.put(i)
-        since_id.value = long(i.id) + long(1)
+        since_id.value = i.id
     return since_id.value, movequeue
 
 
@@ -71,8 +77,9 @@ def execute_moves(movequeue):
                 game_update = cg(game.pgn)
                 game_update(parsed['move'].encode())
                 game.pgn = game_update.pgn
-                # image_url = board(cg.image_string)
-                send_user_tweet(current_twuser, game_update.image_string, game)
+                board(game_update.image_string)
+                image = generate_filepath(game_update.image_string)
+                send_user_tweet(current_twuser, image, game)
                 game.end_turn()
             else:
                 send_error(user_id, 'notyourturn')
@@ -113,37 +120,43 @@ def execute_moves(movequeue):
     return None
 
 
-def send_user_tweet(user, image_url, game):
+def send_user_tweet(user, image, game):
+    import pdb; pdb.set_trace()
     api = get_api(user)
-    user = TwUser.get_by_id(game.owner).user_id
+    user = TwUser.get_by_id(game.owner).id
     if game.turn == user:
         opponent = TwUser.get_by_id(game.opponent).user_id
     else:
         opponent = user
     opponent = api.get_user(opponent).screen_name
-    tweet = u"@%s #%s Boardstate: %s" % (opponent, game.name, image_url)
-    api.update_status(tweet)
+    tweet = u"@%s #%s" % (opponent, game.name)
+    api.update_with_media(image, status=tweet)
     return
+
+
+def generate_filepath(image_string):
+    path = "chessnut/static/boards/%s.png" % image_string
+    return path
 
 
 def send_challenge(user, opponent):
     """sends a challenge tweet to an opponent and an invitation to register if
     they are not an existing user"""
     api = get_api(user)
-    cn_api = get_api(2422730102)
+    c_api = cn_api()
     opponent = api.get_user(opponent)
     user = api.get_user(user)
     challengetweet = u"@%s I'm challengeing you to a game of chess" % opponent.screen_name
     if not TwUser.get_by_user_id(opponent.id):
         newuser_tweet = u"@%s @%s has challenged you to a game of chess! Join by visiting %s" % (opponent.screen_name, user.screen_name, 'url goes here')
-        cn_api.update_status(newuser_tweet)
+        c_api.update_status(newuser_tweet)
     api.update_status(challengetweet)
     return
 
 
 def send_game_start(name, owner, opponent):
     """sends start game tweet to owner and opponent"""
-    api = get_api(2422730102)
+    api = cn_api()
     tweet = u"The game begins at #%s. @%s has the first move. @%s is the opponent" % (name, owner, opponent)
     api.update_status(tweet)
     return
@@ -158,18 +171,10 @@ def send_error(user, error='default'):
         'notyourgame': u"@%s that is not your game",
         'notyourturn': u"@%s it isn't your turn yet",
     }
-    api = get_api(2422730102)  # the user_id of @chessnutapp
+    api = cn_api()
     user = api.get_user(user)
     user = user.screen_name
     tweet = error_dict[error]
     tweet = tweet % user
     # api.update_status(tweet)
-    return None
-
-
-def media_tweet():
-    api = get_api(2422730102)  # the user_id of @chessnutapp
-    tweet = u"Uploading a file online @lordsheepy"
-    fn = "https://www.google.com/images/srpr/logo11w.png"
-    api.update_with_media(fn, status=tweet)
     return None
