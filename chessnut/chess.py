@@ -65,7 +65,7 @@ class ChessnutGame(object):
 
         #Attempt to parse the SAN notation.
         match = re.match(
-            r'^(?P<piece>[RNBKQP])?(?P<file>[a-z])?(?P<rank>\d)?(?P<capture>x)?(?P<dest>\w\d)(?P<check>\+)?(?P<checkmate>#)?$',
+            r'^(?P<piece>[RNBKQP])?(?P<file>[a-h])?(?P<rank>\d)?(?P<capture>x)?(?P<dest>\w\d)(?P<check>\+)?(?P<checkmate>#)?$',
             move
         )
 
@@ -266,10 +266,10 @@ class ChessnutGame(object):
                         and self.board[drow + 1 * rowmod][dcol] == (0, 0):
                     pieces.append((drow + 2 * rowmod, dcol))
                     self.en_passant[self.turn].append(
-                        (drow + 2 * rowmod, dcol))
+                        (drow, dcol))
             else:
                 if self.board[drow][dcol][1] is not (not self.turn):
-                    if (drow, dcol) not in self.en_passant[not self.turn]:
+                    if (drow + 1 * rowmod, dcol) not in self.en_passant[not self.turn]:
                         raise MoveNotLegalError
                     else:
                         self.en_passant_capture = True
