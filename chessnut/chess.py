@@ -35,6 +35,11 @@ class ChessnutGame(object):
         #that it needs to perform an en passant capture.
         self.en_passant_capture = False
 
+        #Set to true when a pawn promotion has just been determined to
+        #have been made by the pawn evaluator. Signals to evaluate_move
+        #that it needs to perform the promotion.
+        self.pawn_promotion = False
+
         self.move_count = 0
         self.board = self._initialize_chessboard()
         self.pgn = ''
@@ -55,7 +60,7 @@ class ChessnutGame(object):
         state of the game.
         """
         if self.is_over:
-            raise GameOverError
+            raise GameOverError("This game has ended.")
 
         #Any pawns in the en_passant bucket corresponding to the current
         #player are no longer eligible for en passant capture (which
@@ -65,7 +70,7 @@ class ChessnutGame(object):
 
         #Attempt to parse the SAN notation.
         match = re.match(
-            r'^(?P<piece>[RNBKQP])?(?P<file>[a-h])?(?P<rank>\d)?(?P<capture>x)?(?P<dest>\w\d)(?P<check>\+)?(?P<checkmate>#)?$',
+            r'^(?P<piece>[RNBKQP])?(?P<file>[a-h])?(?P<rank>\d)?(?P<capture>x)?(?P<dest>\w\d)(?P<promotion>[RNBQKP])?(?P<check>\+)?(?P<checkmate>#)?$',
             move
         )
 
@@ -73,6 +78,14 @@ class ChessnutGame(object):
             groups = match.groupdict()
             if groups['piece'] is None:
                 groups['piece'] = 'P'
+
+            if groups['piece'] != 'P' and groups['promotion']:
+                raise MoveNotLegalError(
+                    "Can't promote a piece other than a pawn.")
+
+            if groups['promotion'] and groups['promotion'] in 'KP':
+                raise MoveNotLegalError(
+                    "Can't promote to a king or a pawn.")
 
             evaluator = self._get_evaluator(groups['piece'])
 
@@ -94,13 +107,19 @@ class ChessnutGame(object):
                     (0, 0)
                 self.en_passant_capture = False
 
+            #If a pawn promotion has just been perfomed, update the pawn
+            #specified to the piece specified.
+            if self.pawn_promotion:
+                self.board[drow][dcol] = (groups['promotion'], self.turn)
+                self.pawn_promotion = False
+
             #If the king was just moved, update its position.
             if groups['piece'] == 'K' and self.turn:
                 self.white_king = (drow, dcol)
             elif groups['piece'] == 'K':
                 self.black_king = (drow, dcol)
 
-            #TO DO: en passant capture, stalemate, forfeit, promotion
+            #TO DO: stalemate, forfeit, promotion
 
             #Keep track of whether or not each player is still allowed to
             #castle. The first time a piece is moved from these locations,
@@ -143,13 +162,12 @@ class ChessnutGame(object):
                 (self._board_to_image_string(), ('W' if self.turn else 'B'))
 
         if not match:
-            raise NotationParseError
+            raise NotationParseError("Couldn't parse your move.")
 
         #If, at the end of any move, either king is under checkmate,
         #then the game is over. We have to flip the turn bit here so
         #that we can evaluate whether the king is checkmated from the
         #other player's perspective.
-        #import pdb; pdb.set_trace()
         self.turn = not self.turn
         if not self.turn and self._is_checkmate(*self.black_king):
             self.is_over = True
@@ -162,10 +180,8 @@ class ChessnutGame(object):
         #If, at the end of any move, that player's king is under
         #check, then that move was illegal. The player must act to
         #take their king out of check.
-        if self.turn and self._is_check(*self.white_king):
-            raise MoveNotLegalError(
-                "Player's king was under check at the end of their turn.")
-        elif not self.turn and self._is_check(*self.black_king):
+        if self.turn and self._is_check(*self.white_king) or \
+                not self.turn and self._is_check(*self.black_king):
             raise MoveNotLegalError(
                 "Player's king was under check at the end of their turn.")
 
@@ -246,7 +262,7 @@ class ChessnutGame(object):
         if self.board[drow][dcol] != (0, 0) and \
                 (self.board[drow][dcol][1] == turn or
                  not groups['capture']):
-            raise MoveNotLegalError
+            raise MoveNotLegalError("Destination space is occupied.")
 
         if turn:
             rowmod = 1
@@ -270,7 +286,7 @@ class ChessnutGame(object):
             else:
                 if self.board[drow][dcol][1] is not (not self.turn):
                     if (drow + 1 * rowmod, dcol) not in self.en_passant[not self.turn]:
-                        raise MoveNotLegalError
+                        raise MoveNotLegalError("No piece to capture.")
                     else:
                         self.en_passant_capture = True
 
@@ -291,17 +307,25 @@ class ChessnutGame(object):
             #space on the top or bottom of the board, and the game logic
             #is looking for a pawn above or below the board to move to it.
             #The move is obviously not legal.
-            raise MoveNotLegalError
+            raise MoveNotLegalError("Pawns don't move backwards.")
 
         #If we haven't found any pieces that could make this move, the
         #move is not legal.
         if not pieces:
-            raise MoveNotLegalError
+            raise MoveNotLegalError("No pawn can make that move.")
 
         orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
 
-        return self._evaluate_rank_and_file(pieces, orow, ocol)
+        piece = self._evaluate_rank_and_file(pieces, orow, ocol)
+
+        #If this move was signalled as a promotion, and we've reached the
+        #end of the board, and there's exactly one pawn that can perform
+        #this move, then signal that we're performing a promotion.
+        if groups['promotion'] and drow == (0 if self.turn else 7):
+            self.pawn_promotion = True
+
+        return piece
 
     def _rook_evaluator(self, groups, turn=None):
         """Return the coordinates of the rook that will be making the move
@@ -319,7 +343,7 @@ class ChessnutGame(object):
         if self.board[drow][dcol] != (0, 0) and \
                 (self.board[drow][dcol][1] == turn or
                  not groups['capture']):
-            raise MoveNotLegalError
+            raise MoveNotLegalError("Destination space is occupied.")
 
         #Look for rooks in each of the four horizontal directions from
         #the destination cell.
@@ -339,7 +363,7 @@ class ChessnutGame(object):
                     break
 
         if not pieces:
-            raise MoveNotLegalError
+            raise MoveNotLegalError("No rook can make that move.")
 
         orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
@@ -362,7 +386,7 @@ class ChessnutGame(object):
         if self.board[drow][dcol] != (0, 0) and \
                 (self.board[drow][dcol][1] == turn or
                  not groups['capture']):
-            raise MoveNotLegalError
+            raise MoveNotLegalError("Destination space is occupied.")
 
         #Look for knights in each of the legal spaces surrounding the
         #destination cell.
@@ -381,7 +405,7 @@ class ChessnutGame(object):
                 pass
 
         if not pieces:
-            raise MoveNotLegalError
+            raise MoveNotLegalError("No knight can make that move.")
 
         orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
@@ -404,7 +428,7 @@ class ChessnutGame(object):
         if self.board[drow][dcol] != (0, 0) and \
                 (self.board[drow][dcol][1] == turn or
                  not groups['capture']):
-            raise MoveNotLegalError
+            raise MoveNotLegalError("Destination space is occupied.")
 
         #Look for bishops in each of the four diagonal directions from
         #the destination cell.
@@ -424,7 +448,7 @@ class ChessnutGame(object):
                     break
 
         if not pieces:
-            raise MoveNotLegalError
+            raise MoveNotLegalError("No bishop can make that move.")
 
         orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
@@ -441,7 +465,7 @@ class ChessnutGame(object):
         drow, dcol = self._pgn_move_to_coords(groups['dest'])
 
         if self._is_check(drow, dcol):
-            raise MoveNotLegalError
+            raise MoveNotLegalError("The king cannot move into check.")
 
         #Compile a list of rooks that could make the given move.
         pieces = []
@@ -450,7 +474,7 @@ class ChessnutGame(object):
         if self.board[drow][dcol] != (0, 0) and \
                 (self.board[drow][dcol][1] == turn or
                  not groups['capture']):
-            raise MoveNotLegalError
+            raise MoveNotLegalError("Destination space is occupied.")
 
         #Look for kings in a single space in each of the four horizontal
         #directions and each of the four diagonal directions from the
@@ -470,7 +494,7 @@ class ChessnutGame(object):
                 pass
 
         if not pieces:
-            raise MoveNotLegalError
+            raise MoveNotLegalError("Your king cannot make that move.")
 
         orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
@@ -493,7 +517,7 @@ class ChessnutGame(object):
         if self.board[drow][dcol] != (0, 0) and \
                 (self.board[drow][dcol][1] == turn or
                  not groups['capture']):
-            raise MoveNotLegalError
+            raise MoveNotLegalError("Destination space is occupied.")
 
         #Look for queens in each of the four horizontal directions and
         #each of the four diagonal directions from the destination cell.
@@ -514,7 +538,7 @@ class ChessnutGame(object):
                     break
 
         if not pieces:
-            raise MoveNotLegalError
+            raise MoveNotLegalError("No queen can make that move.")
 
         orow = self._pgn_rank_to_row(groups['rank']) if groups['rank'] else None
         ocol = self._pgn_file_to_col(groups['file']) if groups['file'] else None
@@ -555,11 +579,12 @@ class ChessnutGame(object):
         #If more than one piece could make this move, raise a
         #MoveAmbiguousError.
         if len(valid) > 1:
-            raise MoveAmbiguousError
+            raise MoveAmbiguousError(
+                "More than one piece could make this move.")
 
         #If no pieces could make this move, raise a MoveNotLegalError.
         if len(valid) < 1:
-            raise MoveNotLegalError
+            raise MoveNotLegalError("No piece can make this move.")
 
         #If we have exactly one piece, return it.
         return valid[0]
@@ -569,20 +594,24 @@ class ChessnutGame(object):
         castle for the current player, if legal, or raises an exception.
         """
         if self.turn and not self.white_queenside or not self.black_queenside:
-            raise MoveNotLegalError
+            raise MoveNotLegalError(
+                "Can't queenside castle after having moved king or queenside rook.")
 
         row = 7 if self.turn else 0
         if self.board[row][4] != ('K', self.turn) or \
                 self.board[row][0] != ('R', self.turn):
-            raise MoveNotLegalError
+            raise MoveNotLegalError(
+                "Can't queenside castle without king and queenside rook in their starting positions.")
 
         for col in [1, 2, 3]:
             if self.board[row][col] != (0, 0):
-                raise MoveNotLegalError
+                raise MoveNotLegalError(
+                    "Can't queenside castle when path between king and queenside rook is blocked.")
 
         for col in [2, 3, 4]:
             if self._is_check(row, col):
-                raise MoveNotLegalError
+                raise MoveNotLegalError(
+                    "Can't castle out of, through, or into check.")
 
         self.board[row][4], self.board[row][0] = (0, 0), (0, 0)
         self.board[row][2], self.board[row][3] = \
@@ -603,20 +632,24 @@ class ChessnutGame(object):
         castle for the current player, if legal, or raises an exception.
         """
         if self.turn and not self.white_kingside or not self.black_kingside:
-            raise MoveNotLegalError
+            raise MoveNotLegalError(
+                "Can't kingside castle after having moved king or kingside rook.")
 
         row = 7 if self.turn else 0
         if self.board[row][4] != ('K', self.turn) or \
                 self.board[row][7] != ('R', self.turn):
-            raise MoveNotLegalError
+            raise MoveNotLegalError(
+                "Can't kingside castle without king and kingside rook in their starting positions.")
 
         for col in [5, 6]:
             if self.board[row][col] != (0, 0):
-                raise MoveNotLegalError
+                raise MoveNotLegalError(
+                    "Can't kingside castle when path between king and kingside rook is blocked.")
 
         for col in [4, 5, 6]:
             if self._is_check(row, col):
-                raise MoveNotLegalError
+                raise MoveNotLegalError(
+                    "Can't castle out of, through, or into check.")
 
         self.board[row][4], self.board[row][7] = (0, 0), (0, 0)
         self.board[row][6], self.board[row][5] = \
