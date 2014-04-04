@@ -266,7 +266,7 @@ class ChessnutGame(object):
                         and self.board[drow + 1 * rowmod][dcol] == (0, 0):
                     pieces.append((drow + 2 * rowmod, dcol))
                     self.en_passant[self.turn].append(
-                        (drow + 2 * rowmod, dcol))
+                        (drow, dcol))
             else:
                 if self.board[drow][dcol][1] is not (not self.turn):
                     if (drow + 1 * rowmod, dcol) not in self.en_passant[not self.turn]:

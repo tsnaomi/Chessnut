@@ -148,6 +148,23 @@ class TestEvaluateMove(unittest.TestCase):
         the correct player as winner.
         """
 
+    def test_en_passant_tracking(self):
+        """Check whether the game is correctly tracking when pawns are
+        eligible to be captured en passant.
+        """
+        last_black, last_white = [], []
+        for move in [rank + _file for rank in 'abcdefgh' for _file in '45']:
+            drow, dcol = self.c._pgn_move_to_coords(move)
+            self.c(move)
+            self.assertEqual([(drow, dcol)], self.c.en_passant[self.c.turn])
+            if self.c.turn:
+                last_white = [(drow, dcol)]
+                self.assertEqual(last_black, self.c.en_passant[False])
+            else:
+                last_black = [(drow, dcol)]
+                self.assertEqual(last_white, self.c.en_passant[True])
+            self.c.turn = not self.c.turn
+
 
 if __name__ == '__main__':
     unittest.main()
