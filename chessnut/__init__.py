@@ -45,5 +45,7 @@ def main(global_config, **settings):
     config.add_route('index', '/index')
     config.add_route('register', '/register')
     config.add_route('mentions', '/mentions')
+    config.add_route('list', '/matches')  # /{id:\d+}
+    config.add_route('match', '/match')  # /{id:\d+}
     config.scan()
     return config.make_wsgi_app()

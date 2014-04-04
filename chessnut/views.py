@@ -3,7 +3,8 @@ from pyramid.view import view_config
 from .models import (
     DBSession,
     TwUser,
-    SinceId
+    SinceId,
+    Game,
     )
 from .twitter import (
     get_moves,
@@ -14,16 +15,62 @@ from .twitter import (
     )
 import transaction
 import tweepy
-from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import (
+    HTTPFound,
+    HTTPNotFound,
+    HTTPError,
+    exception_response
+    )
 from apscheduler.scheduler import Scheduler
 # from gevent.queue import Queue as gqueue
 
 sched = Scheduler()
 sched.start()
 
-
 consumer_key = ''
 consumer_secret = ''
+
+
+@view_config(route_name='home', renderer='home.jinja2')
+def home_view(request):
+    if request.session.logged_in:
+        closed_games, open_games = {}, {}
+        games = Game.get_by_person(request.session.user_id)
+        for game in games:
+            if not game.is_over:
+                closed_games[game] = game.get_boards
+        return {'session': {}, 'closed': closed_games}
+    return {'session': {}}
+
+
+@view_config(route_name='list', renderer='list.jinja2')
+def list_view(request):
+    id = int(request.matchdict.get('id', -1))   # ###
+    try:
+        closed_games, open_games, games = {}, {}, Game.get_by_person(id)
+        for game in games:
+            if game.is_over:
+                closed_games[game] = game.get_boards
+            else:
+                open_games[game] = game.get_boards
+        return {'session': {}, 'closed': closed_games, 'open': open_games}
+    except HTTPError:
+        raise exception_response(404)
+
+
+@view_config(route_name='match', renderer='details.jinja2')
+def details_view(request):
+    game = Game.get_by_name(request.matchdict.get('name', -1))
+    return {'session': {}, 'boards': game.get_boards} if game else HTTPNotFound
+
+
+@view_config(route_name='notation', renderer='notation.jinja2')
+def notation_view(request):
+    return {'session': {}}
+
+# @view_config(route_name='front', renderer='front.jinja2')
+# def front_view(request):
+#     return {'session': {}}
 
 
 @sched.interval_schedule(seconds=90)
@@ -33,85 +80,6 @@ def moves():
         value, tweet_queue = get_moves(since_id)
         execute_moves(tweet_queue)
         since_id.value = value
-
-
-@view_config(route_name='home', renderer='home.jinja2')
-def home_view(request):
-    return {'session': {}, 'request': request, 'games': [['static/boards/x.png',
-                                      'static/boards/y.png',
-                                      'static/boards/z.png'
-                                      ],
-                                     ['static/boards/x.png',
-                                      'static/boards/y.png',
-                                      'static/boards/z.png'
-                                      ],
-                                     ['static/boards/x.png',
-                                      'static/boards/y.png',
-                                      'static/boards/z.png'
-                                      ],
-                                     ['static/boards/x.png',
-                                      'static/boards/y.png',
-                                      'static/boards/z.png'
-                                      ],
-                                     ['static/boards/x.png',
-                                      'static/boards/y.png',
-                                      'static/boards/z.png'
-                                      ],
-                                     ['static/boards/x.png',
-                                      'static/boards/y.png',
-                                      'static/boards/z.png'
-                                      ]]}
-
-
-@view_config(route_name='list', renderer='list.jinja2')
-def list_view(request):
-    # id = int(request.matchdict.get('id', -1))
-    # owner_of = Game.get_by_owner(user.id)
-    # opponent_of = Game.get_by_opponent(user.id)
-
-    return {'session': {}, 'games': [['static/boards/x.png',
-                                      'static/boards/y.png',
-                                      'static/boards/z.png'
-                                      ],
-                                     ['static/boards/x.png',
-                                      'static/boards/y.png',
-                                      'static/boards/z.png'
-                                      ],
-                                     ['static/boards/x.png',
-                                      'static/boards/y.png',
-                                      'static/boards/z.png'
-                                      ],
-                                     ['static/boards/x.png',
-                                      'static/boards/y.png',
-                                      'static/boards/z.png'
-                                      ],
-                                     ['static/boards/x.png',
-                                      'static/boards/y.png',
-                                      'static/boards/z.png'
-                                      ],
-                                     ['static/boards/x.png',
-                                      'static/boards/y.png',
-                                      'static/boards/z.png'
-                                      ]]}
-
-
-@view_config(route_name='match', renderer='details.jinja2')
-def details_view(request):
-    # return {'session': {}}
-    return {'session': {}, 'boards': ['static/boards/x.png',
-                                      'static/boards/y.png',
-                                      'static/boards/z.png'
-                                      ]}
-
-
-@view_config(route_name='notation', renderer='notation.jinja2')
-def notation_view(request):
-    return {'session': {}}
-
-
-@view_config(route_name='front', renderer='front.jinja2')
-def front_view(request):
-    return {'session': {}}
 
 
 @view_config(route_name='login', renderer='string')
@@ -157,13 +125,14 @@ def tw_auth(request):
     user = TwUser.get_by_secret(secret)
 
     if not user:
-        user = TwUser(key, secret, twuser.id)
+        user = TwUser(key, secret, twuser.id, twuser.screen_name)
         DBSession.add(user)
 
     user = TwUser.get_by_secret(secret)
 
     session['logged_in'] = True
     session['user_id'] = user.id
+    session['username'] = twuser.screen_name
 
     return HTTPFound(location=request.route_url('home'))
 

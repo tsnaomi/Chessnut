@@ -76,6 +76,7 @@ def execute_moves(movequeue):
             if game.is_turn(current_twuser.id):
                 game_update = cg(game.pgn)
                 game_update(parsed['move'].encode())
+                game.boards +=  game_update.image_string.decode('utf-8') + u' '
                 game.pgn = game_update.pgn
                 board(game_update.image_string)
                 image = generate_filepath(game_update.image_string)

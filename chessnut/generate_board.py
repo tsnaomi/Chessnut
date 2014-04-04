@@ -3,11 +3,10 @@
 from os.path import isfile
 from PIL import Image
 
-start = 'rnbqkbnrpppppppp00000000000000000000000000000000PPPPPPPPRNBQKBNR1112'
+start = 'rnbqkbnrpppppppp00000000000000000000000000000000PPPPPPPPRNBQKBNR'
 
 
 def board(state=start):
-
     if isfile('chessnut/static/boards/%s.png' % state):
         return Image.open('chessnut/static/boards/%s.png' % state)
     BOARD = Image.open('chessnut/static/elements/board.png').copy()
@@ -28,8 +27,9 @@ def board(state=start):
         if i != '0':
             c = index % 8 if i != 0 else 0
             r = (index - c) // 8 if i != 0 else 0
-            p = Image.open('chessnut/static/elements/%s.png' % pieces[i.lower()])
-            if i in "rnbqkp":
+            p = Image.open('chessnut/static/elements/%s.png' %
+                           pieces[i.lower()])
+            if i in 'rnbqkp':
                 BOARD.paste(p, (26 + (58 * c), 11 + (58 * r)), p)
             else:
                 BOARD.paste((91, 94, 243), (26 + (58 * c), 11 + (58 * r)), p)
