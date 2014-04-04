@@ -186,6 +186,27 @@ class TestEvaluateMove(unittest.TestCase):
         self.assertEqual(self.c.board[3][5], (0, 0))
         self.assertEqual(self.c.board[2][5], ('P', True))
 
+    def test_pawn_promotion(self):
+        """Perform all possible pawn promotions and assert that they are
+        performed as expected.
+        """
+        self.c.board = [[(0, 0) for i in range(8)] for j in range(8)]
+        self.c.white_king = (4, 0)
+        self.c.black_king = (4, 7)
+        self.c.board[5] = [('P', False) for i in range(8)]
+        self.c.board[3] = [('P', True) for i in range(8)]
+        for piece in ['R', 'B', 'N', 'Q']:
+            for join in ['', '=']:
+                self.c.board[7] = [(0, 0) for i in range(8)]
+                self.c.board[0] = [(0, 0) for i in range(8)]
+                self.c.board[6] = [('P', False) for i in range(8)]
+                self.c.board[1] = [('P', True) for i in range(8)]
+                for dest in [rank + _file for rank in 'abcdefgh' for _file in '81']:
+                    drow, dcol = self.c._pgn_move_to_coords(dest)
+                    self.c("P%s%s%s" % (dest, join, piece))
+                    self.assertEqual(self.c.board[drow][dcol], (piece, self.c.turn))
+                    self.c.turn = not self.c.turn
+
 
 if __name__ == '__main__':
     unittest.main()

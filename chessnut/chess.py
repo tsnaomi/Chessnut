@@ -70,7 +70,7 @@ class ChessnutGame(object):
 
         #Attempt to parse the SAN notation.
         match = re.match(
-            r'^(?P<piece>[RNBKQP])?(?P<file>[a-h])?(?P<rank>\d)?(?P<capture>x)?(?P<dest>\w\d)(?P<promotion>[RNBQKP])?(?P<check>\+)?(?P<checkmate>#)?$',
+            r'^(?P<piece>[RNBKQP])?(?P<file>[a-h])?(?P<rank>\d)?(?P<capture>x)?(?P<dest>\w\d)=?(?P<promotion>[RNBQKP])?(?P<check>\+)?(?P<checkmate>#)?$',
             move
         )
 
@@ -162,7 +162,7 @@ class ChessnutGame(object):
                 (self._board_to_image_string(), ('W' if self.turn else 'B'))
 
         if not match:
-            raise NotationParseError("Couldn't parse your move.")
+            raise NotationParseError("Couldn't parse move: %s" % move)
 
         #If, at the end of any move, either king is under checkmate,
         #then the game is over. We have to flip the turn bit here so
