@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+{% extends 'layout.jinja2' %}
+
+{% block toolbar %}
+    {% if session.get('user_id', 0)%}
+        <p class='toolbar'>
+        <a href='{{request.route_url('list', id=session.get('user_id', 0))}}'>Past Conquests</a> |
+        <a href='{{request.route_url('notation')}}'>Notation</a> |
+        <a href='{{request.route_url('logout')}}'>Sign Out</a>
+        </p>
+    {% else %}
+        <p class='toolbar'>
+        <a href='{{request.route_url('login')}}'>Sign In</a> | 
+        <a href='{{request.route_url('login')}}'>Join</a> |
+        <a href='{{request.route_url('notation')}}'>Notation</a>
+        </p>
+    {% endif %}
+{% endblock %}
+
+
+{% block body %}
+
+{% if session.get('user_id', 0)%}
+    <h2 class="game-name">Your Open Games</h2>
+
+    {% for game, boards in open.iteritems() %}
+    <div class="thumbnails">    
+        <h3 class="game-name-REALLY">#{{game.name}}</h3>
+        <!-- {#% set x = '@' + game.owner.user_sn + ' ' if session[user_id] != game.owner and session[user_id] != game.opponent else '' %#} --> <!-- ADJUST -->
+        <!-- {#% set y = game.opponent.user_sn if game.opponent != session[user_id] and game.opponent != x else game.owner.user_sn %#} --> <!-- ADJUST -->
+        <!-- {#% set z = game.owner.user_sn if game.is_turn(game.owner) else game.opponent.user_sn %#} -->
+        <!-- <h4 class="game-players">#{{x}}vs. @{{y}}#</h4>
+        <h4 class="game-players">#@{{z}}'s Move#</h4> -->
+        <a rel=stylesheet type=text/css href='{{request.route_url('match', name=game.name)}}'>
+            <img class='game-thumbnail' src={{boards[-1]}} height="200" width="200"></img>
+        </a>
+    </div>
+    {% endfor %}
+
+{% endif %}
+
+{% endblock %}

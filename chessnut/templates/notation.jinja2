@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+{% extends 'layout.jinja2' %}
+
+{% block toolbar %}
+<!--     {#% if session.get('user_id', 0)%#}
+ -->        <p class='toolbar'>
+        <a href='{{request.route_url('list')}}'>Past Conquests</a> |
+        <a href='{{request.route_url('logout')}}'>Sign Out</a>
+        </p>
+    <!-- {#% else %#}
+        <p class='toolbar'>
+        <a href='{{request.route_url('login')}}'>Sign In</a> | 
+        <a href='{{request.route_url('login')}}'>Join</a> |
+        </p>
+    {#% endif %#} -->
+{% endblock %}
+
+
+{% block body %}
+
+<h2 class="notation">Chessnut-Friendly Notation</h2>  
+<body class="notation">
+(Summarized from Wikipedia's article on <a class="notation" href="http://en.wikipedia.org/wiki/Algebraic_notation_(chess)"><b>Algebraic Notation</b></a>.)
+</body>
+{% endblock %}

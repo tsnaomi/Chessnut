@@ -5,6 +5,7 @@ from sqlalchemy import (
     UnicodeText,
     ForeignKey,
     BigInteger,
+    Boolean
     )
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -32,11 +33,13 @@ class TwUser(Base):
     key = Column(Unicode(80))
     secret = Column(Unicode(80))
     user_id = Column(BigInteger)
+    user_sn = Column(Unicode(16))
 
-    def __init__(self, key, secret, user_id):
+    def __init__(self, key, secret, user_id, user_sn):
         self.key = key
         self.secret = secret
         self.user_id = user_id
+        self.user_sn = user_sn
 
     @classmethod
     def get_by_id(cls, id):
@@ -81,17 +84,24 @@ class Game(Base):
     __tablename__ = 'game'
     game_id = Column(Integer, primary_key=True)
     name = Column(Unicode(50))
-    owner = Column(Integer, ForeignKey('twuser.id'), nullable=False)
-    opponent = Column(Integer, ForeignKey('twuser.id'), nullable=False)
+    owner = Column(Integer, ForeignKey('twuser.id'),
+                   nullable=False)
+    opponent = Column(Integer, ForeignKey('twuser.id'),
+                      nullable=False)
     pgn = Column(UnicodeText)
+    boards = Column(UnicodeText)
     turn = Column(Integer)
+    is_over = Column(Boolean)
+    is_winner = Column(Integer, ForeignKey('twuser.id'), nullable=True)
 
     def __init__(self, challenge):
         self.name = challenge.name
         self.owner = int(challenge.owner)
         self.opponent = int(challenge.opponent_id)
         self.pgn = u''
+        self.boards = u''
         self.turn = self.owner
+        self.is_over = False
 
     def is_turn(self, player):
         if player == self.turn:
@@ -106,6 +116,13 @@ class Game(Base):
             self.turn = self.owner
             return True
         return False
+
+    def get_boards(self):
+        BOARDS = []
+        boards = self.boards[:-1].split(' ')
+        for board in boards:
+            BOARDS.append('/static/boards/%s.png' % board)
+        return BOARDS
 
     @property
     def __acl__(self):
@@ -122,6 +139,13 @@ class Game(Base):
     @classmethod
     def get_by_name(cls, name):
         return DBSession.query(cls).filter(cls.name == name).first()
+
+    @classmethod
+    def get_by_person(cls, user_id):
+        games = DBSession.query(cls).filter(cls.owner == user_id).all()
+        games.extend(DBSession.query(cls).filter(
+                     cls.opponent == user_id).all())
+        return games
 
 
 class SinceId(Base):

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+
+{% extends 'layout.jinja2' %}
+
+
+{% block toolbar %}
+    {% if session.get('user_id', 0)%}
+        <p class='toolbar'>
+        <a href='{{request.route_url('list', id=session.get('user_id', 0))}}'>Past Conequests</a> |
+        <a href='{{request.route_url('notation')}}'>Notation</a> |
+        <a href='{{request.route_url('logout')}}'>Sign Out</a>
+        </p>
+    {% else %}
+        <p class='toolbar'>
+        <a href='{{request.route_url('login')}}'>Sign In</a> | 
+        <a href='{{request.route_url('login')}}'>Join</a> |
+        <a href='{{request.route_url('notation')}}'>Notation</a>
+        </p>
+    {% endif %}
+{% endblock %}
+
+
+{% block body %}
+
+
+<h2 class="game-name">#{{game.name}}</h2>
+<!-- Owner vs. Opponent -->
+
+<!-- slider source: http://codepen.io/AMKohn/pen/EKJHf -->
+<ul class="slides">
+    {% for board in game.get_boards() %}
+    <input type="radio" name="radio-btn" id="{{ loop.index }}" checked />
+    <li class="slide-container">
+        <div class="slide"><img src={{board}} /></div>
+        <div class="nav">
+        {% if loop.last %}
+            <label for={{ loop.index - 1 }} class="next">&#x203a;</label>
+        {% elif loop.first %}
+            <label for={{ loop.index + 1 }} class="prev">&#x2039;</label>
+        {% else %}
+            <label for={{ loop.index - 1 }} class="next">&#x203a;</label>
+            <label for={{ loop.index + 1 }} class="prev">&#x2039;</label>
+        {% endif %}
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+{% if session.get('user_id', 0) == game.owner or session.get('user_id', 0) == game.opponent %}
+    <!-- {#% set x = game.owner if session.get('user_id', 0) == game.owner else game.opponent %#}
+    {#% if game.is_turn == x %#} -->
+        <div class="Twitter">
+            <a href="https://twitter.com/intent/tweet?button_hashtag={{game.name}}&text=%40chessnutapp" class="twitter-hashtag-button" data-size="large">Tweet #{{game.name}}</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+        </div>
+{% endif %}
+
+{% endblock %}
+
+
