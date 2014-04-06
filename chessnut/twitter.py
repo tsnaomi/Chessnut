@@ -11,8 +11,8 @@ import tweepy
 import re
 
 
-consumer_key = 'a1QFgBvoQNnSbshCghSwg'
-consumer_secret = '9niiLlNcfJYR4W4u5kNwQjEZEXE81HBwkHA6hRw4QU'
+consumer_key = ''
+consumer_secret = ''
 
 
 def tweet_parser(tweet):
