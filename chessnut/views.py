@@ -27,8 +27,8 @@ from apscheduler.scheduler import Scheduler
 sched = Scheduler()
 sched.start()
 
-consumer_key = 'a1QFgBvoQNnSbshCghSwg'
-consumer_secret = '9niiLlNcfJYR4W4u5kNwQjEZEXE81HBwkHA6hRw4QU'
+consumer_key = ''
+consumer_secret = ''
 
 
 # @sched.interval_schedule(seconds=90)
