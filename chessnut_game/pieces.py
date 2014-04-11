@@ -1,15 +1,20 @@
 class Piece(object):
     """The base class. A chess piece knows where it is on the board, caches
-    the spaces on the board to which it could move, and knows to which
-    player it belongs.
+    the spaces on the board to which it could move (regardless of the
+    legality of that move), and knows to which player it belongs.
     """
-    def __init__(self):
-        pass
+    def __init__(self, player=None, rank=None, _file=None):
+        self.player = player
+        self.rank = rank
+        self.file = _file
+        self.moves = set()
 
 
 class Pawn(Piece):
     """A pawn. In addition to the functions of normal pieces, pawns track
-    whether they are eligible to be en-passant captured.
+    whether they are eligible to be en-passant captured. Pawns also track
+    separately which spaces they can move to and which they can capture
+    to (since their capture and move logic are different).
     """
     pass
 
