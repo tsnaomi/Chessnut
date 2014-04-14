@@ -11,8 +11,8 @@ import tweepy
 import re
 
 
-consumer_key = 'a1QFgBvoQNnSbshCghSwg'
-consumer_secret = '9niiLlNcfJYR4W4u5kNwQjEZEXE81HBwkHA6hRw4QU'
+consumer_key = ''
+consumer_secret = ''
 
 
 def tweet_parser(tweet):
@@ -72,11 +72,12 @@ def execute_moves(movequeue):
         current_twuser = TwUser.get_by_user_id(user_id)
         #assume it's a move and give it a shot
         try:
+            import pdb; pdb.set_trace()
             game = Game.get_by_name(parsed['game'])
             if game.is_turn(current_twuser.id):
                 game_update = cg(game.pgn)
                 game_update(parsed['move'].encode())
-                game.boards +=  game_update.image_string.decode('utf-8') + u' '
+                game.boards += game_update.image_string.decode('utf-8') + u' '
                 game.pgn = game_update.pgn
                 board(game_update.image_string)
                 image = generate_filepath(game_update.image_string)

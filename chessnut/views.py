@@ -5,6 +5,7 @@ from .models import (
     TwUser,
     SinceId,
     Game,
+    Challenge
     )
 from .twitter import (
     get_moves,
@@ -27,13 +28,18 @@ from apscheduler.scheduler import Scheduler
 sched = Scheduler()
 sched.start()
 
-consumer_key = 'a1QFgBvoQNnSbshCghSwg'
-consumer_secret = '9niiLlNcfJYR4W4u5kNwQjEZEXE81HBwkHA6hRw4QU'
+consumer_key = ''
+consumer_secret = ''
 
 
 # @sched.interval_schedule(seconds=90)
 def moves():
     with transaction.manager:
+        # challenge = Challenge.get_by_name(u'capturegame')
+        # challenge.opponent_id = 2
+        # game = Game(challenge)
+        # DBSession.add(game)
+        # return game
         since_id = SinceId.get_by_id(1)
         value, tweet_queue = get_moves(since_id)
         execute_moves(tweet_queue)
