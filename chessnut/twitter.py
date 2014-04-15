@@ -179,3 +179,6 @@ def send_error(user, error='default'):
     tweet = tweet % user
     # api.update_status(tweet)
     return None
+
+def is_move(**kwargs):
+    pass
