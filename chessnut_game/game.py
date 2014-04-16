@@ -118,3 +118,9 @@ class ChessnutGame(object):
                 self.pieces_by_file[_file].add(pawn)
 
             rook = QueensideRook()
+
+    def _san_to_forward_diagonal(self, san):
+        pass
+
+    def _san_to_backward_diagonal(self, san):
+        pass
