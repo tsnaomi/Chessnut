@@ -106,6 +106,26 @@ class ChessnutGame(object):
 
     def _initialize_board(self):
         """Initialize a game board."""
+        pieces = [
+            (QueensideRook, 'a')
+            (Knight, 'b'),
+            (Bishop, 'c'),
+            (Queen, 'd'),
+            (King, 'e'),
+            (Bishop, 'f'),
+            (Knight, 'g'),
+            (KingsideRook, 'h'),
+        ]
+
+        piecenames = {
+            QueensideRook: 'rook',
+            KingsideRook: 'rook',
+            Knight: 'knight',
+            Bishop: 'bishop',
+            Queen: 'queen',
+            King: 'king',
+        }
+
         for player in [White, Black]:
             homerank = '1' if player is White else '8'
             pawnrank = '2' if player is White else '7'
@@ -116,11 +136,28 @@ class ChessnutGame(object):
                 self.pieces_by_type['pawn'].add(pawn)
                 self.pieces_by_rank[pawnrank].add(pawn)
                 self.pieces_by_file[_file].add(pawn)
+                self.pieces_by_backward_diagonal[
+                    self._san_to_backward_diagonal(pawn.rank, pawn.file)
+                ].add(pawn)
+                self.pieces_by_forward_diagonal[
+                    self._san_to_forward_diagonal(pawn.rank, pawn.file)
+                ].add(pawn)
 
-            rook = QueensideRook()
+            for piecetype, _file in pieces:
+                piece = piecetype(player=player, rank=homerank, _file=_file)
+                self.pieces_by_player[player].add(piece)
+                self.pieces_by_type[piecenames[piecetype]].add(piece)
+                self.pieces_by_rank[homerank].add(piece)
+                self.pieces_by_file[_file].add(piece)
+                self.pieces_by_backward_diagonal[
+                    self._san_to_backward_diagonal(piece.rank, piece.file)
+                ].add(pawn)
+                self.pieces_by_forward_diagonal[
+                    self._san_to_forward_diagonal(piece.rank, piece.file)
+                ].add(pawn)
 
-    def _san_to_forward_diagonal(self, san):
+    def _san_to_forward_diagonal(self, rank, _file):
         pass
 
-    def _san_to_backward_diagonal(self, san):
+    def _san_to_backward_diagonal(self, rank, _file):
         pass
