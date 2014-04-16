@@ -90,3 +90,7 @@ class TweetHandlingTests(unittest.TestCase):
     def test_name_taken(self):
         # needs db access
         pass
+
+
+if __name__ == '__main__':
+    unittest.main()

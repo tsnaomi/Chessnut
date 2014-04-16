@@ -9,10 +9,28 @@ from .chess import ChessnutGame as cg
 from gevent.queue import Queue as gqueue
 import tweepy
 import re
+from celery.task import task
 
 
-consumer_key = ''
-consumer_secret = ''
+consumer_key = 'a1QFgBvoQNnSbshCghSwg'
+consumer_secret = '9niiLlNcfJYR4W4u5kNwQjEZEXE81HBwkHA6hRw4QU'
+
+
+class CnStreamListener(tweepy.StreamListener):
+
+    def on_status(self, status):
+        try:
+            parsed = tweet_parser(status.text)
+            current_user = TwUser.get_by_user_id(status.user.id)
+        except ValueError:
+            pass
+        if is_move(parsed):
+            image = handle_move(parsed)
+        elif is_challenge(parsed):
+            handle_challenge(parsed)
+
+    def on_disconnect():
+        pass
 
 
 def tweet_parser(tweet):
@@ -53,86 +71,94 @@ def cn_api():
     return api
 
 
-def get_moves(since_id):
-    api = cn_api()
-    mentions = api.mentions_timeline(since_id=since_id.value)
-    movequeue = gqueue()
-    for i in mentions[-1::-1]:
-        movequeue.put(i)
-        since_id.value = i.id
-    return since_id.value, movequeue
+def streaming_api(track):
+    user = TwUser.get_by_id(1)
+    key, secret = user.key, user.secret
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(key, secret)
+    stream = tweepy.Stream(auth, CnStreamListener(), timeout=90)
+    stream.filter(track=track)
+
+# def get_moves(since_id):
+#     api = cn_api()
+#     mentions = api.mentions_timeline(since_id=since_id.value)
+#     movequeue = gqueue()
+#     for i in mentions[-1::-1]:
+#         movequeue.put(i)
+#         since_id.value = i.id
+#     return since_id.value, movequeue
 
 
-def execute_moves(movequeue):
-    size = movequeue.qsize()
-    for i in xrange(size):
-        move = movequeue.get()
-        text, user_id, user = move.text, move.user.id, move.user.screen_name
-        parsed = tweet_parser(text)
-        current_twuser = TwUser.get_by_user_id(user_id)
-        #assume it's a move and give it a shot
-        try:
-            import pdb; pdb.set_trace()
-            game = Game.get_by_name(parsed['game'])
-            if game.is_turn(current_twuser.id):
-                game_update = cg(game.pgn)
-                game_update(parsed['move'].encode())
-                game.boards += game_update.image_string.decode('utf-8') + u' '
-                game.pgn = game_update.pgn
-                board(game_update.image_string)
-                image = generate_filepath(game_update.image_string)
-                send_user_tweet(current_twuser, image, game)
-                game.end_turn()
-            else:
-                send_error(user_id, 'notyourturn')
-        except:
-            #this means it should be a challenge
-            if parsed['opponent'] and parsed['game']:
-                challenge = Challenge.get_by_name(parsed['game'])
-                opponent = current_twuser
-                if challenge is not None and opponent is not None:
-                    if challenge.owner_sn == parsed['opponent'] and challenge.opponent == user:
-                        challenge.accept(opponent.id)
-                        send_game_start(parsed['game'], parsed['opponent'], user)
-                    else:
-                        send_error(user_id, error='notyourgame')
-                elif challenge is not None:
-                    send_error(user_id, error='register')
-                else:
-                    #making sure user_id is registered with us
-                    owner = current_twuser
-                    try:
-                        challenge = Challenge(parsed['game'],
-                                              owner.id,
-                                              parsed['opponent'],
-                                              user,
-                                              )
-                        DBSession.add(challenge)
-                        send_challenge(user_id, parsed['opponent'])
-                    #this is for the unregistered
-                    except AttributeError:
-                        send_error(user_id, error='register')
-                    #should be preventing duplicate game names here
-                    except:
-                        send_error(user_id, error='gamename')
-            #formatting problems get grabbed here
-            else:
-                send_error(user_id, error='format')
-        #and this is just us handling a normal move
-    return None
+# def execute_moves(movequeue):
+#     size = movequeue.qsize()
+#     for i in xrange(size):
+#         move = movequeue.get()
+#         text, user_id, user = move.text, move.user.id, move.user.screen_name
+#         parsed = tweet_parser(text)
+#         current_twuser = TwUser.get_by_user_id(user_id)
+#         #assume it's a move and give it a shot
+#         try:
+#             import pdb; pdb.set_trace()
+#             game = Game.get_by_name(parsed['game'])
+#             if game.is_turn(current_twuser.id):
+#                 game_update = cg(game.pgn)
+#                 game_update(parsed['move'].encode())
+#                 game.boards += game_update.image_string.decode('utf-8') + u' '
+#                 game.pgn = game_update.pgn
+#                 board(game_update.image_string)
+#                 image = generate_filepath(game_update.image_string)
+#                 send_user_tweet(current_twuser, image, game)
+#                 game.end_turn()
+#             else:
+#                 send_error(user_id, 'notyourturn')
+#         except:
+#             #this means it should be a challenge
+#             if parsed['opponent'] and parsed['game']:
+#                 challenge = Challenge.get_by_name(parsed['game'])
+#                 opponent = current_twuser
+#                 if challenge is not None and opponent is not None:
+#                     if challenge.owner_sn == parsed['opponent'] and challenge.opponent == user:
+#                         challenge.accept(opponent.id)
+#                         send_game_start(parsed['game'], parsed['opponent'], user)
+#                     else:
+#                         send_error(user_id, error='notyourgame')
+#                 elif challenge is not None:
+#                     send_error(user_id, error='register')
+#                 else:
+#                     #making sure user_id is registered with us
+#                     owner = current_twuser
+#                     try:
+#                         challenge = Challenge(parsed['game'],
+#                                               owner.id,
+#                                               parsed['opponent'],
+#                                               user,
+#                                               )
+#                         DBSession.add(challenge)
+#                         send_challenge(user_id, parsed['opponent'])
+#                     #this is for the unregistered
+#                     except AttributeError:
+#                         send_error(user_id, error='register')
+#                     #should be preventing duplicate game names here
+#                     except:
+#                         send_error(user_id, error='gamename')
+#             #formatting problems get grabbed here
+#             else:
+#                 send_error(user_id, error='format')
+#         #and this is just us handling a normal move
+#     return None
 
 
-def send_user_tweet(user, image, game):
-    api = get_api(user)
-    user = TwUser.get_by_id(game.owner).id
-    if game.turn == user:
-        opponent = TwUser.get_by_id(game.opponent).user_id
-    else:
-        opponent = user
-    opponent = api.get_user(opponent).screen_name
-    tweet = u"@%s #%s" % (opponent, game.name)
-    api.update_with_media(image, status=tweet)
-    return
+# def send_user_tweet(user, image, game):
+#     api = get_api(user)
+#     user = TwUser.get_by_id(game.owner).id
+#     if game.turn == user:
+#         opponent = TwUser.get_by_id(game.opponent).user_id
+#     else:
+#         opponent = user
+#     opponent = api.get_user(opponent).screen_name
+#     tweet = u"@%s #%s" % (opponent, game.name)
+#     api.update_with_media(image, status=tweet)
+#     return
 
 
 def generate_filepath(image_string):
@@ -140,45 +166,74 @@ def generate_filepath(image_string):
     return path
 
 
-def send_challenge(user, opponent):
-    """sends a challenge tweet to an opponent and an invitation to register if
-    they are not an existing user"""
-    api = get_api(user)
-    c_api = cn_api()
-    opponent = api.get_user(opponent)
-    user = api.get_user(user)
-    challengetweet = u"@%s I'm challengeing you to a game of chess" % opponent.screen_name
-    if not TwUser.get_by_user_id(opponent.id):
-        newuser_tweet = u"@%s @%s has challenged you to a game of chess! Join by visiting %s" % (opponent.screen_name, user.screen_name, 'url goes here')
-        c_api.update_status(newuser_tweet)
-    api.update_status(challengetweet)
-    return
+# def send_challenge(user, opponent):
+#     """sends a challenge tweet to an opponent and an invitation to register if
+#     they are not an existing user"""
+#     api = get_api(user)
+#     c_api = cn_api()
+#     opponent = api.get_user(opponent)
+#     user = api.get_user(user)
+#     challengetweet = u"@%s I'm challengeing you to a game of chess" % opponent.screen_name
+#     if not TwUser.get_by_user_id(opponent.id):
+#         newuser_tweet = u"@%s @%s has challenged you to a game of chess! Join by visiting %s" % (opponent.screen_name, user.screen_name, 'url goes here')
+#         c_api.update_status(newuser_tweet)
+#     api.update_status(challengetweet)
+#     return
 
 
-def send_game_start(name, owner, opponent):
-    """sends start game tweet to owner and opponent"""
-    api = cn_api()
-    tweet = u"The game begins at #%s. @%s has the first move. @%s is the opponent" % (name, owner, opponent)
-    api.update_status(tweet)
-    return
+# def send_game_start(name, owner, opponent):
+#     """sends start game tweet to owner and opponent"""
+#     api = cn_api()
+#     tweet = u"The game begins at #%s. @%s has the first move. @%s is the opponent" % (name, owner, opponent)
+#     api.update_status(tweet)
+#     return
 
 
-def send_error(user, error='default'):
-    error_dict = {
-        'default': u"@%s There was a general error",
-        'register': u"@%s you have to register to challenge people",
-        'gamename': u"@%s that game name is already taken",
-        'format': u"@%s Your last tweet had formatting issues",
-        'notyourgame': u"@%s that is not your game",
-        'notyourturn': u"@%s it isn't your turn yet",
-    }
-    api = cn_api()
-    user = api.get_user(user)
-    user = user.screen_name
-    tweet = error_dict[error]
-    tweet = tweet % user
-    # api.update_status(tweet)
-    return None
+# def send_error(user, error='default'):
+#     error_dict = {
+#         'default': u"@%s There was a general error",
+#         'register': u"@%s you have to register to challenge people",
+#         'gamename': u"@%s that game name is already taken",
+#         'format': u"@%s Your last tweet had formatting issues",
+#         'notyourgame': u"@%s that is not your game",
+#         'notyourturn': u"@%s it isn't your turn yet",
+#     }
+#     api = cn_api()
+#     user = api.get_user(user)
+#     user = user.screen_name
+#     tweet = error_dict[error]
+#     tweet = tweet % user
+#     # api.update_status(tweet)
+#     return None
 
-def is_move(**kwargs):
+
+def is_move(input_dict):
+    if len(input_dict['move']) > 1:
+        return True
+    return False
+
+
+def handle_move(input_dict):
+    game = Game.get_by_name(input_dict['game'])
+    game_update = cg(game.pgn)
+    game_update(input_dict['move'].encode())
+    game.boards += game_update.image_string.decode('utf-8') + u' '
+    game.pgn = game_update.pgn
+    game.end_turn()
+    board(game_update.image_string)
+    image = generate_filepath(game_update.image_string)
+    return image
+
+
+def is_challenge(input_dict):
+    if len(input_dict['opponent']) > 0 and len(input_dict['game']) > 0:
+        return True
+    return False
+
+
+def handle_challenge(input_dict):
+    pass
+
+
+def send_tweet(target, message, sender=1):
     pass
