@@ -53,16 +53,11 @@ class ChessnutGame(object):
             'h': set(),
         }
 
-        #Bucket pieces by the diagonal on which they lie. Diagonals
-        #originate from the the left and/or bottom edges of the board.
-        #For example, a8 is the forward diagonal starting from space a8
-        #and extending up and to the right of a8 - where there are no spaces,
-        #meaning that this diagonal contains only one space. a8 is also
-        #the backward diagonal starting at space a8 and extending down
-        #and to the left of a8 - all the way across the board to space h1.
+        #Bucket pieces by the diagonal on which they lie.
 
-        #Forward diagonal are from bottom left to top right, like a
-        #forward slash '/'
+        #Forward diagonals are from bottom left to top right, like a
+        #forward slash '/'. Forward diagonals originate from the bottom
+        #and/or left edges of the board.
         self.pieces_by_forward_diagonal = {
             'a8': set(),
             'a7': set(),
@@ -81,16 +76,10 @@ class ChessnutGame(object):
             'h1': set(),
         }
 
-        #Backward diagonal are from top left to bottom right, like a
-        #backslash '\'
+        #Backward diagonals are from bottom right to top left, like a
+        #backslash '\'. Backward diagonals originate from the bottom
+        #and/or right edges of the board.
         self.pieces_by_backward_diagonal = {
-            'a8': set(),
-            'a7': set(),
-            'a6': set(),
-            'a5': set(),
-            'a4': set(),
-            'a3': set(),
-            'a2': set(),
             'a1': set(),
             'b1': set(),
             'c1': set(),
@@ -99,6 +88,13 @@ class ChessnutGame(object):
             'f1': set(),
             'g1': set(),
             'h1': set(),
+            'h2': set(),
+            'h3': set(),
+            'h4': set(),
+            'h5': set(),
+            'h6': set(),
+            'h7': set(),
+            'h8': set(),
         }
 
     def reconstruct_from_pgn():
@@ -157,7 +153,33 @@ class ChessnutGame(object):
                 ].add(pawn)
 
     def _san_to_forward_diagonal(self, rank, _file):
-        pass
+        """Find out which forward diagonal the space belongs to.
+        Accomplish this by determining how many spaces along the diagonal
+        we must travel down and to the left before we butt up against the
+        edge of the board, then subtracting this value from the rank and
+        file given.
+        """
+        #49 is the ordinal value of the character '1'
+        rankdiff = ord(rank) - 49
+
+        #97 is the ordinal value of the character 'a'
+        filediff = ord(_file) - 97
+
+        if filediff < rankdiff:
+            return ''.join([
+                chr(ord(_file) - filediff),
+                chr(ord(rank) - filediff),
+            ])
+        else:
+            return ''.join([
+                chr(ord(_file) - rankdiff),
+                chr(ord(rank) - rankdiff),
+            ])
 
     def _san_to_backward_diagonal(self, rank, _file):
-        pass
+        """Find out which backward diagonal the space belongs to.
+        Accomplish this by determining how many spaces along the diagonal
+        we must travel down and to the right before we butt up against
+        the edge of the board, then subtracting this value from the rank
+        and file given.
+        """
