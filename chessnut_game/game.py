@@ -180,6 +180,22 @@ class ChessnutGame(object):
         """Find out which backward diagonal the space belongs to.
         Accomplish this by determining how many spaces along the diagonal
         we must travel down and to the right before we butt up against
-        the edge of the board, then subtracting this value from the rank
-        and file given.
+        the edge of the board, then subtracting this value from the file
+        and adding it to the rank given.
         """
+        #49 is the ordinal value of the character '1'
+        rankdiff = ord(rank) - 49
+
+        #104 is the ordinal value of the character 'h'
+        filediff = 104 - ord(_file)
+
+        if filediff < rankdiff:
+            return ''.join([
+                chr(ord(_file) + filediff),
+                chr(ord(rank) - filediff),
+            ])
+        else:
+            return ''.join([
+                chr(ord(_file) + rankdiff),
+                chr(ord(rank) - rankdiff),
+            ])
