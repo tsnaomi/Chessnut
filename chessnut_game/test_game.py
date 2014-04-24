@@ -69,6 +69,29 @@ class TestSANToDiagonals(unittest.TestCase):
         """Assert that all spaces are assigned to their correct backward
         diagonal.
         """
+        diagonals = [
+            ('a', '1'),
+            ('b', '1'),
+            ('c', '1'),
+            ('d', '1'),
+            ('e', '1'),
+            ('f', '1'),
+            ('g', '1'),
+            ('h', '1'),
+            ('h', '2'),
+            ('h', '3'),
+            ('h', '4'),
+            ('h', '5'),
+            ('h', '6'),
+            ('h', '7'),
+            ('h', '8'),
+        ]
+
+        for _file, rank in diagonals:
+            expected = ''.join([_file, rank])
+            for dirank, difile in self.build_backward_diagonal(rank, _file):
+                self.assertEqual(
+                    expected, self.c._san_to_backward_diagonal(dirank, difile))
 
 
 if __name__ == '__main__':
