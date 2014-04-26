@@ -46,7 +46,7 @@ class Piece(object):
         """
         return True if space in self.actual_moves else False
 
-    def _cache_horizontal_moves(self, backward=True, sideways=True, limit=7):
+    def _generate_horizontal_moves(self, backward=True, sideways=True, limit=7):
         """Calculates the spaces to which this piece can move horizontally.
         Can be limited by disallowing backward and/or side-to-side movement
         and by limiting the number of spaces that are allowed to be moved.
@@ -67,12 +67,24 @@ class Piece(object):
 
                 yield ''.join([_file, rank])
 
-    def _cache_diagonal_moves(self, backward=True, limit=7):
+    def _generate_diagonal_moves(self, backward=True, limit=7):
         """Calculates the spaces to which this piece can move diagonally.
         Can be limited by disallowing movement backwards along diagonals
         and by limiting the number of spaces that are allowed to be moved.
         """
-        pass
+        move_modifiers = [(1, 1), (1, -1)]
+        if backward:
+            move_modifiers.extend([(-1, 1), (-1, -1)])
+
+        for rankmod, filemod in move_modifiers:
+            for i in range(limit):
+                rank = self.rank + rankmod
+                _file = chr(ord(self.file) + filemod)
+
+                if rank > 8 or rank < 0 or _file > 'h' or _file < 'a':
+                    break
+
+                yield ''.join([_file, rank])
 
 
 class Pawn(Piece):
