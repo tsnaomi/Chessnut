@@ -40,20 +40,39 @@ class Piece(object):
         #about the positions of other pieces on its own.
         self.actual_moves = set()
 
-        #Store a set containing all the spaces on the board to which this
-        #piece could capture - IF this piece were the only piece on the
-        #board, save for a single enemy piece at the space being captured
-        #to. The piece can calculate this on its own because it is familiar
-        #with its own move logic. For all pieces save the pawn, this set
-        #will be identical to the naive_moves set.
-        self.naive_captures = self.naive_moves
+    def can_move_to(self, space):
+        """Refer to the actual_moves cache to determine whether this piece
+        can reach the space in question.
+        """
+        return True if space in self.actual_moves else False
 
-        #Store a set containing all of the spaces on the board to which
-        #this piece can ACTUALLY capture. This attribute is set by the
-        #game object, as it knows about the state of the board, while the
-        #piece does not. For all pieces save the pawn, this set will be
-        #identical to the actual_moves set.
-        self.actual_captures = self.actual_moves
+    def _cache_horizontal_moves(self, backward=True, sideways=True, limit=7):
+        """Calculates the spaces to which this piece can move horizontally.
+        Can be limited by disallowing backward and/or side-to-side movement
+        and by limiting the number of spaces that are allowed to be moved.
+        """
+        move_modifiers = [(1, 0)]
+        if backward:
+            move_modifiers.append((-1, 0))
+        if sideways:
+            move_modifiers.extend([(0, 1), (0, -1)])
+
+        for rankmod, filemod in move_modifiers:
+            for i in range(limit):
+                rank = self.rank + rankmod
+                _file = chr(ord(self.file) + filemod)
+
+                if rank > 8 or rank < 0 or _file > 'h' or _file < 'a':
+                    break
+
+                yield ''.join([_file, rank])
+
+    def _cache_diagonal_moves(self, backward=True, limit=7):
+        """Calculates the spaces to which this piece can move diagonally.
+        Can be limited by disallowing movement backwards along diagonals
+        and by limiting the number of spaces that are allowed to be moved.
+        """
+        pass
 
 
 class Pawn(Piece):
@@ -73,6 +92,13 @@ class Pawn(Piece):
         #capture and move logic.
         self.naive_captures = set()
         self.actual_captures = set()
+
+    def can_capture_to(self, space):
+        """Pawns are a special case piece: their move logic and capture logic
+        differ. They must therefore have separate behavior for can_capture_to
+        (in other pieces, this function is an alias for can_move_to).
+        """
+        return True if space in self.actual_captures else False
 
 
 class Rook(Piece):
