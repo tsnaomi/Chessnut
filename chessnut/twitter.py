@@ -7,13 +7,15 @@ from .models import (
 from .generate_board import board
 from .chess import ChessnutGame as cg
 from gevent.queue import Queue as gqueue
+from pyramid import request
 import tweepy
 import re
 from celery.task import task
 
+settings = request.registry.settings
 
-consumer_key = 'a1QFgBvoQNnSbshCghSwg'
-consumer_secret = '9niiLlNcfJYR4W4u5kNwQjEZEXE81HBwkHA6hRw4QU'
+consumer_key = settings['consumer_key']
+consumer_secret = settings['consumer_secret']
 
 
 class CnStreamListener(tweepy.StreamListener):
@@ -21,11 +23,12 @@ class CnStreamListener(tweepy.StreamListener):
     def on_status(self, status):
         try:
             parsed = tweet_parser(status.text)
-            current_user = TwUser.get_by_user_id(status.user.id)
+            parsed['user'] = TwUser.get_by_user_id(status.user.id)
         except ValueError:
             pass
         if is_move(parsed):
             image = handle_move(parsed)
+            send_move(parsed, image)
         elif is_challenge(parsed):
             handle_challenge(parsed)
 
@@ -214,6 +217,9 @@ def is_move(input_dict):
 
 
 def handle_move(input_dict):
+
+    def _is_turn(game, user):
+        pass
     game = Game.get_by_name(input_dict['game'])
     game_update = cg(game.pgn)
     game_update(input_dict['move'].encode())
@@ -236,4 +242,8 @@ def handle_challenge(input_dict):
 
 
 def send_tweet(target, message, sender=1):
+    pass
+
+
+def send_move(inpuit_dict):
     pass

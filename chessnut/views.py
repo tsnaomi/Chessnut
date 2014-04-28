@@ -1,18 +1,15 @@
 # from pyramid.response import Response
 from pyramid.view import view_config
+from pyramid import request
 from .models import (
     DBSession,
     TwUser,
     SinceId,
     Game,
-    Challenge
     )
 from .twitter import (
     get_moves,
     execute_moves,
-    # media_tweet,
-    # send_tweet,
-    # send_error,
     )
 import transaction
 import tweepy
@@ -28,9 +25,10 @@ from apscheduler.scheduler import Scheduler
 sched = Scheduler()
 sched.start()
 
-consumer_key = ''
-consumer_secret = ''
+settings = request.registry.settings
 
+consumer_key = settings['consumer_key']
+consumer_secret = settings['consumer_secret']
 
 # @sched.interval_schedule(seconds=90)
 def moves():

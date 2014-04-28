@@ -25,6 +25,10 @@ def main(global_config, **settings):
     authentication_policy = AuthTktAuthenticationPolicy('somesecret')
     authorization_policy = ACLAuthorizationPolicy()
     session_factory = session_factory_from_settings(settings)
+    consumer_key = settings.get('consumer_key', '')
+    consumer_secret = settings.get('consumer_secret', '')
+    settings['consumer_key'] = consumer_key
+    settings['consumer_secret'] = consumer_secret
     config = Configurator(settings=settings,
                           authentication_policy=authentication_policy,
                           authorization_policy=authorization_policy,
