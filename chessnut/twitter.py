@@ -7,13 +7,13 @@ from .models import (
 from .generate_board import board
 from .chess import ChessnutGame as cg
 from gevent.queue import Queue as gqueue
-from pyramid import request
+import pyramid
 import tweepy
 import re
 from celery.task import task
 
-settings = request.registry.settings
-
+settings = pyramid.threadlocal.get_current_registry()
+import pdb; pdb.set_trace()
 consumer_key = settings['consumer_key']
 consumer_secret = settings['consumer_secret']
 
