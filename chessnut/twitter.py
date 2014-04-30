@@ -11,11 +11,11 @@ import pyramid
 import tweepy
 import re
 from celery.task import task
+from paste.deploy.loadwsgi import appconfig
+config = appconfig('config:development.ini', 'main', relative_to='.')
 
-settings = pyramid.threadlocal.get_current_registry()
-import pdb; pdb.set_trace()
-consumer_key = settings['consumer_key']
-consumer_secret = settings['consumer_secret']
+consumer_key = config['consumer_key']
+consumer_secret = config['consumer_secret']
 
 
 class CnStreamListener(tweepy.StreamListener):
