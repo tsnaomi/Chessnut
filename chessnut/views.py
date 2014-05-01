@@ -7,10 +7,6 @@ from .models import (
     SinceId,
     Game,
     )
-from .twitter import (
-    get_moves,
-    execute_moves,
-    )
 import transaction
 import tweepy
 from pyramid.httpexceptions import (
@@ -19,29 +15,12 @@ from pyramid.httpexceptions import (
     HTTPError,
     exception_response
     )
-from apscheduler.scheduler import Scheduler
-# from gevent.queue import Queue as gqueue
+from paste.deploy.loadwsgi import appconfig
 
-sched = Scheduler()
-sched.start()
+config = appconfig('config:development.ini', 'main', relative_to='.')
 
-settings = request.registry.settings
-
-consumer_key = settings['consumer_key']
-consumer_secret = settings['consumer_secret']
-
-# @sched.interval_schedule(seconds=90)
-def moves():
-    with transaction.manager:
-        # challenge = Challenge.get_by_name(u'capturegame')
-        # challenge.opponent_id = 2
-        # game = Game(challenge)
-        # DBSession.add(game)
-        # return game
-        since_id = SinceId.get_by_id(1)
-        value, tweet_queue = get_moves(since_id)
-        execute_moves(tweet_queue)
-        since_id.value = value
+consumer_key = config['consumer_key']
+consumer_secret = config['consumer_secret']
 
 
 @view_config(route_name='moves', renderer='string')

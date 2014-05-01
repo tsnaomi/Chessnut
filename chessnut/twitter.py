@@ -1,43 +1,31 @@
-from .models import (
+from chessnut.models import (
     DBSession,
     TwUser,
     Game,
     Challenge,
     )
-from .generate_board import board
-from .chess import ChessnutGame as cg
+from chessnut.generate_board import board
+from chessnut.chess import ChessnutGame as cg
 from gevent.queue import Queue as gqueue
 import pyramid
 import tweepy
 import re
 from celery.task import task
 from paste.deploy.loadwsgi import appconfig
+
 config = appconfig('config:development.ini', 'main', relative_to='.')
 
 consumer_key = config['consumer_key']
 consumer_secret = config['consumer_secret']
 
 
-class CnStreamListener(tweepy.StreamListener):
-
-    def on_status(self, status):
-        try:
-            parsed = tweet_parser(status.text)
-            parsed['user'] = TwUser.get_by_user_id(status.user.id)
-        except ValueError:
-            pass
-        if is_move(parsed):
-            image = handle_move(parsed)
-            send_move(parsed, image)
-        elif is_challenge(parsed):
-            handle_challenge(parsed)
-
-    def on_disconnect():
-        pass
+@task
+def tweet_recv(tweet):
+    print tweet
 
 
 def tweet_parser(tweet):
-    """Takes in a unicode-formatted tweet and returns a dictionary of the
+    """takes in a unicode-formatted tweet and returns a dictionary of the
     game name opponent, move, and extra message.
     """
     tweet = tweet.encode()
@@ -247,3 +235,8 @@ def send_tweet(target, message, sender=1):
 
 def send_move(inpuit_dict):
     pass
+
+
+if __name__ == '__main__':
+    streaming_api('#chessnut')
+
