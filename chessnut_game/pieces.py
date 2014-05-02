@@ -4,25 +4,7 @@ class Piece(object):
     legality of that move), and knows to which player it belongs.
     """
     def __init__(self, player=None, rank=None, _file=None):
-        """Initialize the attributes of this Piece, then bind can_capture_to
-        to can_move_to. In most pieces, capture logic is the same as move
-        logic, so this alias is desired. The only exception is in Pawns.
-        """
-        self._initialize_piece(player, rank, _file)
-        self.can_capture_to = self.can_move_to
-
-    def _initialize_piece(self, player, rank, _file):
-        """This method is responsible for setting all attributes on Pieces.
-        It should also be called in the __init__ of any class that subclasses
-        Piece without calling Piece.__init__, if those objects are to correctly
-        'inherit' these attributes. This encapsulation is necessary because
-        Piece's __init__ binds the name 'can_capture_to' to the method
-        'can_move_to', which is a behavior that is usually desired, but
-        not ALWAYS desired. In Pawns, these names need to be bound to
-        methods with different behaviors. However, if Pawn were to call
-        Piece.__init__(), then this re-binding of names would become
-        impossible.
-        """
+        """Initialize the attributes of this Piece."""
         #Keep track of whose piece this is and where it is on the board.
         self.player = player
         self.rank = rank
@@ -39,6 +21,11 @@ class Piece(object):
         #attribute is set by the game object, as the piece does not know
         #about the positions of other pieces on its own.
         self.actual_moves = set()
+
+        #Bind can_capture_to to can_move_to. In most pieces, capture logic
+        #and move logic is the same, so the same method should be called
+        #to determine both.
+        self.can_capture_to = self.can_move_to
 
     def can_move_to(self, space):
         """Refer to the actual_moves cache to determine whether this piece
@@ -94,7 +81,7 @@ class Pawn(Piece):
     to (since their capture and move logic are different).
     """
     def __init__(self, player=None, rank=None, _file=None):
-        self._initialize_piece(player, rank, _file)
+        super(Pawn, self).__init__(player, rank, _file)
 
         #Track whether or not this pawn is eligible to be en-passant
         #captured.
@@ -105,7 +92,14 @@ class Pawn(Piece):
         self.naive_captures = set()
         self.actual_captures = set()
 
-    def can_capture_to(self, space):
+        #Bind can_capture_to to _can_capture_to (note the leading under-
+        #score). This mild name mangling is necessary because the name
+        #can_capture_to is bound by the call (above) to Piece's __init__.
+        #If Pawn's method were not prefixed with an underscore, it would
+        #then be overwritten and lost.
+        self.can_capture_to = self._can_capture_to
+
+    def _can_capture_to(self, space):
         """Pawns are a special case piece: their move logic and capture logic
         differ. They must therefore have separate behavior for can_capture_to
         (in other pieces, this function is an alias for can_move_to).
