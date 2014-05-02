@@ -41,11 +41,43 @@ class Piece(object):
         #to determine both.
         self.can_capture_to = self.can_move_to
 
-    def can_move_to(self, space):
+        #Generate the initial naive_moves cache.
+        self._generate_naive_cache()
+
+    def can_move_to(self, rank=None, _file=None):
         """Refer to the actual_moves cache to determine whether this piece
         can reach the space in question.
         """
-        return True if space in self.actual_moves else False
+        self._validate_rank_and_file(rank, _file)
+        return True if (_file, rank) in self.actual_moves else False
+
+    def move_to(self, rank=None, _file=None):
+        """Move this Piece to the rank and file provided. If neither is
+        provided, no action is taken. If only one is provided, the other
+        is unmodified. If either is provided, the naive_moves cache is
+        regenerated.
+        """
+        if rank is None and _file is None:
+            return
+
+        if rank is not None:
+            self._validate_rank(rank)
+            self.rank = rank
+
+        if _file is not None:
+            self._validate_file(_file)
+            self.file = _file
+
+        self._generate_naive_cache()
+
+    def _generate_naive_cache(self):
+        """Generate the naive moves cache. The Piece class is non-specific
+        and has no move logic, so this method is empty. Pieces derived
+        from this class must implement their own version based on their move
+        logic. _generate_horizontal_moves and _generate_diagonal_moves are
+        provided to assist with this task.
+        """
+        pass
 
     def _generate_horizontal_moves(self, backward=True, sideways=True, limit=7):
         """Calculates the spaces to which this piece can move horizontally.
