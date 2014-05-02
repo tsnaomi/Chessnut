@@ -5,6 +5,20 @@ class Piece(object):
     """
     def __init__(self, player=None, rank=None, _file=None):
         """Initialize the attributes of this Piece."""
+        #Validate input.
+        if not isinstance(player, bool):
+            raise TypeError("Piece got non-boolean player argument.")
+
+        if not isinstance(rank, str):
+            raise TypeError("Piece got non-string rank argument.")
+        elif len(rank) != 1 or rank not in '12345678':
+            raise ValueError("Piece got rank argument not in range 1-8.")
+
+        if not isinstance(_file, str):
+            raise TypeError("Piece got non-string _file argument.")
+        elif len(_file) != 1 or _file not in 'abcdefgh':
+            raise ValueError("Piece got _file argument not in range a-h.")
+
         #Keep track of whose piece this is and where it is on the board.
         self.player = player
         self.rank = rank
