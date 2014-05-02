@@ -1,10 +1,58 @@
 import unittest
+from game import Black, White
 from pieces import Piece, Pawn, Rook, QueensideRook, KingsideRook, \
     Knight, Bishop, Queen, King
 
 
 class TestPiece(unittest.TestCase):
     """Test the Piece class."""
+    def setUp(self):
+        pass
+
+    def test_pieces_on_all_legal_spaces(self):
+        """Create Pieces with all possible legal combinations of ranks
+        and files and assert that they are determined legal.
+        """
+        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+            for player in (Black, White):
+                p = Piece(player=player, rank=rank, _file=_file)
+                self.assertIs(p.player, player)
+                self.assertEqual(p.rank, rank)
+                self.assertEqual(p.file, _file)
+
+    def test_piece_rank_not_string(self):
+        """Attempt to create a piece with a non-string rank argument.
+        Assert that this operation fails.
+        """
+        for player in (Black, White):
+            self.assertRaises(TypeError, Piece, player, 1, 'a')
+
+    def test_piece_rank_out_of_range(self):
+        """Attempt to create a piece with a rank not in 1-8.
+        Assert that this operation fails.
+        """
+        for player in (Black, White):
+            self.assertRaises(ValueError, Piece, player, '0', 'a')
+
+    def test_piece_file_not_string(self):
+        """Attempt to create a piece with a non-string _file argument.
+        Assert that this operation fails.
+        """
+        for player in (Black, White):
+            self.assertRaises(TypeError, Piece, player, '1', 1)
+
+    def test_piece_file_out_of_range(self):
+        """Attempt to create a piece with a _file not in a-h.
+        Assert that this operation fails.
+        """
+        for player in (Black, White):
+            self.assertRaises(ValueError, Piece, player, '1', 'j')
+
+    def test_piece_player_not_bool(self):
+        """Attempt to create a piece with a non-boolean player.
+        Assert that this operation fails.
+        """
+        self.assertRaises(TypeError, Piece, 'player', '1', 'a')
 
 
 class TestPawn(unittest.TestCase):
