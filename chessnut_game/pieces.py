@@ -5,12 +5,6 @@ class Piece(object):
     """
     def __init__(self, player=None, _file=None, rank=None):
         """Initialize the attributes of this Piece."""
-        #Validate input.
-        if not isinstance(player, bool):
-            raise TypeError("Piece got non-boolean player argument.")
-
-        self._validate_file_and_rank(_file, rank)
-
         #Keep track of whose piece this is and where it is on the board.
         self.player = player
         self.rank = rank
@@ -36,11 +30,46 @@ class Piece(object):
         #Generate the initial naive_moves cache.
         self._generate_naive_cache()
 
+    @property
+    def player(self):
+        return self._player
+
+    @player.setter
+    def player(self, value):
+        if not isinstance(value, bool):
+            raise TypeError("Attempting to set player to non-boolean value.")
+        self._player = value
+
+    @property
+    def file(self):
+        return self._file
+
+    @file.setter
+    def file(self, value):
+        if not isinstance(value, str):
+            raise TypeError("Attempting to set file to non-string value.")
+        elif len(value) != 1 or value not in 'abcdefgh':
+            raise ValueError(
+                "Attempting to set file to value not in range a-h.")
+        self._file = value
+
+    @property
+    def rank(self):
+        return self._rank
+
+    @rank.setter
+    def rank(self, value):
+        if not isinstance(value, str):
+            raise TypeError("Attempting to set rank to non-string value.")
+        elif len(value) != 1 or value not in '12345678':
+            raise ValueError(
+                "Attempting to set rank to value not in range 1-8.")
+        self._rank = value
+
     def can_move_to(self, rank=None, _file=None):
         """Refer to the actual_moves cache to determine whether this piece
         can reach the space in question.
         """
-        self._validate_file_and_rank(_file, rank)
         return True if (_file, rank) in self.actual_moves else False
 
     def move_to(self, rank=None, _file=None):
@@ -53,11 +82,9 @@ class Piece(object):
             return
 
         if _file is not None:
-            self._validate_file(_file)
             self.file = _file
 
         if rank is not None:
-            self._validate_rank(rank)
             self.rank = rank
 
         self._generate_naive_cache()
@@ -110,31 +137,6 @@ class Piece(object):
                     break
 
                 yield ''.join([_file, rank])
-
-    def _validate_file_and_rank(self, _file, rank):
-        """Validate file and rank. Assert that each is a string of length
-        one and each falls into its appropriate range.
-        """
-        self._validate_file(_file)
-        self._validate_rank(rank)
-
-    def _validate_file(self, _file):
-        """Validate file. Assert that it is a string of length one in the
-        range a-h. Raise an appropriate exception, if not.
-        """
-        if not isinstance(_file, str):
-            raise TypeError("Piece got non-string _file argument.")
-        elif len(_file) != 1 or _file not in 'abcdefgh':
-            raise ValueError("Piece got _file argument not in range a-h.")
-
-    def _validate_rank(self, rank):
-        """Validate rank. Assert that it is a string of length one in the
-        range 1-8. Raise an appropriate exception, if not.
-        """
-        if not isinstance(rank, str):
-            raise TypeError("Piece got non-string rank argument.")
-        elif len(rank) != 1 or rank not in '12345678':
-            raise ValueError("Piece got rank argument not in range 1-8.")
 
 
 class Pawn(Piece):
