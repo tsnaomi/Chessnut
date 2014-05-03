@@ -133,11 +133,44 @@ class TestPiece(unittest.TestCase):
 
     def test_generate_horizontal_moves_default(self):
         """Test _generate_horizontal_moves with its default settings."""
+        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+            for piece in (self.pW, self.pB):
+                piece.file = _file
+                piece.rank = rank
+
+                expected_spaces = set()
+                expected_spaces.update(
+                    (_file, r) for r in '12345678' if r != rank)
+                expected_spaces.update(
+                    (f, rank) for f in 'abcdefgh' if f != _file)
+
+                actual_spaces = set(piece._generate_horizontal_moves())
+
+                self.assertEqual(actual_spaces, expected_spaces)
 
     def test_generate_horizontal_moves_forward_only(self):
         """Test _generate_horizontal_moves when only forward movement is
         allowed.
         """
+        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+            for piece in (self.pW, self.pB):
+                piece.file = _file
+                piece.rank = rank
+
+                if piece.player is White:
+                    expected_spaces = set(
+                        (_file, r) for r in '12345678' if r > rank)
+                else:
+                    expected_spaces = set(
+                        (_file, r) for r in '12345678' if r < rank)
+
+                actual_spaces = set(
+                    piece._generate_horizontal_moves(
+                        backward=False, sideways=False
+                    )
+                )
+
+                self.assertEqual(actual_spaces, expected_spaces)
 
     def test_generate_horizontal_moves_no_sideways(self):
         """Test _generate_horizontal_moves when only sideways movement is
