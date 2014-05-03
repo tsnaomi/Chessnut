@@ -138,8 +138,7 @@ class TestPiece(unittest.TestCase):
                 piece.file = _file
                 piece.rank = rank
 
-                expected_spaces = set()
-                expected_spaces.update(
+                expected_spaces = set(
                     (_file, r) for r in '12345678' if r != rank)
                 expected_spaces.update(
                     (f, rank) for f in 'abcdefgh' if f != _file)
@@ -176,11 +175,47 @@ class TestPiece(unittest.TestCase):
         """Test _generate_horizontal_moves when only sideways movement is
         disallowed.
         """
+        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+            for piece in (self.pW, self.pB):
+                piece.file = _file
+                piece.rank = rank
+
+                expected_spaces = set(
+                    (_file, r) for r in '12345678' if r != rank)
+
+                actual_spaces = set(
+                    piece._generate_horizontal_moves(
+                        sideways=False
+                    )
+                )
+
+                self.assertEqual(actual_spaces, expected_spaces)
 
     def test_generate_horizontal_moves_no_backward(self):
         """Test _generate_horizontal_moves when only backward movement is
         disallowed.
         """
+        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+            for piece in (self.pW, self.pB):
+                piece.file = _file
+                piece.rank = rank
+
+                if piece.player is White:
+                    expected_spaces = set(
+                        (_file, r) for r in '12345678' if r > rank)
+                else:
+                    expected_spaces = set(
+                        (_file, r) for r in '12345678' if r < rank)
+                expected_spaces.update(
+                    (f, rank) for f in 'abcdefgh' if f != _file)
+
+                actual_spaces = set(
+                    piece._generate_horizontal_moves(
+                        backward=False
+                    )
+                )
+
+                self.assertEqual(actual_spaces, expected_spaces)
 
     def test_generate_horizontal_moves_with_limit(self):
         """Test _generate_horizontal_moves when the number of spaces to
