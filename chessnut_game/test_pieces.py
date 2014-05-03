@@ -59,12 +59,36 @@ class TestPiece(unittest.TestCase):
         is in its actual_moves cache.
         """
         for player in (Black, White):
-            p = Piece(player)
+            p = Piece(player, 'a', '1')
+            p.actual_moves.add(('b', '2'))
+            self.assertTrue(p.can_move_to('b', '2'))
 
     def test_can_move_to_not_in_set(self):
         """Assert that a Piece reports that it can't move to a space that
         is not in its actual_moves cache.
         """
+        for player in (Black, White):
+            p = Piece(player, 'a', '1')
+            p.actual_moves.add(('b', '3'))
+            self.assertFalse(p.can_move_to('b', '2'))
+
+    def test_in_naive_moves_in_set(self):
+        """Assert that a Piece correctly reports membership in its
+        naive_moves cache.
+        """
+        for player in (Black, White):
+            p = Piece(player, 'a', '1')
+            p.naive_moves.add(('b', '2'))
+            self.assertTrue(p.in_naive_moves('b', '2'))
+
+    def test_in_naive_moves_not_in_set(self):
+        """Assert that a Piece correctly reports non-membership in its
+        naive_moves cache.
+        """
+        for player in (Black, White):
+            p = Piece(player, 'a', '1')
+            p.naive_moves.add(('b', '3'))
+            self.assertFalse(p.in_naive_moves('b', '2'))
 
 
 class TestPawn(unittest.TestCase):
