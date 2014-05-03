@@ -7,7 +7,8 @@ from pieces import Piece, Pawn, Rook, QueensideRook, KingsideRook, \
 class TestPiece(unittest.TestCase):
     """Test the Piece class."""
     def setUp(self):
-        pass
+        self.pW = Piece(White, 'a', '1')
+        self.pB = Piece(Black, 'a', '1')
 
     def test_pieces_on_all_legal_spaces(self):
         """Create Pieces with all possible legal combinations of ranks
@@ -20,39 +21,45 @@ class TestPiece(unittest.TestCase):
                 self.assertEqual(p.file, _file)
                 self.assertEqual(p.rank, rank)
 
-    def test_piece_rank_not_string(self):
-        """Attempt to create a piece with a non-string rank argument.
-        Assert that this operation fails.
+    def test_rank_setter_not_string(self):
+        """Attempt to set the rank to a non-string value. Assert that a
+        TypeError is raised.
         """
-        for player in (Black, White):
-            self.assertRaises(TypeError, Piece, player, 'a', 1)
+        for piece in (self.pW, self.pB):
+            with self.assertRaises(TypeError):
+                piece.rank = 1
 
-    def test_piece_rank_out_of_range(self):
+    def test_rank_setter_out_of_range(self):
         """Attempt to create a piece with a rank not in 1-8.
         Assert that this operation fails.
         """
-        for player in (Black, White):
-            self.assertRaises(ValueError, Piece, player, 'a', '0')
+        for piece in (self.pW, self.pB):
+            with self.assertRaises(ValueError):
+                piece.rank = '0'
 
-    def test_piece_file_not_string(self):
+    def test_file_setter_not_string(self):
         """Attempt to create a piece with a non-string _file argument.
         Assert that this operation fails.
         """
-        for player in (Black, White):
-            self.assertRaises(TypeError, Piece, player, 1, '1')
+        for piece in (self.pW, self.pB):
+            with self.assertRaises(TypeError):
+                piece.file = 1
 
-    def test_piece_file_out_of_range(self):
+    def test_file_setter_out_of_range(self):
         """Attempt to create a piece with a _file not in a-h.
         Assert that this operation fails.
         """
-        for player in (Black, White):
-            self.assertRaises(ValueError, Piece, player, 'j', '1')
+        for piece in (self.pW, self.pB):
+            with self.assertRaises(ValueError):
+                piece.file = 'j'
 
-    def test_piece_player_not_bool(self):
+    def test_player_setter_not_bool(self):
         """Attempt to create a piece with a non-boolean player.
         Assert that this operation fails.
         """
-        self.assertRaises(TypeError, Piece, 'player', 'a', '1')
+        for piece in (self.pW, self.pB):
+            with self.assertRaises(TypeError):
+                piece.player = 'player'
 
     def test_can_move_to_in_set(self):
         """Assert that a Piece reports that it can move to a space that
@@ -89,6 +96,16 @@ class TestPiece(unittest.TestCase):
             p = Piece(player, 'a', '1')
             p.naive_moves.add(('b', '3'))
             self.assertFalse(p.in_naive_moves('b', '2'))
+
+    def test_move_to(self):
+        """Assert that the move_to method changes the location of the
+        Piece and regenerates its naive moves cache.
+        """
+
+    def test_move_to_off_board(self):
+        """Attempt to move the Piece to a space off the board. Assert
+        that no movement is made and the naive_moves cache is unmodified.
+        """
 
 
 class TestPawn(unittest.TestCase):
