@@ -221,6 +221,31 @@ class TestPiece(unittest.TestCase):
         """Test _generate_horizontal_moves when the number of spaces to
         be moved is limited.
         """
+        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+            for piece in (self.pW, self.pB):
+                piece.file = _file
+                piece.rank = rank
+                for limit in range(7):
+                    expected_spaces = set(
+                        (_file, chr(r)) for r in range(
+                            ord(rank) - limit, ord(rank) + limit + 1
+                            )
+                        if r != ord(rank) and 49 <= r <= 56
+                    )
+                    expected_spaces.update(
+                        (chr(f), rank) for f in range(
+                            ord(_file) - limit, ord(_file) + limit + 1
+                            )
+                        if f != ord(_file) and 97 <= f <= 104
+                    )
+
+                    actual_spaces = set(
+                        piece._generate_horizontal_moves(
+                            limit=limit
+                        )
+                    )
+
+                    self.assertEqual(actual_spaces, expected_spaces)
 
     def test_generate_diagonal_moves_default(self):
         """Test _generate_diagonal_moves with its default settings."""
