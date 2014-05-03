@@ -118,6 +118,20 @@ class TestPiece(unittest.TestCase):
         """Attempt to move the Piece to a space off the board. Assert
         that no movement is made and the naive_moves cache is unmodified.
         """
+        dest_file = 'j'
+        dest_rank = '2'
+        for player in (Black, White):
+            p = Piece(player, 'a', '1')
+            with patch.object(Piece, '_generate_naive_cache') as mock_method:
+                mock_method.return_value = None
+                try:
+                    p.move_to(dest_file, dest_rank)
+                except ValueError:
+                    pass
+
+            self.assertFalse(mock_method.called)
+            self.assertEqual(p.file, 'a')
+            self.assertEqual(p.rank, '1')
 
 
 class TestPawn(unittest.TestCase):
