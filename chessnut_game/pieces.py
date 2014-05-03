@@ -1,3 +1,8 @@
+#Module-level constants representing which player's turn it is.
+White = True
+Black = False
+
+
 class Piece(object):
     """The base class. A chess piece knows where it is on the board, caches
     the spaces on the board to which it could move (regardless of the
@@ -103,9 +108,10 @@ class Piece(object):
         Can be limited by disallowing backward and/or side-to-side movement
         and by limiting the number of spaces that are allowed to be moved.
         """
-        move_modifiers = [(1, 0)]
+        forward = 1 if self.player is White else -1
+        move_modifiers = [(1 * forward, 0)]
         if backward:
-            move_modifiers.append((-1, 0))
+            move_modifiers.append((-1 * forward, 0))
         if sideways:
             move_modifiers.extend([(0, 1), (0, -1)])
 
@@ -130,9 +136,10 @@ class Piece(object):
         Can be limited by disallowing movement backwards along diagonals
         and by limiting the number of spaces that are allowed to be moved.
         """
-        move_modifiers = [(1, 1), (1, -1)]
+        forward = 1 if self.player is White else -1
+        move_modifiers = [(1 * forward, 1), (1 * forward, -1)]
         if backward:
-            move_modifiers.extend([(-1, 1), (-1, -1)])
+            move_modifiers.extend([(-1 * forward, 1), (-1 * forward, -1)])
 
         for rankmod, filemod in move_modifiers:
             _file = ord(self._file)
