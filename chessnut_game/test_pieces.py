@@ -25,34 +25,46 @@ class TestPiece(unittest.TestCase):
         Assert that this operation fails.
         """
         for player in (Black, White):
-            self.assertRaises(TypeError, Piece, player, 1, 'a')
+            self.assertRaises(TypeError, Piece, player, 'a', 1)
 
     def test_piece_rank_out_of_range(self):
         """Attempt to create a piece with a rank not in 1-8.
         Assert that this operation fails.
         """
         for player in (Black, White):
-            self.assertRaises(ValueError, Piece, player, '0', 'a')
+            self.assertRaises(ValueError, Piece, player, 'a', '0')
 
     def test_piece_file_not_string(self):
         """Attempt to create a piece with a non-string _file argument.
         Assert that this operation fails.
         """
         for player in (Black, White):
-            self.assertRaises(TypeError, Piece, player, '1', 1)
+            self.assertRaises(TypeError, Piece, player, 1, '1')
 
     def test_piece_file_out_of_range(self):
         """Attempt to create a piece with a _file not in a-h.
         Assert that this operation fails.
         """
         for player in (Black, White):
-            self.assertRaises(ValueError, Piece, player, '1', 'j')
+            self.assertRaises(ValueError, Piece, player, 'j', '1')
 
     def test_piece_player_not_bool(self):
         """Attempt to create a piece with a non-boolean player.
         Assert that this operation fails.
         """
-        self.assertRaises(TypeError, Piece, 'player', '1', 'a')
+        self.assertRaises(TypeError, Piece, 'player', 'a', '1')
+
+    def test_can_move_to_in_set(self):
+        """Assert that a Piece reports that it can move to a space that
+        is in its actual_moves cache.
+        """
+        for player in (Black, White):
+            p = Piece(player)
+
+    def test_can_move_to_not_in_set(self):
+        """Assert that a Piece reports that it can't move to a space that
+        is not in its actual_moves cache.
+        """
 
 
 class TestPawn(unittest.TestCase):
