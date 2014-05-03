@@ -1,4 +1,5 @@
 import unittest
+from mock import patch
 from game import Black, White
 from pieces import Piece, Pawn, Rook, QueensideRook, KingsideRook, \
     Knight, Bishop, Queen, King
@@ -101,6 +102,17 @@ class TestPiece(unittest.TestCase):
         """Assert that the move_to method changes the location of the
         Piece and regenerates its naive moves cache.
         """
+        dest_file = 'b'
+        dest_rank = '2'
+        for player in (Black, White):
+            p = Piece(player, 'a', '1')
+            with patch.object(Piece, '_generate_naive_cache') as mock_method:
+                mock_method.return_value = None
+                p.move_to(dest_file, dest_rank)
+
+            mock_method.assert_called_once_with()
+            self.assertEqual(p.file, dest_file)
+            self.assertEqual(p.rank, dest_rank)
 
     def test_move_to_off_board(self):
         """Attempt to move the Piece to a space off the board. Assert
