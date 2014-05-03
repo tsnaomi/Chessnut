@@ -11,6 +11,18 @@ class TestPiece(unittest.TestCase):
         self.pW = Piece(White, 'a', '1')
         self.pB = Piece(Black, 'a', '1')
 
+    def generate_diagonal_spaces(self, _file, rank):
+        """Given a file and a rank, this function generates all of the
+        spaces in the two diagonals that intersect at that space.
+        """
+        for file_mod, rank_mod in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
+            new_file = ord(_file) + file_mod
+            new_rank = ord(rank) + rank_mod
+            while 97 <= new_file <= 104 and 49 <= new_rank <= 56:
+                yield (chr(new_file), chr(new_rank))
+                new_file += file_mod
+                new_rank += rank_mod
+
     def test_pieces_on_all_legal_spaces(self):
         """Create Pieces with all possible legal combinations of ranks
         and files and assert that they are determined legal.
@@ -249,11 +261,45 @@ class TestPiece(unittest.TestCase):
 
     def test_generate_diagonal_moves_default(self):
         """Test _generate_diagonal_moves with its default settings."""
+        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+            for piece in (self.pW, self.pB):
+                piece.file = _file
+                piece.rank = rank
+
+                expected_spaces = set(
+                    (f, r)
+                    for f, r in self.generate_diagonal_spaces(_file, rank)
+                )
+
+                actual_spaces = set(piece._generate_diagonal_moves())
+
+                self.assertEqual(actual_spaces, expected_spaces)
 
     def test_generate_diagonal_moves_forward_only(self):
         """Test _generate_diagonal_moves when only forward movement is
         allowed.
         """
+        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+            for piece in (self.pW, self.pB):
+                piece.file = _file
+                piece.rank = rank
+
+                if piece.player is White:
+                    expected_spaces = set(
+                        (f, r)
+                        for f, r in self.generate_diagonal_spaces(_file, rank)
+                        if r > rank
+                    )
+                else:
+                    expected_spaces = set(
+                        (f, r)
+                        for f, r in self.generate_diagonal_spaces(_file, rank)
+                        if r < rank
+                    )
+
+                actual_spaces = set(piece._generate_diagonal_moves())
+
+                self.assertEqual(actual_spaces, expected_spaces)
 
     def test_generate_diagonal_moves_with_limit(self):
         """Test _generate_diagonal_moves when the number of spaces to be
