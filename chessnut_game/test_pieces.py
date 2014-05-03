@@ -104,15 +104,14 @@ class TestPiece(unittest.TestCase):
         """
         dest_file = 'b'
         dest_rank = '2'
-        for player in (Black, White):
-            p = Piece(player, 'a', '1')
+        for piece in (self.pW, self.pB):
             with patch.object(Piece, '_generate_naive_cache') as mock_method:
                 mock_method.return_value = None
-                p.move_to(dest_file, dest_rank)
+                piece.move_to(dest_file, dest_rank)
 
             mock_method.assert_called_once_with()
-            self.assertEqual(p.file, dest_file)
-            self.assertEqual(p.rank, dest_rank)
+            self.assertEqual(piece.file, dest_file)
+            self.assertEqual(piece.rank, dest_rank)
 
     def test_move_to_off_board(self):
         """Attempt to move the Piece to a space off the board. Assert
@@ -120,18 +119,17 @@ class TestPiece(unittest.TestCase):
         """
         dest_file = 'j'
         dest_rank = '2'
-        for player in (Black, White):
-            p = Piece(player, 'a', '1')
+        for piece in (self.pW, self.pB):
             with patch.object(Piece, '_generate_naive_cache') as mock_method:
                 mock_method.return_value = None
                 try:
-                    p.move_to(dest_file, dest_rank)
+                    piece.move_to(dest_file, dest_rank)
                 except ValueError:
                     pass
 
             self.assertFalse(mock_method.called)
-            self.assertEqual(p.file, 'a')
-            self.assertEqual(p.rank, '1')
+            self.assertEqual(piece.file, 'a')
+            self.assertEqual(piece.rank, '1')
 
 
 class TestPawn(unittest.TestCase):
