@@ -13,7 +13,8 @@ class TestPiece(unittest.TestCase):
 
     def generate_diagonal_spaces(self, _file, rank):
         """Given a file and a rank, this function generates all of the
-        spaces in the two diagonals that intersect at that space.
+        spaces in the two diagonals that intersect at that space, minus
+        the space itself.
         """
         for file_mod, rank_mod in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
             new_file = ord(_file) + file_mod
