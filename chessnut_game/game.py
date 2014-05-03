@@ -165,16 +165,10 @@ class ChessnutGame(object):
         #97 is the ordinal value of the character 'a'
         filediff = ord(_file) - 97
 
-        if filediff < rankdiff:
-            return ''.join([
-                chr(ord(_file) - filediff),
-                chr(ord(rank) - filediff),
-            ])
-        else:
-            return ''.join([
-                chr(ord(_file) - rankdiff),
-                chr(ord(rank) - rankdiff),
-            ])
+        return ''.join([
+            chr(ord(_file) - min(filediff, rankdiff)),
+            chr(ord(rank) - min(filediff, rankdiff)),
+        ])
 
     def _san_to_backward_diagonal(self, rank, _file):
         """Find out which backward diagonal the space belongs to.
@@ -189,13 +183,7 @@ class ChessnutGame(object):
         #104 is the ordinal value of the character 'h'
         filediff = 104 - ord(_file)
 
-        if filediff < rankdiff:
-            return ''.join([
-                chr(ord(_file) + filediff),
-                chr(ord(rank) - filediff),
-            ])
-        else:
-            return ''.join([
-                chr(ord(_file) + rankdiff),
-                chr(ord(rank) - rankdiff),
-            ])
+        return ''.join([
+            chr(ord(_file) + min(filediff, rankdiff)),
+            chr(ord(rank) - min(filediff, rankdiff)),
+        ])
