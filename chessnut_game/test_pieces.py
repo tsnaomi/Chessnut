@@ -297,7 +297,9 @@ class TestPiece(unittest.TestCase):
                         if r < rank
                     )
 
-                actual_spaces = set(piece._generate_diagonal_moves())
+                actual_spaces = set(
+                    piece._generate_diagonal_moves(backward=False)
+                )
 
                 self.assertEqual(actual_spaces, expected_spaces)
 
