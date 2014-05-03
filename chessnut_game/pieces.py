@@ -1,7 +1,9 @@
 class Piece(object):
     """The base class. A chess piece knows where it is on the board, caches
     the spaces on the board to which it could move (regardless of the
-    legality of that move), and knows to which player it belongs.
+    legality of that move), acts as a container for the spaces on the
+    board to which it can actually move (set by the game object),
+    and knows to which player it belongs.
     """
     def __init__(self, player=None, _file=None, rank=None):
         """Initialize the attributes of this Piece."""
@@ -22,10 +24,11 @@ class Piece(object):
         #about the positions of other pieces on its own.
         self.actual_moves = set()
 
-        #Bind can_capture_to to can_move_to. In most pieces, capture logic
-        #and move logic is the same, so the same method should be called
-        #to determine both.
+        #Bind can_capture_to to can_move_to and in_naive_captures to
+        #in_naive_moves. In most pieces, capture logic and move logic are
+        #the same, so the same methods should be called to determine both.
         self.can_capture_to = self.can_move_to
+        self.in_naive_captures = self.in_naive_moves
 
         #Generate the initial naive_moves cache.
         self._generate_naive_cache()
@@ -47,7 +50,8 @@ class Piece(object):
     @file.setter
     def file(self, value):
         if not isinstance(value, str):
-            raise TypeError("Attempting to set file to non-string value.")
+            raise TypeError(
+                "Attempting to set file to non-string value.")
         elif len(value) != 1 or value not in 'abcdefgh':
             raise ValueError(
                 "Attempting to set file to value not in range a-h.")
@@ -60,33 +64,29 @@ class Piece(object):
     @rank.setter
     def rank(self, value):
         if not isinstance(value, str):
-            raise TypeError("Attempting to set rank to non-string value.")
+            raise TypeError(
+                "Attempting to set rank to non-string value.")
         elif len(value) != 1 or value not in '12345678':
             raise ValueError(
                 "Attempting to set rank to value not in range 1-8.")
         self._rank = value
 
-    def can_move_to(self, rank=None, _file=None):
+    def can_move_to(self, _file, rank):
         """Refer to the actual_moves cache to determine whether this piece
         can reach the space in question.
         """
         return True if (_file, rank) in self.actual_moves else False
 
-    def move_to(self, rank=None, _file=None):
-        """Move this Piece to the rank and file provided. If neither is
-        provided, no action is taken. If only one is provided, the other
-        is unmodified. If either is provided, the naive_moves cache is
-        regenerated.
+    def in_naive_moves(self, _file, rank):
+        """Determine membership in the naive_moves cache."""
+        return True if (_file, rank) in self.naive_moves else False
+
+    def move_to(self, _file, rank):
+        """Move this Piece to the file and rank provided, then regenerate
+        the naive_moves cache.
         """
-        if rank is None and _file is None:
-            return
-
-        if _file is not None:
-            self.file = _file
-
-        if rank is not None:
-            self.rank = rank
-
+        self.file = _file
+        self.rank = rank
         self._generate_naive_cache()
 
     def _generate_naive_cache(self):
@@ -110,14 +110,20 @@ class Piece(object):
             move_modifiers.extend([(0, 1), (0, -1)])
 
         for rankmod, filemod in move_modifiers:
+            rank = ord(self.rank)
+            _file = ord(self._file)
             for i in range(limit):
-                rank = self.rank + rankmod
-                _file = chr(ord(self.file) + filemod)
+                rank += rankmod
+                _file += filemod
 
-                if rank > 8 or rank < 0 or _file > 'h' or _file < 'a':
+                #97 is the ordinal value of 'a'
+                #104 is the ordinal value of 'h'
+                #49 is the ordinal value of '1'
+                #56 is the ordinal value of '8'
+                if rank > 56 or rank < 49 or _file > 104 or _file < 97:
                     break
 
-                yield ''.join([_file, rank])
+                yield (chr(_file), chr(rank))
 
     def _generate_diagonal_moves(self, backward=True, limit=7):
         """Calculates the spaces to which this piece can move diagonally.
@@ -129,14 +135,20 @@ class Piece(object):
             move_modifiers.extend([(-1, 1), (-1, -1)])
 
         for rankmod, filemod in move_modifiers:
+            rank = ord(self.rank)
+            _file = ord(self._file)
             for i in range(limit):
-                rank = self.rank + rankmod
-                _file = chr(ord(self.file) + filemod)
+                rank += rankmod
+                _file += filemod
 
-                if rank > 8 or rank < 0 or _file > 'h' or _file < 'a':
+                #97 is the ordinal value of 'a'
+                #104 is the ordinal value of 'h'
+                #49 is the ordinal value of '1'
+                #56 is the ordinal value of '8'
+                if rank > 56 or rank < 49 or _file > 104 or _file < 97:
                     break
 
-                yield ''.join([_file, rank])
+                yield (chr(_file), chr(rank))
 
 
 class Pawn(Piece):
@@ -157,19 +169,28 @@ class Pawn(Piece):
         self.naive_captures = set()
         self.actual_captures = set()
 
-        #Bind can_capture_to to _can_capture_to (note the leading under-
-        #score). This mild name mangling is necessary because the name
-        #can_capture_to is bound by the call (above) to Piece's __init__.
-        #If Pawn's method were not prefixed with an underscore, it would
-        #then be overwritten and lost.
+        #Bind can_capture_to to _can_capture_to and in_naive_captures to
+        #_in_naive_captures (note the leading underscores). This mild name
+        #mangling is necessary because the names are bound by the call
+        #(above) to Piece's __init__. If Pawn's methods were not prefixed
+        #with an underscore, they would be overwritten and lost.
         self.can_capture_to = self._can_capture_to
+        self.in_naive_captures = self._in_naive_captures
 
-    def _can_capture_to(self, space):
+    def _can_capture_to(self, _file, rank):
         """Pawns are a special case piece: their move logic and capture logic
         differ. They must therefore have separate behavior for can_capture_to
         (in other pieces, this function is an alias for can_move_to).
         """
-        return True if space in self.actual_captures else False
+        return True if (_file, rank) in self.actual_captures else False
+
+    def _in_naive_captures(self, _file, rank):
+        """Pawns are a special case piece: their move logic and capture logic
+        differ. They must therefore have separate behavior for
+        in_naive_captures (in other pieces, this function is an alias for
+        in_naive_moves).
+        """
+        return True if (_file, rank) in self.naive_captures else False
 
 
 class Rook(Piece):
