@@ -9,8 +9,8 @@ class Piece(object):
         """Initialize the attributes of this Piece."""
         #Keep track of whose piece this is and where it is on the board.
         self.player = player
-        self.rank = rank
         self.file = _file
+        self.rank = rank
 
         #Store a set containing all the spaces on the board to which this
         #piece could move - IF this piece were the only piece on the board.
@@ -110,17 +110,17 @@ class Piece(object):
             move_modifiers.extend([(0, 1), (0, -1)])
 
         for rankmod, filemod in move_modifiers:
-            rank = ord(self.rank)
             _file = ord(self._file)
+            rank = ord(self.rank)
             for i in range(limit):
-                rank += rankmod
                 _file += filemod
+                rank += rankmod
 
                 #97 is the ordinal value of 'a'
                 #104 is the ordinal value of 'h'
                 #49 is the ordinal value of '1'
                 #56 is the ordinal value of '8'
-                if rank > 56 or rank < 49 or _file > 104 or _file < 97:
+                if _file > 104 or _file < 97 or rank > 56 or rank < 49:
                     break
 
                 yield (chr(_file), chr(rank))
@@ -135,17 +135,17 @@ class Piece(object):
             move_modifiers.extend([(-1, 1), (-1, -1)])
 
         for rankmod, filemod in move_modifiers:
-            rank = ord(self.rank)
             _file = ord(self._file)
+            rank = ord(self.rank)
             for i in range(limit):
-                rank += rankmod
                 _file += filemod
+                rank += rankmod
 
                 #97 is the ordinal value of 'a'
                 #104 is the ordinal value of 'h'
                 #49 is the ordinal value of '1'
                 #56 is the ordinal value of '8'
-                if rank > 56 or rank < 49 or _file > 104 or _file < 97:
+                if _file > 104 or _file < 97 or rank > 56 or rank < 49:
                     break
 
                 yield (chr(_file), chr(rank))
@@ -157,8 +157,8 @@ class Pawn(Piece):
     separately which spaces they can move to and which they can capture
     to (since their capture and move logic are different).
     """
-    def __init__(self, player=None, rank=None, _file=None):
-        super(Pawn, self).__init__(player, rank, _file)
+    def __init__(self, player=None, _file=None, rank=None):
+        super(Pawn, self).__init__(player, _file, rank)
 
         #Track whether or not this pawn is eligible to be en-passant
         #captured.
@@ -203,8 +203,8 @@ class QueensideRook(Rook):
     the queenside rook tracks whether it has moved (so that the legality
     of queenside castling can be determined).
     """
-    def __init__(self, player=None, rank=None, _file=None):
-        super(QueensideRook, self).__init__(player, rank, _file)
+    def __init__(self, player=None, _file=None, rank=None):
+        super(QueensideRook, self).__init__(player, _file, rank)
 
         #Track whether or not this rook has moved (so that the legality
         #of queenside castling can be determined).
@@ -216,8 +216,8 @@ class KingsideRook(Rook):
     the kingside rook tracks whether it has moved (so that the legality
     of kingside castling can be determined).
     """
-    def __init__(self, player=None, rank=None, _file=None):
-        super(KingsideRook, self).__init__(player, rank, _file)
+    def __init__(self, player=None, _file=None, rank=None):
+        super(KingsideRook, self).__init__(player, _file, rank)
 
         #Track whether or not this rook has moved (so that the legality
         #of kingside castling can be determined).
@@ -244,8 +244,8 @@ class King(Piece):
     tracks whether it has moved (so that the legality of castling can be
     determined).
     """
-    def __init__(self, player=None, rank=None, _file=None):
-        super(King, self).__init__(player, rank, _file)
+    def __init__(self, player=None, _file=None, rank=None):
+        super(King, self).__init__(player, _file, rank)
 
         #Track whether or not this king has moved (so that the legality
         #of castling can be determined).
