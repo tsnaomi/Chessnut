@@ -237,7 +237,7 @@ class TestPiece(unittest.TestCase):
             for piece in (self.pW, self.pB):
                 piece.file = _file
                 piece.rank = rank
-                for limit in range(7):
+                for limit in range(1, 7):
                     expected_spaces = set(
                         (_file, chr(r)) for r in range(
                             ord(rank) - limit, ord(rank) + limit + 1
@@ -307,6 +307,23 @@ class TestPiece(unittest.TestCase):
         """Test _generate_diagonal_moves when the number of spaces to be
         moved is limited.
         """
+        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+            for piece in (self.pW, self.pB):
+                piece.file = _file
+                piece.rank = rank
+                for limit in range(1, 7):
+                    expected_spaces = set(
+                        (f, r)
+                        for f, r in self.generate_diagonal_spaces(_file, rank)
+                        if ord(f) in range(
+                            ord(_file) - limit, ord(_file) + limit + 1)
+                    )
+
+                    actual_spaces = set(
+                        piece._generate_diagonal_moves(limit=limit)
+                    )
+
+                    self.assertEqual(actual_spaces, expected_spaces)
 
 
 class TestPawn(unittest.TestCase):
