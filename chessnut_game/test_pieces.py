@@ -132,28 +132,40 @@ class TestPiece(unittest.TestCase):
             self.assertEqual(piece.rank, '1')
 
     def test_generate_horizontal_moves_default(self):
-        pass
+        """Test _generate_horizontal_moves with its default settings."""
 
     def test_generate_horizontal_moves_forward_only(self):
-        pass
+        """Test _generate_horizontal_moves when only forward movement is
+        allowed.
+        """
 
     def test_generate_horizontal_moves_no_sideways(self):
-        pass
+        """Test _generate_horizontal_moves when only sideways movement is
+        disallowed.
+        """
 
     def test_generate_horizontal_moves_no_backward(self):
-        pass
+        """Test _generate_horizontal_moves when only backward movement is
+        disallowed.
+        """
 
     def test_generate_horizontal_moves_with_limit(self):
-        pass
+        """Test _generate_horizontal_moves when the number of spaces to
+        be moved is limited.
+        """
 
     def test_generate_diagonal_moves_default(self):
-        pass
+        """Test _generate_diagonal_moves with its default settings."""
 
     def test_generate_diagonal_moves_forward_only(self):
-        pass
+        """Test _generate_diagonal_moves when only forward movement is
+        allowed.
+        """
 
     def test_generate_diagonal_moves_with_limit(self):
-        pass
+        """Test _generate_diagonal_moves when the number of spaces to be
+        moved is limited.
+        """
 
 
 class TestPawn(unittest.TestCase):
