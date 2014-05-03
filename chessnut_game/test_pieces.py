@@ -131,6 +131,30 @@ class TestPiece(unittest.TestCase):
             self.assertEqual(piece.file, 'a')
             self.assertEqual(piece.rank, '1')
 
+    def test_generate_horizontal_moves_default(self):
+        pass
+
+    def test_generate_horizontal_moves_forward_only(self):
+        pass
+
+    def test_generate_horizontal_moves_no_sideways(self):
+        pass
+
+    def test_generate_horizontal_moves_no_backward(self):
+        pass
+
+    def test_generate_horizontal_moves_with_limit(self):
+        pass
+
+    def test_generate_diagonal_moves_default(self):
+        pass
+
+    def test_generate_diagonal_moves_forward_only(self):
+        pass
+
+    def test_generate_diagonal_moves_with_limit(self):
+        pass
+
 
 class TestPawn(unittest.TestCase):
     """Test the Pawn class."""
