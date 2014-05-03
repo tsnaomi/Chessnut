@@ -15,10 +15,10 @@ class TestPiece(unittest.TestCase):
         """
         for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
             for player in (Black, White):
-                p = Piece(player=player, rank=rank, _file=_file)
+                p = Piece(player, _file, rank)
                 self.assertIs(p.player, player)
-                self.assertEqual(p.rank, rank)
                 self.assertEqual(p.file, _file)
+                self.assertEqual(p.rank, rank)
 
     def test_piece_rank_not_string(self):
         """Attempt to create a piece with a non-string rank argument.
