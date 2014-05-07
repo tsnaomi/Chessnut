@@ -338,10 +338,10 @@ class TestPawn(unittest.TestCase):
         correctly rebound by the Pawn constructor.
         """
         for pawn in (self.pW, self.pB):
-            self.assertIs(pawn.can_capture_to, pawn._can_capture_to)
-            self.assertIs(pawn.in_naive_captures, pawn._in_naive_captures)
-            self.assertIsNot(pawn.can_move_to, pawn.can_capture_to)
-            self.assertIsNot(pawn.in_naive_captures, pawn.in_naive_moves)
+            self.assertEqual(pawn.can_capture_to, pawn._can_capture_to)
+            self.assertEqual(pawn.in_naive_captures, pawn._in_naive_captures)
+            self.assertNotEqual(pawn.can_move_to, pawn.can_capture_to)
+            self.assertNotEqual(pawn.in_naive_captures, pawn.in_naive_moves)
 
     def test_generate_naive_cache_naive_moves(self):
         """Assert that the naive_moves cache is correctly generated on
