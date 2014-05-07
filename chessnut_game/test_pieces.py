@@ -329,6 +329,43 @@ class TestPiece(unittest.TestCase):
 
 class TestPawn(unittest.TestCase):
     """Test the Pawn class."""
+    def setUp(self):
+        self.pW = Pawn(White, 'a', '2')
+        self.pB = Pawn(Black, 'a', '7')
+
+    def test_cache_methods_rebound(self):
+        """Assert the the can_capture_to and in_naive_captures names are
+        correctly rebound by the Pawn constructor.
+        """
+        for pawn in (self.pW, self.pB):
+            self.assertIs(pawn.can_capture_to, pawn._can_capture_to)
+            self.assertIs(pawn.in_naive_captures, pawn._in_naive_captures)
+            self.assertIsNot(pawn.can_move_to, pawn.can_capture_to)
+            self.assertIsNot(pawn.in_naive_captures, pawn.in_naive_moves)
+
+    def test_generate_naive_cache_naive_moves(self):
+        """Assert that the naive_moves cache is correctly generated on
+        by _generate_naive_cache.
+        """
+        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+            for pawn in (self.pW, self.pB):
+                pawn.file = _file
+                pawn.rank = rank
+                expected_spaces = set()
+                if pawn.player is White:
+                    if pawn.rank < '8':
+                        expected_spaces.add((_file, chr(ord(rank) + 1)))
+                    if pawn.rank == '2':
+                        expected_spaces.add((_file, '4'))
+                else:
+                    if pawn.rank > '1':
+                        expected_spaces.add((_file, chr(ord(rank) - 1)))
+                    if pawn.rank == '7':
+                        expected_spaces.add((_file, '5'))
+
+                pawn._generate_naive_cache()
+
+                self.assertEqual(pawn.naive_moves, expected_spaces)
 
 
 class TestRook(unittest.TestCase):

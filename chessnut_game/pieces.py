@@ -207,20 +207,20 @@ class Pawn(Piece):
         self.naive_moves.clear()
         if self.player is White and self.rank == '2' or\
                 self.player is Black and self.rank == '7':
-            self.naive_moves.extend(
+            self.naive_moves.update(
                 self._generate_horizontal_moves(
                     backward=False, sideways=False, limit=2
                 )
             )
         else:
-            self.naive_moves.extend(
+            self.naive_moves.update(
                 self._generate_horizontal_moves(
                     backward=False, sideways=False, limit=1
                 )
             )
 
         self.naive_captures.clear()
-        self.naive_captures.extend(
+        self.naive_captures.update(
             self._generate_diagonal_moves(
                 backward=False, limit=1
             )
