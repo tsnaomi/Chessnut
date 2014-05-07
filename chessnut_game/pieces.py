@@ -165,16 +165,18 @@ class Pawn(Piece):
     to (since their capture and move logic are different).
     """
     def __init__(self, player=None, _file=None, rank=None):
+        #Store a separate move set for captures, as pawns have separate
+        #capture and move logic. Because _generate_naive_cache is called
+        #in the super call below, these attributes must be instantiated
+        #first.
+        self.naive_captures = set()
+        self.actual_captures = set()
+
         super(Pawn, self).__init__(player, _file, rank)
 
         #Track whether or not this pawn is eligible to be en-passant
         #captured.
         self.en_passant = False
-
-        #Store a separate move set for captures, as pawns have separate
-        #capture and move logic.
-        self.naive_captures = set()
-        self.actual_captures = set()
 
         #Bind can_capture_to to _can_capture_to and in_naive_captures to
         #_in_naive_captures (note the leading underscores). This mild name
