@@ -231,7 +231,10 @@ class Pawn(Piece):
 
 class Rook(Piece):
     """A rook."""
-    pass
+    def _generate_naive_cache(self):
+        """Generate the Rook's naive_moves cache."""
+        self.naive_moves.clear()
+        self.naive_moves.update(self._generate_horizontal_moves())
 
 
 class QueensideRook(Rook):
@@ -262,17 +265,27 @@ class KingsideRook(Rook):
 
 class Knight(Piece):
     """A knight."""
-    pass
+    def _generate_naive_cache(self):
+        """Generate the Knight's naive_moves cache."""
+        self.naive_moves.clear()
+        #TO DO
 
 
 class Bishop(Piece):
     """A bishop."""
-    pass
+    def _generate_naive_cache(self):
+        """Generate the Bishop's naive_moves cache."""
+        self.naive_moves.clear()
+        self.naive_moves.update(self._generate_diagonal_moves())
 
 
 class Queen(Piece):
     """A queen."""
-    pass
+    def _generate_naive_cache(self):
+        """Generate the Queen's naive_moves cache."""
+        self.naive_moves.clear()
+        self.naive_moves.update(self._generate_horizontal_moves())
+        self.naive_moves.update(self._generate_diagonal_moves())
 
 
 class King(Piece):
@@ -286,3 +299,9 @@ class King(Piece):
         #Track whether or not this king has moved (so that the legality
         #of castling can be determined).
         self.has_moved = False
+
+    def _generate_naive_cache(self):
+        """Generate the King's naive_moves cache."""
+        self.naive_moves.clear()
+        self.naive_moves.update(self._generate_horizontal_moves(limit=1))
+        self.naive_moves.update(self._generate_diagonal_moves(limit=1))
