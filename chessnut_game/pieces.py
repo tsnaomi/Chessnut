@@ -199,6 +199,33 @@ class Pawn(Piece):
         """
         return True if (_file, rank) in self.naive_captures else False
 
+    def _generate_naive_cache(self):
+        """Generate the Pawn's naive caches. The pawn in unique in that it
+        must generate two caches, rather than one, but the situations in
+        which each cache must be regenerated are identical.
+        """
+        self.naive_moves.clear()
+        if self.player is White and self.rank == '2' or\
+                self.player is Black and self.rank == '7':
+            self.naive_moves.extend(
+                self._generate_horizontal_moves(
+                    backward=False, sideways=False, limit=2
+                )
+            )
+        else:
+            self.naive_moves.extend(
+                self._generate_horizontal_moves(
+                    backward=False, sideways=False, limit=1
+                )
+            )
+
+        self.naive_captures.clear()
+        self.naive_captures.extend(
+            self._generate_diagonal_moves(
+                backward=False, limit=1
+            )
+        )
+
 
 class Rook(Piece):
     """A rook."""
