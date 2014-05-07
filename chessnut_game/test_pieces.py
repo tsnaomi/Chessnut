@@ -344,7 +344,7 @@ class TestPawn(unittest.TestCase):
             self.assertNotEqual(pawn.in_naive_captures, pawn.in_naive_moves)
 
     def test_generate_naive_cache_naive_moves(self):
-        """Assert that the naive_moves cache is correctly generated on
+        """Assert that the naive_moves cache is correctly generated
         by _generate_naive_cache.
         """
         for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
@@ -366,6 +366,36 @@ class TestPawn(unittest.TestCase):
                 pawn._generate_naive_cache()
 
                 self.assertEqual(pawn.naive_moves, expected_spaces)
+
+    def test_generate_naive_cache_naive_captures(self):
+        """Assert that the naive_captures cache is correctly generated
+        by _generate_naive_cache.
+        """
+        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+            for pawn in (self.pW, self.pB):
+                pawn.file = _file
+                pawn.rank = rank
+                expected_spaces = set()
+                if pawn.player is White:
+                    if pawn.rank < '8':
+                        if pawn.file > 'a':
+                            expected_spaces.add(
+                                (chr(ord(_file) - 1), chr(ord(rank) + 1)))
+                        if pawn.file < 'h':
+                            expected_spaces.add(
+                                (chr(ord(_file) + 1), chr(ord(rank) + 1)))
+                else:
+                    if pawn.rank > '1':
+                        if pawn.file > 'a':
+                            expected_spaces.add(
+                                (chr(ord(_file) - 1), chr(ord(rank) - 1)))
+                        if pawn.file < 'h':
+                            expected_spaces.add(
+                                (chr(ord(_file) + 1), chr(ord(rank) - 1)))
+
+                pawn._generate_naive_cache()
+
+                self.assertEqual(pawn.naive_captures, expected_spaces)
 
 
 class TestRook(unittest.TestCase):
