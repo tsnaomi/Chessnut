@@ -8,8 +8,8 @@ from pieces import Piece, Pawn, Rook, QueensideRook, KingsideRook, \
 class TestPiece(unittest.TestCase):
     """Test the Piece class."""
     def setUp(self):
-        self.pW = Piece(White, 'a', '1')
-        self.pB = Piece(Black, 'a', '1')
+        self.pW = Piece(White, 0, 0)
+        self.pB = Piece(Black, 0, 0)
 
     def generate_diagonal_spaces(self, _file, rank):
         """Given a file and a rank, this function generates all of the
@@ -17,10 +17,10 @@ class TestPiece(unittest.TestCase):
         the space itself.
         """
         for file_mod, rank_mod in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
-            new_file = ord(_file) + file_mod
-            new_rank = ord(rank) + rank_mod
-            while 97 <= new_file <= 104 and 49 <= new_rank <= 56:
-                yield (chr(new_file), chr(new_rank))
+            new_file = _file + file_mod
+            new_rank = rank + rank_mod
+            while 0 <= new_file <= 7 and 0 <= new_rank <= 7:
+                yield (new_file, new_rank)
                 new_file += file_mod
                 new_rank += rank_mod
 
@@ -28,48 +28,48 @@ class TestPiece(unittest.TestCase):
         """Create Pieces with all possible legal combinations of ranks
         and files and assert that they are determined legal.
         """
-        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for player in (Black, White):
                 p = Piece(player, _file, rank)
                 self.assertIs(p.player, player)
                 self.assertEqual(p.file, _file)
                 self.assertEqual(p.rank, rank)
 
-    def test_rank_setter_not_string(self):
-        """Attempt to set the rank to a non-string value. Assert that a
+    def test_rank_setter_not_int(self):
+        """Attempt to set the rank to a non-int value. Assert that a
         TypeError is raised.
         """
         for piece in (self.pW, self.pB):
             with self.assertRaises(TypeError):
-                piece.rank = 1
+                piece.rank = '1'
 
     def test_rank_setter_out_of_range(self):
-        """Attempt to create a piece with a rank not in 1-8.
-        Assert that this operation fails.
+        """Attempt to create a piece with a rank not in 0-7.
+        Assert that a ValueError is raised.
         """
         for piece in (self.pW, self.pB):
             with self.assertRaises(ValueError):
-                piece.rank = '0'
+                piece.rank = 8
 
     def test_file_setter_not_string(self):
-        """Attempt to create a piece with a non-string _file argument.
-        Assert that this operation fails.
+        """Attempt to set the _file to a non-int value. Assert that a
+        TypeError is raised.
         """
         for piece in (self.pW, self.pB):
             with self.assertRaises(TypeError):
-                piece.file = 1
+                piece.file = '1'
 
     def test_file_setter_out_of_range(self):
-        """Attempt to create a piece with a _file not in a-h.
-        Assert that this operation fails.
+        """Attempt to create a piece with a file not in 0-7.
+        Assert that a ValueError is raised.
         """
         for piece in (self.pW, self.pB):
             with self.assertRaises(ValueError):
-                piece.file = 'j'
+                piece.file = 8
 
     def test_player_setter_not_bool(self):
-        """Attempt to create a piece with a non-boolean player.
-        Assert that this operation fails.
+        """Attempt to set the player to a non-boolean value.
+        Assert that a TypeError is raised.
         """
         for piece in (self.pW, self.pB):
             with self.assertRaises(TypeError):
@@ -80,43 +80,43 @@ class TestPiece(unittest.TestCase):
         is in its actual_moves cache.
         """
         for player in (Black, White):
-            p = Piece(player, 'a', '1')
-            p.actual_moves.add(('b', '2'))
-            self.assertTrue(p.can_move_to('b', '2'))
+            p = Piece(player, 0, 0)
+            p.actual_moves.add((1, 1))
+            self.assertTrue(p.can_move_to(1, 1))
 
     def test_can_move_to_not_in_set(self):
         """Assert that a Piece reports that it can't move to a space that
         is not in its actual_moves cache.
         """
         for player in (Black, White):
-            p = Piece(player, 'a', '1')
-            p.actual_moves.add(('b', '3'))
-            self.assertFalse(p.can_move_to('b', '2'))
+            p = Piece(player, 0, 0)
+            p.actual_moves.add((1, 2))
+            self.assertFalse(p.can_move_to(1, 1))
 
     def test_in_naive_moves_in_set(self):
         """Assert that a Piece correctly reports membership in its
         naive_moves cache.
         """
         for player in (Black, White):
-            p = Piece(player, 'a', '1')
-            p.naive_moves.add(('b', '2'))
-            self.assertTrue(p.in_naive_moves('b', '2'))
+            p = Piece(player, 0, 0)
+            p.naive_moves.add((1, 1))
+            self.assertTrue(p.in_naive_moves(1, 1))
 
     def test_in_naive_moves_not_in_set(self):
         """Assert that a Piece correctly reports non-membership in its
         naive_moves cache.
         """
         for player in (Black, White):
-            p = Piece(player, 'a', '1')
-            p.naive_moves.add(('b', '3'))
-            self.assertFalse(p.in_naive_moves('b', '2'))
+            p = Piece(player, 0, 0)
+            p.naive_moves.add((1, 2))
+            self.assertFalse(p.in_naive_moves(1, 1))
 
     def test_move_to(self):
         """Assert that the move_to method changes the location of the
         Piece and regenerates its naive moves cache.
         """
-        dest_file = 'b'
-        dest_rank = '2'
+        dest_file = 1
+        dest_rank = 1
         for piece in (self.pW, self.pB):
             with patch.object(Piece, '_generate_naive_cache') as mock_method:
                 mock_method.return_value = None
@@ -130,8 +130,8 @@ class TestPiece(unittest.TestCase):
         """Attempt to move the Piece to a space off the board. Assert
         that no movement is made and the naive_moves cache is unmodified.
         """
-        dest_file = 'j'
-        dest_rank = '2'
+        dest_file = 9
+        dest_rank = 1
         for piece in (self.pW, self.pB):
             with patch.object(Piece, '_generate_naive_cache') as mock_method:
                 mock_method.return_value = None
@@ -141,20 +141,20 @@ class TestPiece(unittest.TestCase):
                     pass
 
             self.assertFalse(mock_method.called)
-            self.assertEqual(piece.file, 'a')
-            self.assertEqual(piece.rank, '1')
+            self.assertEqual(piece.file, 0)
+            self.assertEqual(piece.rank, 0)
 
     def test_generate_horizontal_moves_default(self):
         """Test _generate_horizontal_moves with its default settings."""
-        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for piece in (self.pW, self.pB):
                 piece.file = _file
                 piece.rank = rank
 
                 expected_spaces = set(
-                    (_file, r) for r in '12345678' if r != rank)
+                    (_file, r) for r in range(8) if r != rank)
                 expected_spaces.update(
-                    (f, rank) for f in 'abcdefgh' if f != _file)
+                    (f, rank) for f in range(8) if f != _file)
 
                 actual_spaces = set(piece._generate_horizontal_moves())
 
@@ -164,17 +164,17 @@ class TestPiece(unittest.TestCase):
         """Test _generate_horizontal_moves when only forward movement is
         allowed.
         """
-        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for piece in (self.pW, self.pB):
                 piece.file = _file
                 piece.rank = rank
 
                 if piece.player is White:
                     expected_spaces = set(
-                        (_file, r) for r in '12345678' if r > rank)
+                        (_file, r) for r in range(8) if r > rank)
                 else:
                     expected_spaces = set(
-                        (_file, r) for r in '12345678' if r < rank)
+                        (_file, r) for r in range(8) if r < rank)
 
                 actual_spaces = set(
                     piece._generate_horizontal_moves(
@@ -188,13 +188,13 @@ class TestPiece(unittest.TestCase):
         """Test _generate_horizontal_moves when only sideways movement is
         disallowed.
         """
-        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for piece in (self.pW, self.pB):
                 piece.file = _file
                 piece.rank = rank
 
                 expected_spaces = set(
-                    (_file, r) for r in '12345678' if r != rank)
+                    (_file, r) for r in range(8) if r != rank)
 
                 actual_spaces = set(
                     piece._generate_horizontal_moves(
@@ -208,19 +208,19 @@ class TestPiece(unittest.TestCase):
         """Test _generate_horizontal_moves when only backward movement is
         disallowed.
         """
-        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for piece in (self.pW, self.pB):
                 piece.file = _file
                 piece.rank = rank
 
                 if piece.player is White:
                     expected_spaces = set(
-                        (_file, r) for r in '12345678' if r > rank)
+                        (_file, r) for r in range(8) if r > rank)
                 else:
                     expected_spaces = set(
-                        (_file, r) for r in '12345678' if r < rank)
+                        (_file, r) for r in range(8) if r < rank)
                 expected_spaces.update(
-                    (f, rank) for f in 'abcdefgh' if f != _file)
+                    (f, rank) for f in range(8) if f != _file)
 
                 actual_spaces = set(
                     piece._generate_horizontal_moves(
@@ -234,22 +234,22 @@ class TestPiece(unittest.TestCase):
         """Test _generate_horizontal_moves when the number of spaces to
         be moved is limited.
         """
-        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for piece in (self.pW, self.pB):
                 piece.file = _file
                 piece.rank = rank
                 for limit in range(1, 7):
                     expected_spaces = set(
-                        (_file, chr(r)) for r in range(
-                            ord(rank) - limit, ord(rank) + limit + 1
+                        (_file, r) for r in range(
+                            rank - limit, rank + limit + 1
                             )
-                        if r != ord(rank) and 49 <= r <= 56
+                        if r != rank and 0 <= r <= 7
                     )
                     expected_spaces.update(
-                        (chr(f), rank) for f in range(
-                            ord(_file) - limit, ord(_file) + limit + 1
+                        (f, rank) for f in range(
+                            _file - limit, _file + limit + 1
                             )
-                        if f != ord(_file) and 97 <= f <= 104
+                        if f != _file and 0 <= f <= 7
                     )
 
                     actual_spaces = set(
@@ -262,7 +262,7 @@ class TestPiece(unittest.TestCase):
 
     def test_generate_diagonal_moves_default(self):
         """Test _generate_diagonal_moves with its default settings."""
-        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for piece in (self.pW, self.pB):
                 piece.file = _file
                 piece.rank = rank
@@ -280,7 +280,7 @@ class TestPiece(unittest.TestCase):
         """Test _generate_diagonal_moves when only forward movement is
         allowed.
         """
-        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for piece in (self.pW, self.pB):
                 piece.file = _file
                 piece.rank = rank
@@ -308,7 +308,7 @@ class TestPiece(unittest.TestCase):
         """Test _generate_diagonal_moves when the number of spaces to be
         moved is limited.
         """
-        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for piece in (self.pW, self.pB):
                 piece.file = _file
                 piece.rank = rank
@@ -316,8 +316,7 @@ class TestPiece(unittest.TestCase):
                     expected_spaces = set(
                         (f, r)
                         for f, r in self.generate_diagonal_spaces(_file, rank)
-                        if ord(f) in range(
-                            ord(_file) - limit, ord(_file) + limit + 1)
+                        if f in range(_file - limit, _file + limit + 1)
                     )
 
                     actual_spaces = set(
