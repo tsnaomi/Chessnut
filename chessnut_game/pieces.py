@@ -260,7 +260,14 @@ class Knight(Piece):
     def _generate_naive_cache(self):
         """Generate the Knight's naive_moves cache."""
         self.naive_moves.clear()
-        #TO DO
+        for filemod, rankmod in (
+            (f, r) for f in (-2, -1, 1, 2) for r in (-2, -1, 1, 2)
+            if abs(f) != abs(r)
+        ):
+            if 0 < self._file + filemod < 7 and 0 < self._rank + rankmod < 7:
+                self.naive_moves.add(
+                    (self._file + filemod, self.rank + rankmod)
+                )
 
 
 class Bishop(Piece):
