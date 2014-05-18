@@ -54,12 +54,12 @@ class Piece(object):
 
     @file.setter
     def file(self, value):
-        if not isinstance(value, str):
+        if not isinstance(value, int):
             raise TypeError(
-                "Attempting to set file to non-string value.")
-        elif len(value) != 1 or value not in 'abcdefgh':
+                "Attempting to set file to non-int value.")
+        elif value < 0 or value > 7:
             raise ValueError(
-                "Attempting to set file to value not in range a-h.")
+                "Attempting to set file to value not in range 0-7.")
         self._file = value
 
     @property
@@ -68,12 +68,12 @@ class Piece(object):
 
     @rank.setter
     def rank(self, value):
-        if not isinstance(value, str):
+        if not isinstance(value, int):
             raise TypeError(
-                "Attempting to set rank to non-string value.")
-        elif len(value) != 1 or value not in '12345678':
+                "Attempting to set rank to non-int value.")
+        elif value < 0 or value > 7:
             raise ValueError(
-                "Attempting to set rank to value not in range 1-8.")
+                "Attempting to set rank to value not in range 0-7.")
         self._rank = value
 
     def can_move_to(self, _file, rank):
