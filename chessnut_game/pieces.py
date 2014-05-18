@@ -199,8 +199,8 @@ class Pawn(Piece):
         which each cache must be regenerated are identical.
         """
         self.naive_moves.clear()
-        if self.player is White and self.rank == 2 or\
-                self.player is Black and self.rank == 7:
+        if self.player is White and self.rank == 1 or\
+                self.player is Black and self.rank == 6:
             self.naive_moves.update(
                 self._generate_horizontal_moves(
                     backward=False, sideways=False, limit=2
