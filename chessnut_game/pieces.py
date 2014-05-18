@@ -116,20 +116,16 @@ class Piece(object):
             move_modifiers.extend([(0, 1), (0, -1)])
 
         for rankmod, filemod in move_modifiers:
-            _file = ord(self._file)
-            rank = ord(self.rank)
+            _file = self.file
+            rank = self.rank
             for i in range(limit):
                 _file += filemod
                 rank += rankmod
 
-                #97 is the ordinal value of 'a'
-                #104 is the ordinal value of 'h'
-                #49 is the ordinal value of '1'
-                #56 is the ordinal value of '8'
-                if _file > 104 or _file < 97 or rank > 56 or rank < 49:
+                if _file > 7 or _file < 0 or rank > 7 or rank < 0:
                     break
 
-                yield (chr(_file), chr(rank))
+                yield (_file, rank)
 
     def _generate_diagonal_moves(self, backward=True, limit=7):
         """Calculates the spaces to which this piece can move diagonally.
@@ -142,20 +138,16 @@ class Piece(object):
             move_modifiers.extend([(-1 * forward, 1), (-1 * forward, -1)])
 
         for rankmod, filemod in move_modifiers:
-            _file = ord(self._file)
-            rank = ord(self.rank)
+            _file = self.file
+            rank = self.rank
             for i in range(limit):
                 _file += filemod
                 rank += rankmod
 
-                #97 is the ordinal value of 'a'
-                #104 is the ordinal value of 'h'
-                #49 is the ordinal value of '1'
-                #56 is the ordinal value of '8'
-                if _file > 104 or _file < 97 or rank > 56 or rank < 49:
+                if _file > 7 or _file < 0 or rank > 7 or rank < 0:
                     break
 
-                yield (chr(_file), chr(rank))
+                yield (_file, rank)
 
 
 class Pawn(Piece):
@@ -207,8 +199,8 @@ class Pawn(Piece):
         which each cache must be regenerated are identical.
         """
         self.naive_moves.clear()
-        if self.player is White and self.rank == '2' or\
-                self.player is Black and self.rank == '7':
+        if self.player is White and self.rank == 2 or\
+                self.player is Black and self.rank == 7:
             self.naive_moves.update(
                 self._generate_horizontal_moves(
                     backward=False, sideways=False, limit=2
