@@ -329,8 +329,8 @@ class TestPiece(unittest.TestCase):
 class TestPawn(unittest.TestCase):
     """Test the Pawn class."""
     def setUp(self):
-        self.pW = Pawn(White, 'a', '2')
-        self.pB = Pawn(Black, 'a', '7')
+        self.pW = Pawn(White, 0, 1)
+        self.pB = Pawn(Black, 0, 6)
 
     def test_cache_methods_rebound(self):
         """Assert the the can_capture_to and in_naive_captures names are
@@ -346,21 +346,21 @@ class TestPawn(unittest.TestCase):
         """Assert that the naive_moves cache is correctly generated
         by _generate_naive_cache.
         """
-        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for pawn in (self.pW, self.pB):
                 pawn.file = _file
                 pawn.rank = rank
                 expected_spaces = set()
                 if pawn.player is White:
-                    if pawn.rank < '8':
-                        expected_spaces.add((_file, chr(ord(rank) + 1)))
-                    if pawn.rank == '2':
-                        expected_spaces.add((_file, '4'))
+                    if pawn.rank < 7:
+                        expected_spaces.add((_file, rank + 1))
+                    if pawn.rank == 1:
+                        expected_spaces.add((_file, 3))
                 else:
-                    if pawn.rank > '1':
-                        expected_spaces.add((_file, chr(ord(rank) - 1)))
-                    if pawn.rank == '7':
-                        expected_spaces.add((_file, '5'))
+                    if pawn.rank > 0:
+                        expected_spaces.add((_file, rank - 1))
+                    if pawn.rank == 6:
+                        expected_spaces.add((_file, 4))
 
                 pawn._generate_naive_cache()
 
@@ -370,27 +370,23 @@ class TestPawn(unittest.TestCase):
         """Assert that the naive_captures cache is correctly generated
         by _generate_naive_cache.
         """
-        for _file, rank in ((f, r) for f in 'abcdefgh' for r in '12345678'):
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for pawn in (self.pW, self.pB):
                 pawn.file = _file
                 pawn.rank = rank
                 expected_spaces = set()
                 if pawn.player is White:
-                    if pawn.rank < '8':
-                        if pawn.file > 'a':
-                            expected_spaces.add(
-                                (chr(ord(_file) - 1), chr(ord(rank) + 1)))
-                        if pawn.file < 'h':
-                            expected_spaces.add(
-                                (chr(ord(_file) + 1), chr(ord(rank) + 1)))
+                    if pawn.rank < 7:
+                        if pawn.file > 0:
+                            expected_spaces.add((_file - 1, rank + 1))
+                        if pawn.file < 7:
+                            expected_spaces.add((_file + 1, rank + 1))
                 else:
-                    if pawn.rank > '1':
-                        if pawn.file > 'a':
-                            expected_spaces.add(
-                                (chr(ord(_file) - 1), chr(ord(rank) - 1)))
-                        if pawn.file < 'h':
-                            expected_spaces.add(
-                                (chr(ord(_file) + 1), chr(ord(rank) - 1)))
+                    if pawn.rank > 0:
+                        if pawn.file > 0:
+                            expected_spaces.add((_file - 1, rank - 1))
+                        if pawn.file < 7:
+                            expected_spaces.add((_file + 1, rank - 1))
 
                 pawn._generate_naive_cache()
 
