@@ -412,8 +412,18 @@ class TestRook(unittest.TestCase):
                 self.assertEqual(piece.naive_moves, expected_spaces)
 
 
-class TestQueensideRook(unittest.TestCase):
-    """Test the QueensideRook class."""
+class TestSpecificRooks(unittest.TestCase):
+    """Test the QueensideRook and KingsideRook classes."""
+    def test_move_to(self):
+        """Assert that move_to marks these pieces as having moved."""
+        for piece in (Type(Player, 0, 0)
+                      for Type in (QueensideRook, KingsideRook)
+                      for Player in (Black, White)):
+            self.assertFalse(piece.has_moved)
+            piece.move_to(0, 1)
+            self.assertTrue(piece.has_moved)
+            self.assertEqual(piece.file, 0)
+            self.assertEqual(piece.rank, 1)
 
 
 class TestKingsideRook(unittest.TestCase):
