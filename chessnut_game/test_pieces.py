@@ -426,12 +426,32 @@ class TestSpecificRooks(unittest.TestCase):
             self.assertEqual(piece.rank, 1)
 
 
-class TestKingsideRook(unittest.TestCase):
-    """Test the KingsideRook class."""
-
-
 class TestKnight(unittest.TestCase):
     """Test the Knight class."""
+    def setUp(self):
+        self.pW = Knight(White, 0, 0)
+        self.pB = Knight(Black, 0, 7)
+
+    def test_generate_naive_cache(self):
+        """Assert that the naive_moves cache is correctly generated."""
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            for piece in (self.pW, self.pB):
+                piece.file = _file
+                piece.rank = rank
+
+                expected_spaces = set()
+                for filemod, rankmod in (
+                        (1, 2), (1, -2), (2, 1), (2, -1),
+                        (-1, 2), (-1, -2), (-2, 1), (-2, -1)):
+                    if 0 <= piece.file + filemod <= 7 and \
+                            0 <= piece.rank + rankmod <= 7:
+                        expected_spaces.add(
+                            (piece.file + filemod, piece.rank + rankmod)
+                        )
+
+                piece._generate_naive_cache()
+
+                self.assertEqual(piece.naive_moves, expected_spaces)
 
 
 class TestBishop(unittest.TestCase):
