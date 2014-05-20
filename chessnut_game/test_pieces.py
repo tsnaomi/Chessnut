@@ -5,24 +5,25 @@ from pieces import Piece, Pawn, Rook, QueensideRook, KingsideRook, \
     Knight, Bishop, Queen, King
 
 
+def generate_diagonal_spaces(_file, rank):
+    """Given a file and a rank, this function generates all of the spaces
+    in the two diagonals that intersect at that space, minus the space
+    itself.
+    """
+    for file_mod, rank_mod in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
+        new_file = _file + file_mod
+        new_rank = rank + rank_mod
+        while 0 <= new_file <= 7 and 0 <= new_rank <= 7:
+            yield (new_file, new_rank)
+            new_file += file_mod
+            new_rank += rank_mod
+
+
 class TestPiece(unittest.TestCase):
     """Test the Piece class."""
     def setUp(self):
         self.pW = Piece(White, 0, 0)
         self.pB = Piece(Black, 0, 0)
-
-    def generate_diagonal_spaces(self, _file, rank):
-        """Given a file and a rank, this function generates all of the
-        spaces in the two diagonals that intersect at that space, minus
-        the space itself.
-        """
-        for file_mod, rank_mod in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
-            new_file = _file + file_mod
-            new_rank = rank + rank_mod
-            while 0 <= new_file <= 7 and 0 <= new_rank <= 7:
-                yield (new_file, new_rank)
-                new_file += file_mod
-                new_rank += rank_mod
 
     def test_pieces_on_all_legal_spaces(self):
         """Create Pieces with all possible legal combinations of ranks
@@ -269,7 +270,7 @@ class TestPiece(unittest.TestCase):
 
                 expected_spaces = set(
                     (f, r)
-                    for f, r in self.generate_diagonal_spaces(_file, rank)
+                    for f, r in generate_diagonal_spaces(_file, rank)
                 )
 
                 actual_spaces = set(piece._generate_diagonal_moves())
@@ -288,13 +289,13 @@ class TestPiece(unittest.TestCase):
                 if piece.player is White:
                     expected_spaces = set(
                         (f, r)
-                        for f, r in self.generate_diagonal_spaces(_file, rank)
+                        for f, r in generate_diagonal_spaces(_file, rank)
                         if r > rank
                     )
                 else:
                     expected_spaces = set(
                         (f, r)
-                        for f, r in self.generate_diagonal_spaces(_file, rank)
+                        for f, r in generate_diagonal_spaces(_file, rank)
                         if r < rank
                     )
 
@@ -315,7 +316,7 @@ class TestPiece(unittest.TestCase):
                 for limit in range(1, 7):
                     expected_spaces = set(
                         (f, r)
-                        for f, r in self.generate_diagonal_spaces(_file, rank)
+                        for f, r in generate_diagonal_spaces(_file, rank)
                         if f in range(_file - limit, _file + limit + 1)
                     )
 
@@ -456,6 +457,25 @@ class TestKnight(unittest.TestCase):
 
 class TestBishop(unittest.TestCase):
     """Test the Bishop class."""
+    def setUp(self):
+        self.pW = Bishop(White, 0, 0)
+        self.pB = Bishop(Black, 0, 7)
+
+    def test_generate_naive_cache(self):
+        """Assert that the naive_moves cache is correctly generated."""
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            for piece in (self.pW, self.pB):
+                piece.file = _file
+                piece.rank = rank
+
+                expected_spaces = set(
+                    (f, r)
+                    for f, r in generate_diagonal_spaces(_file, rank)
+                )
+
+                piece._generate_naive_cache()
+
+                self.assertEqual(piece.naive_moves, expected_spaces)
 
 
 class TestQueen(unittest.TestCase):
