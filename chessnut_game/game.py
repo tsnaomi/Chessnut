@@ -33,24 +33,24 @@ class ChessnutGame(object):
 
         #Bucket by rank and by file.
         self.pieces_by_rank = {
-            '1': set(),
-            '2': set(),
-            '3': set(),
-            '4': set(),
-            '5': set(),
-            '6': set(),
-            '7': set(),
-            '8': set(),
+            0: set(),
+            1: set(),
+            2: set(),
+            3: set(),
+            4: set(),
+            5: set(),
+            6: set(),
+            7: set(),
         }
         self.pieces_by_file = {
-            'a': set(),
-            'b': set(),
-            'c': set(),
-            'd': set(),
-            'e': set(),
-            'f': set(),
-            'g': set(),
-            'h': set(),
+            0: set(),
+            1: set(),
+            2: set(),
+            3: set(),
+            4: set(),
+            5: set(),
+            6: set(),
+            7: set(),
         }
 
         #Bucket pieces by the diagonal on which they lie.
@@ -103,14 +103,14 @@ class ChessnutGame(object):
     def _initialize_board(self):
         """Initialize a game board."""
         pieces = [
-            (QueensideRook, 'a')
-            (Knight, 'b'),
-            (Bishop, 'c'),
-            (Queen, 'd'),
-            (King, 'e'),
-            (Bishop, 'f'),
-            (Knight, 'g'),
-            (KingsideRook, 'h'),
+            (QueensideRook, 0)
+            (Knight, 1),
+            (Bishop, 2),
+            (Queen, 3),
+            (King, 4),
+            (Bishop, 5),
+            (Knight, 6),
+            (KingsideRook, 7),
         ]
 
         piecenames = {
@@ -123,10 +123,10 @@ class ChessnutGame(object):
         }
 
         for player in [White, Black]:
-            homerank = '1' if player is White else '8'
-            pawnrank = '2' if player is White else '7'
+            homerank = 0 if player is White else 7
+            pawnrank = 1 if player is White else 6
 
-            for _file in 'abcdefgh':
+            for _file in range(8):
                 pawn = Pawn(player=player, rank=pawnrank, _file=_file)
                 self.pieces_by_player[player].add(pawn)
                 self.pieces_by_type['pawn'].add(pawn)
