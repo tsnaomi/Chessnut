@@ -343,9 +343,7 @@ class TestPawn(unittest.TestCase):
             self.assertNotEqual(pawn.in_naive_captures, pawn.in_naive_moves)
 
     def test_generate_naive_cache_naive_moves(self):
-        """Assert that the naive_moves cache is correctly generated
-        by _generate_naive_cache.
-        """
+        """Assert that the naive_moves cache is correctly generated."""
         for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for pawn in (self.pW, self.pB):
                 pawn.file = _file
@@ -367,9 +365,7 @@ class TestPawn(unittest.TestCase):
                 self.assertEqual(pawn.naive_moves, expected_spaces)
 
     def test_generate_naive_cache_naive_captures(self):
-        """Assert that the naive_captures cache is correctly generated
-        by _generate_naive_cache.
-        """
+        """Assert that the naive_captures cache is correctly generated."""
         for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for pawn in (self.pW, self.pB):
                 pawn.file = _file
@@ -395,6 +391,25 @@ class TestPawn(unittest.TestCase):
 
 class TestRook(unittest.TestCase):
     """Test the Rook class."""
+    def setUp(self):
+        self.pW = Rook(White, 0, 0)
+        self.pB = Rook(Black, 0, 7)
+
+    def test_generate_naive_cache(self):
+        """Assert that the naive_moves cache is correctly generated."""
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            for piece in (self.pW, self.pB):
+                piece.file = _file
+                piece.rank = rank
+
+                expected_spaces = set(
+                    (_file, r) for r in range(8) if r != rank)
+                expected_spaces.update(
+                    (f, rank) for f in range(8) if f != _file)
+
+                piece._generate_naive_cache()
+
+                self.assertEqual(piece.naive_moves, expected_spaces)
 
 
 class TestQueensideRook(unittest.TestCase):
