@@ -241,6 +241,13 @@ class QueensideRook(Rook):
         #of queenside castling can be determined).
         self.has_moved = False
 
+    def move_to(self, _file, rank):
+        """Move this rook to the file and rank provided, regenerate its
+        naive_moves cache, and set its has_moved to True.
+        """
+        super(QueensideRook, self).move_to(_file, rank)
+        self.has_moved = True
+
 
 class KingsideRook(Rook):
     """A kingside rook. In addition to the functions of a normal rook,
@@ -253,6 +260,13 @@ class KingsideRook(Rook):
         #Track whether or not this rook has moved (so that the legality
         #of kingside castling can be determined).
         self.has_moved = False
+
+    def move_to(self, _file, rank):
+        """Move this rook to the file and rank provided, regenerate its
+        naive_moves cache, and set its has_moved to True.
+        """
+        super(KingsideRook, self).move_to(_file, rank)
+        self.has_moved = True
 
 
 class Knight(Piece):
@@ -298,6 +312,13 @@ class King(Piece):
         #Track whether or not this king has moved (so that the legality
         #of castling can be determined).
         self.has_moved = False
+
+    def move_to(self, _file, rank):
+        """Move this King to the file and rank provided, regenerate its
+        naive_moves cache, and set its has_moved to True.
+        """
+        super(King, self).move_to(_file, rank)
+        self.has_moved = True
 
     def _generate_naive_cache(self):
         """Generate the King's naive_moves cache."""
