@@ -23,12 +23,12 @@ class ChessnutGame(object):
 
         #Bucket by the type of piece.
         self.pieces_by_type = {
-            'pawn': set(),
-            'rook': set(),
-            'knight': set(),
-            'bishop': set(),
-            'queen': set(),
-            'king': set(),
+            Pawn: set(),
+            Rook: set(),
+            Knight: set(),
+            Bishop: set(),
+            Queen: set(),
+            King: set(),
         }
 
         #Bucket by rank and by file.
@@ -58,6 +58,9 @@ class ChessnutGame(object):
         #Forward diagonals are from bottom left to top right, like a
         #forward slash '/'. Forward diagonals originate from the bottom
         #and/or left edges of the board.
+
+        #Begin by adding buckets for the coordinate pairs that define
+        #the forward diagonals.
         self.pieces_by_forward_diagonal = {
             (0, 7): set(),
             (0, 6): set(),
@@ -75,10 +78,20 @@ class ChessnutGame(object):
             (6, 0): set(),
             (7, 0): set(),
         }
+        #Next, add keys for every coordinate pair on the board, pointing
+        #those coordinates back to the bucket representing the forward
+        #diagonal they lie on.
+        for _file, rank in self.pieces_by_forward_diagonal.keys():
+            for difile, dirank in self._generate_forward_diagonal(_file, rank):
+                self.pieces_by_forward_diagonal[(difile, dirank)] = \
+                    self.pieces_by_forward_diagonal[(_file, rank)]
 
         #Backward diagonals are from bottom right to top left, like a
         #backslash '\'. Backward diagonals originate from the bottom
         #and/or right edges of the board.
+
+        #Begin by adding buckets for the coordinate pairs that define
+        #the backward diagonals.
         self.pieces_by_backward_diagonal = {
             (0, 0): set(),
             (1, 0): set(),
@@ -96,6 +109,13 @@ class ChessnutGame(object):
             (7, 6): set(),
             (7, 7): set(),
         }
+        #Next, add keys for every coordinate pair on the board, pointing
+        #those coordinates back to the bucket representing the backward
+        #diagonal they lie on.
+        for _file, rank in self.pieces_by_backward_diagonal.keys():
+            for difile, dirank in self._generate_forward_diagonal(_file, rank):
+                self.pieces_by_forward_diagonal[(difile, dirank)] = \
+                    self.pieces_by_forward_diagonal[(_file, rank)]
 
     def reconstruct_from_pgn():
         pass
@@ -103,65 +123,72 @@ class ChessnutGame(object):
     def _initialize_board(self):
         """Initialize a game board."""
         pieces = [
-            (QueensideRook, 0)
+            (Rook, 0)
             (Knight, 1),
             (Bishop, 2),
             (Queen, 3),
             (King, 4),
             (Bishop, 5),
             (Knight, 6),
-            (KingsideRook, 7),
+            (Rook, 7),
         ]
-
-        piecenames = {
-            QueensideRook: 'rook',
-            KingsideRook: 'rook',
-            Knight: 'knight',
-            Bishop: 'bishop',
-            Queen: 'queen',
-            King: 'king',
-        }
 
         for player in [White, Black]:
             homerank = 0 if player is White else 7
             pawnrank = 1 if player is White else 6
 
             for _file in range(8):
-                pawn = Pawn(player=player, rank=pawnrank, _file=_file)
+                pawn = Pawn(player=player, _file=_file, rank=pawnrank)
                 self.pieces_by_player[player].add(pawn)
-                self.pieces_by_type['pawn'].add(pawn)
+                self.pieces_by_type[Pawn].add(pawn)
                 self.pieces_by_rank[pawnrank].add(pawn)
                 self.pieces_by_file[_file].add(pawn)
-                self.pieces_by_backward_diagonal[
-                    self._san_to_backward_diagonal(pawn.rank, pawn.file)
-                ].add(pawn)
                 self.pieces_by_forward_diagonal[
-                    self._san_to_forward_diagonal(pawn.rank, pawn.file)
-                ].add(pawn)
+                    (pawn.file, pawn.rank)].add(pawn)
+                self.pieces_by_backward_diagonal[
+                    (pawn.file, pawn.rank)].add(pawn)
 
             for piecetype, _file in pieces:
-                piece = piecetype(player=player, rank=homerank, _file=_file)
+                piece = piecetype(player=player, _file=_file, rank=homerank)
                 self.pieces_by_player[player].add(piece)
-                self.pieces_by_type[piecenames[piecetype]].add(piece)
+                self.pieces_by_type[piecetype].add(piece)
                 self.pieces_by_rank[homerank].add(piece)
                 self.pieces_by_file[_file].add(piece)
-                self.pieces_by_backward_diagonal[
-                    self._san_to_backward_diagonal(piece.rank, piece.file)
-                ].add(pawn)
                 self.pieces_by_forward_diagonal[
-                    self._san_to_forward_diagonal(piece.rank, piece.file)
-                ].add(pawn)
+                    (piece.file, piece.rank)].add(pawn)
+                self.pieces_by_backward_diagonal[
+                    (piece.file, piece.rank)].add(pawn)
 
     def _coordinates_to_forward_diagonal(self, _file, rank):
-        """Find out which forward diagonal the space belongs to."""
+        """Find out which forward diagonal the given space belongs to."""
         #Determine how many spaces along the diagonal we must travel down
         #and to the left before we butt up against the edge of the board,
         #then subtract that value from the file and rank given.
         return (_file - min(_file, rank), rank - min(_file, rank))
 
     def _coordinates_to_backward_diagonal(self, rank, _file):
-        """Find out which backward diagonal the space belongs to."""
+        """Find out which backward diagonal the given space belongs to."""
         #Determine how many spaces along the diagonal we must travel down
         #and to the right before we butt up against the edge of the board,
         #then add this value from the file and subtract it to the rank given.
         return (_file + min(_file, rank), rank - min(_file, rank))
+
+    def _generate_forward_diagonal(self, _file, rank):
+        """Determine all the spaces in a forward diagonal containing the
+        specified space.
+        """
+        _file, rank = self._coordinates_to_forward_diagonal(_file, rank)
+        while 0 <= rank <= 7 and 0 <= _file <= 7:
+            yield (_file, rank)
+            _file += 1
+            rank += 1
+
+    def _generate_backward_diagonal(self, _file, rank):
+        """Determine all the spaces in a backward diagonal containing
+        the specified space.
+        """
+        _file, rank = self._coordinates_to_backward_diagonal(_file, rank)
+        while 0 <= rank <= 7 and 0 <= _file <= 7:
+            yield (_file, rank)
+            _file -= 1
+            rank += 1
