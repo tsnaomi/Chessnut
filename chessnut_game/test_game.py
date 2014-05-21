@@ -96,10 +96,10 @@ class TestGenerateDiagonals(unittest.TestCase):
         self.c = ChessnutGame()
 
     def test_generate_forward_diagonal(self):
-        pass
+        """Test the _generate_forward_diagonal method."""
 
     def test_generate_backward_diagonal(self):
-        pass
+        """Test the _generate_backward_diagonal method."""
 
 
 if __name__ == '__main__':
