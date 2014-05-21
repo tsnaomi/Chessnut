@@ -2,30 +2,32 @@ import unittest
 from game import ChessnutGame
 
 
+def build_forward_diagonal(_file, rank):
+    """Determine all the spaces in a forward diagonal beginning at
+    the specified cell.
+    """
+    while 0 <= rank <= 7 and 0 <= _file <= 7:
+        yield (_file, rank)
+        _file += 1
+        rank += 1
+
+
+def build_backward_diagonal(_file, rank):
+    """Determine all the spaces in a backward diagonal beginning at
+    the specified cell.
+    """
+    while 0 <= rank <= 7 and 0 <= _file <= 7:
+        yield (_file, rank)
+        _file -= 1
+        rank += 1
+
+
 class TestCoordinatesToDiagonals(unittest.TestCase):
     """Test the _coordinates_to_forward_diagonal and
     _coordinates_to_backward_diagonal methods.
     """
     def setUp(self):
         self.c = ChessnutGame()
-
-    def build_forward_diagonal(self, _file, rank):
-        """Determine all the spaces in a forward diagonal beginning at
-        the specified cell.
-        """
-        while 0 <= rank <= 7 and 0 <= _file <= 7:
-            yield (_file, rank)
-            _file += 1
-            rank += 1
-
-    def build_backward_diagonal(self, _file, rank):
-        """Determine all the spaces in a backward diagonal beginning at
-        the specified cell.
-        """
-        while 0 <= rank <= 7 and 0 <= _file <= 7:
-            yield (_file, rank)
-            _file -= 1
-            rank += 1
 
     def test_coordinates_to_forward_diagonal(self):
         """Assert that all spaces are assigned to their correct forward
@@ -50,7 +52,7 @@ class TestCoordinatesToDiagonals(unittest.TestCase):
         ]
 
         for _file, rank in diagonals:
-            for difile, dirank in self.build_forward_diagonal(_file, rank):
+            for difile, dirank in build_forward_diagonal(_file, rank):
                 self.assertEqual(
                     (_file, rank),
                     self.c._coordinates_to_forward_diagonal(difile, dirank)
@@ -79,11 +81,25 @@ class TestCoordinatesToDiagonals(unittest.TestCase):
         ]
 
         for _file, rank in diagonals:
-            for difile, dirank in self.build_backward_diagonal(_file, rank):
+            for difile, dirank in build_backward_diagonal(_file, rank):
                 self.assertEqual(
                     (_file, rank),
                     self.c._coordinates_to_backward_diagonal(difile, dirank)
                 )
+
+
+class TestGenerateDiagonals(unittest.TestCase):
+    """Test the _generate_forward_diagonals and _generate_backward_diagonals
+    methods.
+    """
+    def setUp(self):
+        self.c = ChessnutGame()
+
+    def test_generate_forward_diagonal(self):
+        pass
+
+    def test_generate_backward_diagonal(self):
+        pass
 
 
 if __name__ == '__main__':
