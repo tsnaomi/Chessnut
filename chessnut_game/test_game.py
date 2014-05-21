@@ -58,7 +58,7 @@ class TestCoordinatesToDiagonals(unittest.TestCase):
                     self.c._coordinates_to_forward_diagonal(difile, dirank)
                 )
 
-    def test_san_to_backward_diagonal(self):
+    def test_coordinates_to_backward_diagonal(self):
         """Assert that all spaces are assigned to their correct backward
         diagonal.
         """

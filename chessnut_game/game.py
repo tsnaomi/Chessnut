@@ -171,7 +171,7 @@ class ChessnutGame(object):
         #Determine how many spaces along the diagonal we must travel down
         #and to the right before we butt up against the edge of the board,
         #then add this value from the file and subtract it to the rank given.
-        return (_file + min(_file, rank), rank - min(_file, rank))
+        return (_file + min(7 - _file, rank), rank - min(7 - _file, rank))
 
     def _generate_forward_diagonal(self, _file, rank):
         """Determine all the spaces in a forward diagonal containing the
