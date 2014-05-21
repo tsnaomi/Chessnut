@@ -59,42 +59,42 @@ class ChessnutGame(object):
         #forward slash '/'. Forward diagonals originate from the bottom
         #and/or left edges of the board.
         self.pieces_by_forward_diagonal = {
-            'a8': set(),
-            'a7': set(),
-            'a6': set(),
-            'a5': set(),
-            'a4': set(),
-            'a3': set(),
-            'a2': set(),
-            'a1': set(),
-            'b1': set(),
-            'c1': set(),
-            'd1': set(),
-            'e1': set(),
-            'f1': set(),
-            'g1': set(),
-            'h1': set(),
+            (0, 7): set(),
+            (0, 6): set(),
+            (0, 5): set(),
+            (0, 4): set(),
+            (0, 3): set(),
+            (0, 2): set(),
+            (0, 1): set(),
+            (0, 0): set(),
+            (1, 0): set(),
+            (2, 0): set(),
+            (3, 0): set(),
+            (4, 0): set(),
+            (5, 0): set(),
+            (6, 0): set(),
+            (7, 0): set(),
         }
 
         #Backward diagonals are from bottom right to top left, like a
         #backslash '\'. Backward diagonals originate from the bottom
         #and/or right edges of the board.
         self.pieces_by_backward_diagonal = {
-            'a1': set(),
-            'b1': set(),
-            'c1': set(),
-            'd1': set(),
-            'e1': set(),
-            'f1': set(),
-            'g1': set(),
-            'h1': set(),
-            'h2': set(),
-            'h3': set(),
-            'h4': set(),
-            'h5': set(),
-            'h6': set(),
-            'h7': set(),
-            'h8': set(),
+            (0, 0): set(),
+            (1, 0): set(),
+            (2, 0): set(),
+            (3, 0): set(),
+            (4, 0): set(),
+            (5, 0): set(),
+            (6, 0): set(),
+            (7, 0): set(),
+            (7, 1): set(),
+            (7, 2): set(),
+            (7, 3): set(),
+            (7, 4): set(),
+            (7, 5): set(),
+            (7, 6): set(),
+            (7, 7): set(),
         }
 
     def reconstruct_from_pgn():
@@ -152,38 +152,16 @@ class ChessnutGame(object):
                     self._san_to_forward_diagonal(piece.rank, piece.file)
                 ].add(pawn)
 
-    def _san_to_forward_diagonal(self, rank, _file):
-        """Find out which forward diagonal the space belongs to.
-        Accomplish this by determining how many spaces along the diagonal
-        we must travel down and to the left before we butt up against the
-        edge of the board, then subtracting this value from the rank and
-        file given.
-        """
-        #49 is the ordinal value of the character '1'
-        rankdiff = ord(rank) - 49
+    def _coordinates_to_forward_diagonal(self, _file, rank):
+        """Find out which forward diagonal the space belongs to."""
+        #Determine how many spaces along the diagonal we must travel down
+        #and to the left before we butt up against the edge of the board,
+        #then subtract that value from the file and rank given.
+        return (_file - min(_file, rank), rank - min(_file, rank))
 
-        #97 is the ordinal value of the character 'a'
-        filediff = ord(_file) - 97
-
-        return ''.join([
-            chr(ord(_file) - min(filediff, rankdiff)),
-            chr(ord(rank) - min(filediff, rankdiff)),
-        ])
-
-    def _san_to_backward_diagonal(self, rank, _file):
-        """Find out which backward diagonal the space belongs to.
-        Accomplish this by determining how many spaces along the diagonal
-        we must travel down and to the right before we butt up against
-        the edge of the board, then subtracting this value from the file
-        and adding it to the rank given.
-        """
-        #49 is the ordinal value of the character '1'
-        rankdiff = ord(rank) - 49
-
-        #104 is the ordinal value of the character 'h'
-        filediff = 104 - ord(_file)
-
-        return ''.join([
-            chr(ord(_file) + min(filediff, rankdiff)),
-            chr(ord(rank) - min(filediff, rankdiff)),
-        ])
+    def _coordinates_to_backward_diagonal(self, rank, _file):
+        """Find out which backward diagonal the space belongs to."""
+        #Determine how many spaces along the diagonal we must travel down
+        #and to the right before we butt up against the edge of the board,
+        #then add this value from the file and subtract it to the rank given.
+        return (_file + min(_file, rank), rank - min(_file, rank))
