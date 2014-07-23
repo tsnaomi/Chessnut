@@ -234,6 +234,13 @@ class Rook(Piece):
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_horizontal_moves())
 
+    def move_to(self, *args, **kwargs):
+        """Move this rook to the file and rank provided, regenerate its
+        naive_moves cache, and set its has_moved to True.
+        """
+        super(Rook, self).move_to(*args, **kwargs)
+        self.has_moved = True
+
 
 # class QueensideRook(Rook):
 #     """A queenside rook. In addition to the functions of a normal rook,
@@ -313,8 +320,8 @@ class King(Piece):
     tracks whether it has moved (so that the legality of castling can be
     determined).
     """
-    def __init__(self, player=None, _file=None, rank=None):
-        super(King, self).__init__(player, _file, rank)
+    def __init__(self, *args, **kwargs):
+        super(King, self).__init__(*args, **kwargs)
 
         # Track whether or not this king has moved (so that the legality
         # of castling can be determined).

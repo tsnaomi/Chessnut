@@ -1,8 +1,7 @@
 import unittest
 from mock import patch
 from game import Black, White
-from pieces import Piece, Pawn, Rook, QueensideRook, KingsideRook, \
-    Knight, Bishop, Queen, King
+from pieces import Piece, Pawn, Rook, Knight, Bishop, Queen, King
 
 
 def generate_diagonal_spaces(_file, rank):
@@ -412,14 +411,9 @@ class TestRook(unittest.TestCase):
 
                 self.assertEqual(piece.naive_moves, expected_spaces)
 
-
-class TestSpecificRooks(unittest.TestCase):
-    """Test the QueensideRook and KingsideRook classes."""
     def test_move_to(self):
         """Assert that move_to marks these pieces as having moved."""
-        for piece in (Type(Player, 0, 0)
-                      for Type in (QueensideRook, KingsideRook)
-                      for Player in (Black, White)):
+        for piece in (self.pW, self.pB):
             self.assertFalse(piece.has_moved)
             piece.move_to(0, 1)
             self.assertTrue(piece.has_moved)

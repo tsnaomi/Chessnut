@@ -1,5 +1,4 @@
-from pieces import Pawn, Rook, QueensideRook, KingsideRook, \
-    Knight, Bishop, Queen, King
+from pieces import Pawn, Rook, Knight, Bishop, Queen, King
 
 # Module-level constants representing which player's turn it is.
 White = True
