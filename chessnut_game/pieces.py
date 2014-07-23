@@ -1,4 +1,4 @@
-#Module-level constants representing which player's turn it is.
+# Module-level constants representing which player's turn it is.
 White = True
 Black = False
 
@@ -234,11 +234,11 @@ class Rook(Piece):
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_horizontal_moves())
 
-    def move_to(self, *args, **kwargs):
+    def move_to(self, _file, rank):
         """Move this rook to the file and rank provided, regenerate its
         naive_moves cache, and set its has_moved to True.
         """
-        super(Rook, self).move_to(*args, **kwargs)
+        super(Rook, self).move_to(_file, rank)
         self.has_moved = True
 
 
