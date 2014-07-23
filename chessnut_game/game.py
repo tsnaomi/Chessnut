@@ -171,10 +171,10 @@ class ChessnutGame(object):
                 self.pieces_by_file[_file].add(piece)
                 self.pieces_by_forward_diagonal[
                     (piece.file, piece.rank)
-                ].add(pawn)
+                ].add(piece)
                 self.pieces_by_backward_diagonal[
                     (piece.file, piece.rank)
-                ].add(pawn)
+                ].add(piece)
 
     def _place_piece(self, piece):
         """Place the given piece on the board. Add it to all caches."""
