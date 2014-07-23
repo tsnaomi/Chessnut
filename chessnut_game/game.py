@@ -151,34 +151,27 @@ class ChessnutGame(object):
             pawnrank = 1 if player is White else 6
 
             for _file in range(8):
-                pawn = Pawn(player=player, _file=_file, rank=pawnrank)
-                self.pieces_by_player[player].add(pawn)
-                self.pieces_by_type[Pawn].add(pawn)
-                self.pieces_by_rank[pawnrank].add(pawn)
-                self.pieces_by_file[_file].add(pawn)
-                self.pieces_by_forward_diagonal[
-                    (pawn.file, pawn.rank)
-                ].add(pawn)
-                self.pieces_by_backward_diagonal[
-                    (pawn.file, pawn.rank)
-                ].add(pawn)
+                self._place_piece(
+                    Pawn(player=player, _file=_file, rank=pawnrank)
+                )
 
             for piecetype, _file in pieces:
-                piece = piecetype(player=player, _file=_file, rank=homerank)
-                self.pieces_by_player[player].add(piece)
-                self.pieces_by_type[piecetype].add(piece)
-                self.pieces_by_rank[homerank].add(piece)
-                self.pieces_by_file[_file].add(piece)
-                self.pieces_by_forward_diagonal[
-                    (piece.file, piece.rank)
-                ].add(piece)
-                self.pieces_by_backward_diagonal[
-                    (piece.file, piece.rank)
-                ].add(piece)
+                self._place_piece(
+                    piecetype(player=player, _file=_file, rank=homerank)
+                )
 
     def _place_piece(self, piece):
-        """Place the given piece on the board. Add it to all caches."""
-        pass
+        """Add the given piece to all caches, placing it on the board."""
+        self.pieces_by_player[piece.player].add(piece)
+        self.pieces_by_type[piece.__class__].add(piece)
+        self.pieces_by_file[piece.file].add(piece)
+        self.pieces_by_rank[piece.rank].add(piece)
+        self.pieces_by_forward_diagonal[
+            (piece.file, piece.rank)
+        ].add(piece)
+        self.pieces_by_backward_diagonal[
+            (piece.file, piece.rank)
+        ].add(piece)
 
     def _coordinates_to_forward_diagonal(self, _file, rank):
         """Find out which forward diagonal the given space belongs to."""
