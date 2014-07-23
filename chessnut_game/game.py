@@ -176,6 +176,10 @@ class ChessnutGame(object):
                     (piece.file, piece.rank)
                 ].add(pawn)
 
+    def _place_piece(self, piece):
+        """Place the given piece on the board. Add it to all caches."""
+        pass
+
     def _coordinates_to_forward_diagonal(self, _file, rank):
         """Find out which forward diagonal the given space belongs to."""
         # Determine how many spaces along the diagonal we must travel down
