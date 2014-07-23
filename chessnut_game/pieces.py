@@ -12,30 +12,30 @@ class Piece(object):
     """
     def __init__(self, player=None, _file=None, rank=None):
         """Initialize the attributes of this Piece."""
-        #Keep track of whose piece this is and where it is on the board.
+        # Keep track of whose piece this is and where it is on the board.
         self.player = player
         self.file = _file
         self.rank = rank
 
-        #Store a set containing all the spaces on the board to which this
-        #piece could move - IF this piece were the only piece on the board.
-        #This much, the piece can calculate on its own, because it knows
-        #its own move logic.
+        # Store a set containing all the spaces on the board to which this
+        # piece could move - IF this piece were the only piece on the board.
+        # This much, the piece can calculate on its own, because it knows
+        # its own move logic.
         self.naive_moves = set()
 
-        #Store a set containing all of the spaces on the board to which
-        #this piece can ACTUALLY move, given the state of the board. This
-        #attribute is set by the game object, as the piece does not know
-        #about the positions of other pieces on its own.
+        # Store a set containing all of the spaces on the board to which
+        # this piece can ACTUALLY move, given the state of the board. This
+        # attribute is set by the game object, as the piece does not know
+        # about the positions of other pieces on its own.
         self.actual_moves = set()
 
-        #Bind can_capture_to to can_move_to and in_naive_captures to
-        #in_naive_moves. In most pieces, capture logic and move logic are
-        #the same, so the same methods should be called to determine both.
+        # Bind can_capture_to to can_move_to and in_naive_captures to
+        # in_naive_moves. In most pieces, capture logic and move logic are
+        # the same, so the same methods should be called to determine both.
         self.can_capture_to = self.can_move_to
         self.in_naive_captures = self.in_naive_moves
 
-        #Generate the initial naive_moves cache.
+        # Generate the initial naive_moves cache.
         self._generate_naive_cache()
 
     @property
@@ -157,24 +157,24 @@ class Pawn(Piece):
     to (since their capture and move logic are different).
     """
     def __init__(self, player=None, _file=None, rank=None):
-        #Store a separate move set for captures, as pawns have separate
-        #capture and move logic. Because _generate_naive_cache is called
-        #in the super call below, these attributes must be instantiated
-        #first.
+        # Store a separate move set for captures, as pawns have separate
+        # capture and move logic. Because _generate_naive_cache is called
+        # in the super call below, these attributes must be instantiated
+        # first.
         self.naive_captures = set()
         self.actual_captures = set()
 
         super(Pawn, self).__init__(player, _file, rank)
 
-        #Track whether or not this pawn is eligible to be en-passant
-        #captured.
+        # Track whether or not this pawn is eligible to be en-passant
+        # captured.
         self.en_passant = False
 
-        #Bind can_capture_to to _can_capture_to and in_naive_captures to
-        #_in_naive_captures (note the leading underscores). This mild name
-        #mangling is necessary because the names are bound by the call
-        #(above) to Piece's __init__. If Pawn's methods were not prefixed
-        #with an underscore, they would be overwritten and lost.
+        # Bind can_capture_to to _can_capture_to and in_naive_captures to
+        # _in_naive_captures (note the leading underscores). This mild name
+        # mangling is necessary because the names are bound by the call
+        # (above) to Piece's __init__. If Pawn's methods were not prefixed
+        # with an underscore, they would be overwritten and lost.
         self.can_capture_to = self._can_capture_to
         self.in_naive_captures = self._in_naive_captures
 
@@ -237,8 +237,8 @@ class QueensideRook(Rook):
     def __init__(self, player=None, _file=None, rank=None):
         super(QueensideRook, self).__init__(player, _file, rank)
 
-        #Track whether or not this rook has moved (so that the legality
-        #of queenside castling can be determined).
+        # Track whether or not this rook has moved (so that the legality
+        # of queenside castling can be determined).
         self.has_moved = False
 
     def move_to(self, _file, rank):
@@ -257,8 +257,8 @@ class KingsideRook(Rook):
     def __init__(self, player=None, _file=None, rank=None):
         super(KingsideRook, self).__init__(player, _file, rank)
 
-        #Track whether or not this rook has moved (so that the legality
-        #of kingside castling can be determined).
+        # Track whether or not this rook has moved (so that the legality
+        # of kingside castling can be determined).
         self.has_moved = False
 
     def move_to(self, _file, rank):
@@ -310,8 +310,8 @@ class King(Piece):
     def __init__(self, player=None, _file=None, rank=None):
         super(King, self).__init__(player, _file, rank)
 
-        #Track whether or not this king has moved (so that the legality
-        #of castling can be determined).
+        # Track whether or not this king has moved (so that the legality
+        # of castling can be determined).
         self.has_moved = False
 
     def move_to(self, _file, rank):
