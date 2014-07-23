@@ -118,6 +118,21 @@ class ChessnutGame(object):
     def reconstruct_from_pgn():
         pass
 
+    def _set_actual_moves_cache(self, piece):
+        """Set the actual_moves cache of the given piece."""
+        # Determine whether we're dealing with a pawn.
+        if piece.naive_moves is not piece.naive_captures:
+            pass
+
+        # Set the actual_moves here.
+
+        # Determine whether we're dealing with a knight.
+        elif isinstance(piece, Knight):
+            pass
+
+        else:
+            pass
+
     def _initialize_board(self):
         """Initialize a game board."""
         pieces = [
