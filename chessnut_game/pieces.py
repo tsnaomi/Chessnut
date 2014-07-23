@@ -1,3 +1,5 @@
+from abc import abstractmethod
+
 # Module-level constants representing which player's turn it is.
 White = True
 Black = False
@@ -94,6 +96,7 @@ class Piece(object):
         self.rank = rank
         self._generate_naive_cache()
 
+    @abstractmethod
     def _generate_naive_cache(self):
         """Generate the naive moves cache. The Piece class is non-specific
         and has no move logic, so this method is empty. Pieces derived
