@@ -6,8 +6,7 @@ Black = False
 
 
 class ChessnutGame(object):
-    """A game of chess.
-    """
+    """A game of chess."""
     def __init__(self, pgn=None):
         # Track whose turn it is.
         self.turn = White
@@ -143,9 +142,11 @@ class ChessnutGame(object):
                 self.pieces_by_rank[pawnrank].add(pawn)
                 self.pieces_by_file[_file].add(pawn)
                 self.pieces_by_forward_diagonal[
-                    (pawn.file, pawn.rank)].add(pawn)
+                    (pawn.file, pawn.rank)
+                ].add(pawn)
                 self.pieces_by_backward_diagonal[
-                    (pawn.file, pawn.rank)].add(pawn)
+                    (pawn.file, pawn.rank)
+                ].add(pawn)
 
             for piecetype, _file in pieces:
                 piece = piecetype(player=player, _file=_file, rank=homerank)
@@ -154,9 +155,11 @@ class ChessnutGame(object):
                 self.pieces_by_rank[homerank].add(piece)
                 self.pieces_by_file[_file].add(piece)
                 self.pieces_by_forward_diagonal[
-                    (piece.file, piece.rank)].add(pawn)
+                    (piece.file, piece.rank)
+                ].add(pawn)
                 self.pieces_by_backward_diagonal[
-                    (piece.file, piece.rank)].add(pawn)
+                    (piece.file, piece.rank)
+                ].add(pawn)
 
     def _coordinates_to_forward_diagonal(self, _file, rank):
         """Find out which forward diagonal the given space belongs to."""
