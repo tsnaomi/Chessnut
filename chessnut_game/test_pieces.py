@@ -40,46 +40,6 @@ class TestPiece(unittest.TestCase):
                 self.assertEqual(p.file, _file)
                 self.assertEqual(p.rank, rank)
 
-    def test_rank_setter_not_int(self):
-        """Attempt to set the rank to a non-int value. Assert that a
-        TypeError is raised.
-        """
-        for piece in (self.pW, self.pB):
-            with self.assertRaises(TypeError):
-                piece.rank = '1'
-
-    def test_rank_setter_out_of_range(self):
-        """Attempt to create a piece with a rank not in 0-7.
-        Assert that a ValueError is raised.
-        """
-        for piece in (self.pW, self.pB):
-            with self.assertRaises(ValueError):
-                piece.rank = 8
-
-    def test_file_setter_not_string(self):
-        """Attempt to set the _file to a non-int value. Assert that a
-        TypeError is raised.
-        """
-        for piece in (self.pW, self.pB):
-            with self.assertRaises(TypeError):
-                piece.file = '1'
-
-    def test_file_setter_out_of_range(self):
-        """Attempt to create a piece with a file not in 0-7.
-        Assert that a ValueError is raised.
-        """
-        for piece in (self.pW, self.pB):
-            with self.assertRaises(ValueError):
-                piece.file = 8
-
-    def test_player_setter_not_bool(self):
-        """Attempt to set the player to a non-boolean value.
-        Assert that a TypeError is raised.
-        """
-        for piece in (self.pW, self.pB):
-            with self.assertRaises(TypeError):
-                piece.player = 'player'
-
     def test_can_move_to_in_set(self):
         """Assert that a Piece reports that it can move to a space that
         is in its actual_moves cache.
