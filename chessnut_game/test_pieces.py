@@ -91,23 +91,23 @@ class TestPiece(unittest.TestCase):
             self.assertEqual(piece.file, dest_file)
             self.assertEqual(piece.rank, dest_rank)
 
-    def test_move_to_off_board(self):
-        """Attempt to move the Piece to a space off the board. Assert
-        that no movement is made and the naive_moves cache is unmodified.
-        """
-        dest_file = 9
-        dest_rank = 1
-        for piece in (self.pW, self.pB):
-            with patch.object(Piece, '_generate_naive_cache') as mock_method:
-                mock_method.return_value = None
-                try:
-                    piece.move_to(dest_file, dest_rank)
-                except ValueError:
-                    pass
+    # def test_move_to_off_board(self):
+    #     """Attempt to move the Piece to a space off the board. Assert
+    #     that no movement is made and the naive_moves cache is unmodified.
+    #     """
+    #     dest_file = 9
+    #     dest_rank = 1
+    #     for piece in (self.pW, self.pB):
+    #         with patch.object(Piece, '_generate_naive_cache') as mock_method:
+    #             mock_method.return_value = None
+    #             try:
+    #                 piece.move_to(dest_file, dest_rank)
+    #             except ValueError:
+    #                 pass
 
-            self.assertFalse(mock_method.called)
-            self.assertEqual(piece.file, 0)
-            self.assertEqual(piece.rank, 0)
+    #         self.assertFalse(mock_method.called)
+    #         self.assertEqual(piece.file, 0)
+    #         self.assertEqual(piece.rank, 0)
 
     def test_generate_horizontal_moves_default(self):
         """Test _generate_horizontal_moves with its default settings."""
