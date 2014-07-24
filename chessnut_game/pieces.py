@@ -231,10 +231,10 @@ class Knight(Piece):
             (f, r) for f in (-2, -1, 1, 2) for r in (-2, -1, 1, 2)
             if abs(f) != abs(r)
         ):
-            if 0 <= self._file + filemod <= 7 and \
-                    0 <= self._rank + rankmod <= 7:
+            if 0 <= self.file + filemod <= 7 and \
+                    0 <= self.rank + rankmod <= 7:
                 self.naive_moves.add(
-                    (self._file + filemod, self.rank + rankmod)
+                    (self.file + filemod, self.rank + rankmod)
                 )
 
     def _generate_actual_cache(self, game):
