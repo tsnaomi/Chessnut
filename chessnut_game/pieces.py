@@ -237,6 +237,17 @@ class Knight(Piece):
                     (self._file + filemod, self.rank + rankmod)
                 )
 
+    def _generate_actual_cache(self, game):
+        """Generate the Knight's actual_moves cache."""
+        self.actual_moves.clear()
+        for _file, rank in self.naive_moves:
+            if not (
+                game.pieces_by_player[self.player] &
+                game.pieces_by_file[_file] &
+                game.pieces_by_rank[rank]
+            ):
+                self.actual_moves.add((_file, rank))
+
 
 class Bishop(Piece):
     """A bishop."""
