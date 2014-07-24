@@ -222,46 +222,6 @@ class Rook(Piece):
         self.has_moved = True
 
 
-# class QueensideRook(Rook):
-#     """A queenside rook. In addition to the functions of a normal rook,
-#     the queenside rook tracks whether it has moved (so that the legality
-#     of queenside castling can be determined).
-#     """
-#     def __init__(self, player=None, _file=None, rank=None):
-#         super(QueensideRook, self).__init__(player, _file, rank)
-
-#         # Track whether or not this rook has moved (so that the legality
-#         # of queenside castling can be determined).
-#         self.has_moved = False
-
-#     def move_to(self, _file, rank):
-#         """Move this rook to the file and rank provided, regenerate its
-#         naive_moves cache, and set its has_moved to True.
-#         """
-#         super(QueensideRook, self).move_to(_file, rank)
-#         self.has_moved = True
-
-
-# class KingsideRook(Rook):
-#     """A kingside rook. In addition to the functions of a normal rook,
-#     the kingside rook tracks whether it has moved (so that the legality
-#     of kingside castling can be determined).
-#     """
-#     def __init__(self, player=None, _file=None, rank=None):
-#         super(KingsideRook, self).__init__(player, _file, rank)
-
-#         # Track whether or not this rook has moved (so that the legality
-#         # of kingside castling can be determined).
-#         self.has_moved = False
-
-#     def move_to(self, _file, rank):
-#         """Move this rook to the file and rank provided, regenerate its
-#         naive_moves cache, and set its has_moved to True.
-#         """
-#         super(KingsideRook, self).move_to(_file, rank)
-#         self.has_moved = True
-
-
 class Knight(Piece):
     """A knight."""
     def _generate_naive_cache(self):
