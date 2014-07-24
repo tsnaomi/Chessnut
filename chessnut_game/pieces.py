@@ -68,6 +68,15 @@ class Piece(object):
         """
         pass
 
+    @abstractmethod
+    def _generate_actual_cache(self, game):
+        """Generate the actual_moves_cache. The Piece class is non-specific
+        and has no move logic, so this method is empty. Pieces derivedfrom
+        this class must implement their own version based on their move
+        logic.
+        """
+        pass
+
     def _generate_horizontal_moves(self, backward=True, sideways=True, limit=7):
         """Calculates the spaces to which this piece can move horizontally.
         Can be limited by disallowing backward and/or side-to-side movement
@@ -184,6 +193,12 @@ class Pawn(Piece):
                 backward=False, limit=1
             )
         )
+
+    def _generate_actual_cache(self, game):
+        """Generate the Pawn's actual caches."""
+        self.actual_moves.clear()
+
+        self.actual_captures.clear()
 
 
 class Rook(Piece):
