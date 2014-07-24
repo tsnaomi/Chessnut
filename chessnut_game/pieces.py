@@ -40,44 +40,6 @@ class Piece(object):
         # Generate the initial naive_moves cache.
         self._generate_naive_cache()
 
-    @property
-    def player(self):
-        return self._player
-
-    @player.setter
-    def player(self, value):
-        if not isinstance(value, bool):
-            raise TypeError("Attempting to set player to non-boolean value.")
-        self._player = value
-
-    @property
-    def file(self):
-        return self._file
-
-    @file.setter
-    def file(self, value):
-        if not isinstance(value, int):
-            raise TypeError(
-                "Attempting to set file to non-int value.")
-        elif value < 0 or value > 7:
-            raise ValueError(
-                "Attempting to set file to value not in range 0-7.")
-        self._file = value
-
-    @property
-    def rank(self):
-        return self._rank
-
-    @rank.setter
-    def rank(self, value):
-        if not isinstance(value, int):
-            raise TypeError(
-                "Attempting to set rank to non-int value.")
-        elif value < 0 or value > 7:
-            raise ValueError(
-                "Attempting to set rank to value not in range 0-7.")
-        self._rank = value
-
     def can_move_to(self, _file, rank):
         """Refer to the actual_moves cache to determine whether this piece
         can reach the space in question.
