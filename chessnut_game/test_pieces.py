@@ -350,6 +350,32 @@ class TestPawn(unittest.TestCase):
 
                 self.assertEqual(pawn.naive_captures, expected_spaces)
 
+    def test_generate_actual_cache_actual_moves(self):
+        """Assert that the actual_moves cache is correctly generated."""
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            for pawn in (self.pW, self.pB):
+                pawn.file = _file
+                pawn.rank = rank
+
+                pawn._generate_naive_cache()
+
+                for i in range(len(pawn.naive_moves)):
+                    for spaces in combinations(pawn.naive_moves, i):
+                        game = ChessnutGame()
+                        for _file, rank in spaces:
+                            blocking_piece = Pawn(
+                                pawn.player,
+                                _file,
+                                rank,
+                            )
+                            game._place_piece(blocking_piece)
+
+                        pawn._generate_actual_cache(game)
+
+                        for space in pawn.actual_moves:
+                            self.assertIn(space, pawn.naive_moves)
+                            self.assertNotIn(space, spaces)
+
 
 class TestRook(unittest.TestCase):
     """Test the Rook class."""
