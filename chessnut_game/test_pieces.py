@@ -333,25 +333,28 @@ class TestPawn(unittest.TestCase):
         """Assert that the naive_captures cache is correctly generated."""
         for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for pawn in (self.pW, self.pB):
-                pawn.file = _file
-                pawn.rank = rank
-                expected_spaces = set()
-                if pawn.player is White:
-                    if pawn.rank < 7:
-                        if pawn.file > 0:
-                            expected_spaces.add((_file - 1, rank + 1))
-                        if pawn.file < 7:
-                            expected_spaces.add((_file + 1, rank + 1))
-                else:
-                    if pawn.rank > 0:
-                        if pawn.file > 0:
-                            expected_spaces.add((_file - 1, rank - 1))
-                        if pawn.file < 7:
-                            expected_spaces.add((_file + 1, rank - 1))
+                for has_moved in (True, False):
+                    pawn.file = _file
+                    pawn.rank = rank
+                    pawn.has_moved = has_moved
 
-                pawn._generate_naive_cache()
+                    expected_spaces = set()
+                    if pawn.player is White:
+                        if pawn.rank < 7:
+                            if pawn.file > 0:
+                                expected_spaces.add((_file - 1, rank + 1))
+                            if pawn.file < 7:
+                                expected_spaces.add((_file + 1, rank + 1))
+                    else:
+                        if pawn.rank > 0:
+                            if pawn.file > 0:
+                                expected_spaces.add((_file - 1, rank - 1))
+                            if pawn.file < 7:
+                                expected_spaces.add((_file + 1, rank - 1))
 
-                self.assertEqual(pawn.naive_captures, expected_spaces)
+                    pawn._generate_naive_cache()
+
+                    self.assertEqual(pawn.naive_captures, expected_spaces)
 
     def test_generate_actual_cache_actual_moves(self):
         """Assert that the actual_moves cache is correctly generated."""
