@@ -111,9 +111,9 @@ class ChessnutGame(object):
         # those coordinates back to the bucket representing the backward
         # diagonal they lie on.
         for _file, rank in self.pieces_by_backward_diagonal.keys():
-            for difile, dirank in self._generate_forward_diagonal(_file, rank):
-                self.pieces_by_forward_diagonal[(difile, dirank)] = \
-                    self.pieces_by_forward_diagonal[(_file, rank)]
+            for difile, dirank in self._generate_backward_diagonal(_file, rank):
+                self.pieces_by_backward_diagonal[(difile, dirank)] = \
+                    self.pieces_by_backward_diagonal[(_file, rank)]
 
     def reconstruct_from_pgn():
         pass
