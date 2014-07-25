@@ -192,16 +192,42 @@ class Pawn(Piece):
 
         self.naive_captures.clear()
         self.naive_captures.update(
-            self._generate_diagonal_moves(
-                backward=False, limit=1
-            )
+            self._generate_diagonal_moves(backward=False, limit=1)
         )
 
     def _generate_actual_cache(self, game):
         """Generate the Pawn's actual caches."""
         self.actual_moves.clear()
+        for _file, rank in self.naive_moves:
+            if not (
+                game.pieces_by_file[_file] &
+                game.pieces_by_rank[rank]
+            ):
+                self.actual_moves.add((_file, rank))
 
         self.actual_captures.clear()
+        for _file, rank in self.naive_captures:
+            if (
+                game.pieces_by_file[_file] &
+                game.pieces_by_rank[rank] &
+                game.pieces_by_player[not self.player]
+            ):
+                self.actual_captures.add((_file, rank))
+
+            else:
+                try:
+                    en_passant_pawn = (
+                        game.pieces_by_file[_file] &
+                        game.pieces_by_rank[rank] &
+                        game.pieces_by_player[not self.player] &
+                        game.pieces_by_type[Pawn]
+                    ).pop()
+
+                    if en_passant_pawn.en_passant:
+                        self.actual_captures.add((_file, rank))
+
+                except KeyError:
+                    pass
 
 
 class Rook(Piece):
