@@ -118,6 +118,24 @@ class ChessnutGame(object):
     def reconstruct_from_pgn():
         pass
 
+    def first_blocked_space_from(self, _file, rank, direction=0):
+        """Find the first space from the space at (_file, rank) blocked by
+        another piece in the given direction and return as (_file, rank).
+
+        Directions start at 0 for up/North, and proceed clockwise through 7
+        for diagonally up and left/Northwest.
+        """
+        if direction not in range(8):
+            raise ValueError(
+                "ChessnutGame.first_blocked_space_from got value not"
+                " between 0 and 7, inclusive, for direction. Value received"
+                " was %s." % direction
+            )
+
+        filemod = 0 if not direction % 4 else (1 if direction < 4 else -1)
+        rankmod = 0 if not direction % 2 and direction % 4 else \
+            (-1 if 2 < direction < 6 else 1)
+
     def _set_actual_moves_cache(self, piece):
         """Set the actual_moves cache of the given piece."""
         # Determine whether we're dealing with a pawn.
