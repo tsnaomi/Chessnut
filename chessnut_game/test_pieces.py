@@ -308,23 +308,26 @@ class TestPawn(unittest.TestCase):
         """Assert that the naive_moves cache is correctly generated."""
         for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for pawn in (self.pW, self.pB):
-                pawn.file = _file
-                pawn.rank = rank
-                expected_spaces = set()
-                if pawn.player is White:
-                    if pawn.rank < 7:
-                        expected_spaces.add((_file, rank + 1))
-                    if pawn.rank == 1:
-                        expected_spaces.add((_file, 3))
-                else:
-                    if pawn.rank > 0:
-                        expected_spaces.add((_file, rank - 1))
-                    if pawn.rank == 6:
-                        expected_spaces.add((_file, 4))
+                for has_moved in (True, False):
+                    pawn.file = _file
+                    pawn.rank = rank
+                    pawn.has_moved = has_moved
 
-                pawn._generate_naive_cache()
+                    expected_spaces = set()
+                    if pawn.player is White:
+                        if pawn.rank < 7:
+                            expected_spaces.add((_file, rank + 1))
+                        if not pawn.has_moved and pawn.rank < 6:
+                            expected_spaces.add((_file, rank + 2))
+                    else:
+                        if pawn.rank > 0:
+                            expected_spaces.add((_file, rank - 1))
+                        if not pawn.has_moved and pawn.rank > 1:
+                            expected_spaces.add((_file, rank - 2))
 
-                self.assertEqual(pawn.naive_moves, expected_spaces)
+                    pawn._generate_naive_cache()
+
+                    self.assertEqual(pawn.naive_moves, expected_spaces)
 
     def test_generate_naive_cache_naive_captures(self):
         """Assert that the naive_captures cache is correctly generated."""
