@@ -144,6 +144,10 @@ class Pawn(Piece):
         # captured.
         self.en_passant = False
 
+        # Track whether this pawn has moved, so we can figure out whether a
+        # move two spaces forward is legal.
+        self.has_moved = False
+
         # Bind can_capture_to to _can_capture_to and in_naive_captures to
         # _in_naive_captures (note the leading underscores). This mild name
         # mangling is necessary because the names are bound by the call
@@ -151,6 +155,10 @@ class Pawn(Piece):
         # with an underscore, they would be overwritten and lost.
         self.can_capture_to = self._can_capture_to
         self.in_naive_captures = self._in_naive_captures
+
+    def move_to(self, _file, rank):
+        """In addition to moving the Pawn, set has_moved to True."""
+        super(Pawn, self).move_to(_file, rank)
 
     def _can_capture_to(self, _file, rank):
         """Pawns are a special case piece: their move logic and capture logic
@@ -173,19 +181,14 @@ class Pawn(Piece):
         which each cache must be regenerated are identical.
         """
         self.naive_moves.clear()
-        if self.player is White and self.rank == 1 or\
-                self.player is Black and self.rank == 6:
-            self.naive_moves.update(
-                self._generate_horizontal_moves(
-                    backward=False, sideways=False, limit=2
-                )
+
+        self.naive_moves.update(
+            self._generate_horizontal_moves(
+                backward=False,
+                sideways=False,
+                limit=1 if self.has_moved else 2
             )
-        else:
-            self.naive_moves.update(
-                self._generate_horizontal_moves(
-                    backward=False, sideways=False, limit=1
-                )
-            )
+        )
 
         self.naive_captures.clear()
         self.naive_captures.update(
