@@ -3,10 +3,7 @@ from mock import patch
 from game import Black, White
 from pieces import Piece, Pawn, Rook, Knight, Bishop, Queen, King
 from game import ChessnutGame
-
-# Create a module-level game instance that we can use to test move cache
-# generation.
-game = ChessnutGame()
+from itertools import combinations
 
 
 def generate_diagonal_spaces(_file, rank):
@@ -412,6 +409,33 @@ class TestKnight(unittest.TestCase):
                 piece._generate_naive_cache()
 
                 self.assertEqual(piece.naive_moves, expected_spaces)
+
+    def test_generate_actual_cache_blocked(self):
+        """Assert that the actual_moves cache is correctly generated when
+        various naive_moves locations are blocked by friendly pieces.
+        """
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            for piece in (self.pW, self.pB):
+                piece.file = _file
+                piece.rank = rank
+                piece._generate_naive_cache()
+
+                for i in range(len(piece.naive_moves)):
+                    for spaces in combinations(piece.naive_moves, i):
+                        game = ChessnutGame()
+                        for _file, rank in spaces:
+                            blocking_piece = Pawn(
+                                piece.player,
+                                _file,
+                                rank,
+                            )
+                            game._place_piece(blocking_piece)
+
+                        piece._generate_actual_cache(game)
+
+                        for space in piece.actual_moves:
+                            self.assertIn(space, piece.naive_moves)
+                            self.assertNotIn(space, spaces)
 
 
 class TestBishop(unittest.TestCase):
