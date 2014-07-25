@@ -138,8 +138,6 @@ class Pawn(Piece):
         self.naive_captures = set()
         self.actual_captures = set()
 
-        super(Pawn, self).__init__(player, _file, rank)
-
         # Track whether or not this pawn is eligible to be en-passant
         # captured.
         self.en_passant = False
@@ -147,6 +145,8 @@ class Pawn(Piece):
         # Track whether this pawn has moved, so we can figure out whether a
         # move two spaces forward is legal.
         self.has_moved = False
+
+        super(Pawn, self).__init__(player, _file, rank)
 
         # Bind can_capture_to to _can_capture_to and in_naive_captures to
         # _in_naive_captures (note the leading underscores). This mild name
@@ -159,6 +159,7 @@ class Pawn(Piece):
     def move_to(self, _file, rank):
         """In addition to moving the Pawn, set has_moved to True."""
         super(Pawn, self).move_to(_file, rank)
+        self.has_moved = True
 
     def _can_capture_to(self, _file, rank):
         """Pawns are a special case piece: their move logic and capture logic
