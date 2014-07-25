@@ -360,27 +360,29 @@ class TestPawn(unittest.TestCase):
         """Assert that the actual_moves cache is correctly generated."""
         for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for pawn in (self.pW, self.pB):
-                pawn.file = _file
-                pawn.rank = rank
+                for has_moved in (True, False):
+                    pawn.file = _file
+                    pawn.rank = rank
+                    pawn.has_moved = has_moved
 
-                pawn._generate_naive_cache()
+                    pawn._generate_naive_cache()
 
-                for i in range(len(pawn.naive_moves)):
-                    for spaces in combinations(pawn.naive_moves, i):
-                        game = ChessnutGame()
-                        for _file, rank in spaces:
-                            blocking_piece = Pawn(
-                                pawn.player,
-                                _file,
-                                rank,
-                            )
-                            game._place_piece(blocking_piece)
+                    for i in range(len(pawn.naive_moves)):
+                        for spaces in combinations(pawn.naive_moves, i):
+                            game = ChessnutGame()
+                            for _file, rank in spaces:
+                                blocking_piece = Pawn(
+                                    pawn.player,
+                                    _file,
+                                    rank,
+                                )
+                                game._place_piece(blocking_piece)
 
-                        pawn._generate_actual_cache(game)
+                            pawn._generate_actual_cache(game)
 
-                        for space in pawn.actual_moves:
-                            self.assertIn(space, pawn.naive_moves)
-                            self.assertNotIn(space, spaces)
+                            for space in pawn.actual_moves:
+                                self.assertIn(space, pawn.naive_moves)
+                                self.assertNotIn(space, spaces)
 
 
 class TestRook(unittest.TestCase):
