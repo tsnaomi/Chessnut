@@ -183,18 +183,36 @@ class ChessnutGame(object):
                     piecetype(player=player, _file=_file, rank=homerank)
                 )
 
-    def _place_piece(self, piece):
+    def _soft_place_piece(self, piece):
+        """Place a piece already existent (in piece and player caches) at the
+        location specified by its current rank and file.
+        """
+        self.pieces_by_file[piece.file].add(piece)
+        self.pieces_by_rank[piece.rank].add(piece)
+        self.pieces_by_forward_diagonal[(piece.file, piece.rank)].add(piece)
+        self.pieces_by_backward_diagonal[(piece.file, piece.rank)].add(piece)
+
+    def _hard_place_piece(self, piece):
         """Add the given piece to all caches, placing it on the board."""
         self.pieces_by_player[piece.player].add(piece)
         self.pieces_by_type[piece.__class__].add(piece)
-        self.pieces_by_file[piece.file].add(piece)
-        self.pieces_by_rank[piece.rank].add(piece)
-        self.pieces_by_forward_diagonal[
-            (piece.file, piece.rank)
-        ].add(piece)
-        self.pieces_by_backward_diagonal[
-            (piece.file, piece.rank)
-        ].add(piece)
+        self._soft_place_piece(piece)
+
+    def _soft_remove_piece(self, piece):
+        """Remove the given piece from its current location, leaving it in the
+        player and piece caches.
+        """
+        self.pieces_by_file[piece.file].remove(piece)
+        self.pieces_by_rank[piece.rank].remove(piece)
+        self.pieces_by_forward_diagonal[(piece.file, piece.rank)].remove(piece)
+        self.pieces_by_backward_diagonal[(piece.file, piece.rank)].remove(piece)
+
+    def _hard_remove_piece(self, piece):
+        """Remove the given piece from all caches, removing it from the board.
+        """
+        self.pieces_by_player[piece.player].remove(piece)
+        self.pieces_by_type[piece.__class__].remove(piece)
+        self._soft_remove_piece(piece)
 
     def _coordinates_to_forward_diagonal(self, _file, rank):
         """Find out which forward diagonal the given space belongs to."""
