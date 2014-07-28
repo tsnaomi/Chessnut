@@ -102,5 +102,28 @@ class TestGenerateDiagonals(unittest.TestCase):
         """Test the _generate_backward_diagonal method."""
 
 
+class TestFirstBlockedMoveFrom(unittest.TestCase):
+    """Test the first_blocked_move_from method of the game class."""
+    def setUp(self):
+        self.c = ChessnutGame()
+
+    def circle_piece(_file, rank, radius):
+        """Create a circle of Pawns around the the given file and rank."""
+
+    def test_empty_board(self):
+        """Assert that the method returns (None, None) in every direction
+        for an empty board.
+        """
+
+    def test_all_directions(self):
+        """Assert that the method returns the expected space in each direction.
+        """
+
+    def test_all_directions_layered(self):
+        """Assert that the method returns the expected value for multiple
+        blocked spaces in a row.
+        """
+
+
 if __name__ == '__main__':
     unittest.main()
