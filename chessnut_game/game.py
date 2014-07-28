@@ -121,6 +121,7 @@ class ChessnutGame(object):
     def first_blocked_space_from(self, _file, rank, direction=0):
         """Find the first space from the space at (_file, rank) blocked by
         another piece in the given direction and return as (_file, rank).
+        Returns (None, None) if no space is blocked.
 
         Directions start at 0 for up/North, and proceed clockwise through 7
         for diagonally up and left/Northwest.
@@ -136,20 +137,24 @@ class ChessnutGame(object):
         rankmod = 0 if not direction % 2 and direction % 4 else \
             (-1 if 2 < direction < 6 else 1)
 
+        blocked_file = _file + filemod
+        blocked_rank = rank + rankmod
+
+        while 0 <= blocked_file <= 7 and 0 <= blocked_rank <= 7:
+            if (
+                self.pieces_by_file[blocked_file] &
+                self.pieces_by_rank[blocked_rank]
+            ):
+                return (blocked_file, blocked_rank)
+
+            blocked_file += filemod
+            blocked_rank += rankmod
+
+        return (None, None)
+
     def _set_actual_moves_cache(self, piece):
         """Set the actual_moves cache of the given piece."""
-        # Determine whether we're dealing with a pawn.
-        if piece.naive_moves is not piece.naive_captures:
-            pass
-
-        # Set the actual_moves here.
-
-        # Determine whether we're dealing with a knight.
-        elif isinstance(piece, Knight):
-            pass
-
-        else:
-            pass
+        piece.generate_actual_cache(self)
 
     def _initialize_board(self):
         """Initialize a game board."""
