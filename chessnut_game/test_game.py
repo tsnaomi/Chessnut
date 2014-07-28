@@ -167,12 +167,22 @@ class TestFirstBlockedMoveFrom(unittest.TestCase):
     def test_empty_board(self):
         """Test an empty board."""
         for _file, rank in ((f, r) for f in range(8) for r in range(8)):
-            pass
+            for direction in range(8):
+                self.assertEqual(
+                    self.c.first_blocked_space_from(_file, rank, direction),
+                    (None, None)
+                )
 
     def test_all_pieces(self):
         """Assert that each type of piece in each color can block spaces."""
-        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
-            pass
+        for piece in (Pawn, Rook, Knight, Bishop, Queen, King):
+            for color in (Black, White):
+                p = piece(color, 4, 5)
+                self.assertEqual(
+                    self.c.first_blocked_space_from(4, 4, 0),
+                    (4, 5)
+                )
+                self.c._hard_remove_piece(p)
 
     def test_all_directions_surrounded(self):
         """Test all directions when surrounded by pawns."""
