@@ -1,5 +1,6 @@
 import unittest
 from game import ChessnutGame
+from pieces import Pawn, Rook, Knight, Bishop, Queen, King
 
 
 def build_forward_diagonal(_file, rank):
@@ -106,23 +107,41 @@ class TestFirstBlockedMoveFrom(unittest.TestCase):
     """Test the first_blocked_move_from method of the game class."""
     def setUp(self):
         self.c = ChessnutGame()
+        self.circling_pawns = []
+
+    def tearDown(self):
+        for pawn in self.circling_pawns:
+            self.c._hard_remove_piece(pawn)
+
+        self.circling_pawns = []
+
+    def surround_piece(_file, rank, radius):
+        """Create a circle of Pawns around the the given file and rank.
+        Return a list of spaces at which they are placed, in clockwise order.
+        """
 
     def circle_piece(_file, rank, radius):
-        """Create a circle of Pawns around the the given file and rank."""
+        """Create a single Pawn that circles the given file and rank.
+        Yield the coordinates of the Pawn as it circles.
+        """
 
     def test_empty_board(self):
-        """Assert that the method returns (None, None) in every direction
-        for an empty board.
-        """
+        """Test an empty board."""
 
-    def test_all_directions(self):
-        """Assert that the method returns the expected space in each direction.
-        """
+    def test_all_pieces(self):
+        """Assert that each type of piece in each color can block spaces."""
+
+    def test_all_directions_surrounded(self):
+        """Test all directions when surrounded by pawns."""
+
+    def test_all_directions_circling_piece(self):
+        """Test all directions as one Pawn circles."""
 
     def test_all_directions_layered(self):
-        """Assert that the method returns the expected value for multiple
-        blocked spaces in a row.
-        """
+        """Test two layers of blocking pieces."""
+
+    def test_all_directions_staggered(self):
+        """Test two staggered circles of pieces."""
 
 
 if __name__ == '__main__':
