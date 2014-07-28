@@ -139,6 +139,7 @@ class TestFirstBlockedMoveFrom(unittest.TestCase):
                 self.c._hard_place_piece(p)
                 placed.append((p._file, p.rank))
                 self.circing_pawns.append(p)
+
             except OffBoardError:
                 pass
 
@@ -148,6 +149,20 @@ class TestFirstBlockedMoveFrom(unittest.TestCase):
         """Create a single Pawn that circles the given file and rank.
         Yield the coordinates of the Pawn as it circles.
         """
+        p = Pawn(White, _file, rank)
+        self.c._hard_place_piece(p)
+
+        for filemod, rankmod in self.mods:
+            try:
+                self.c.move_piece(
+                    p,
+                    _file + radius * filemod,
+                    rank + radius * rankmod
+                )
+                yield (p.file, p.rank)
+
+            except OffBoardError:
+                pass
 
     def test_empty_board(self):
         """Test an empty board."""
