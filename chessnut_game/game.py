@@ -118,6 +118,13 @@ class ChessnutGame(object):
     def reconstruct_from_pgn():
         pass
 
+    def move_piece(self, piece, _file, rank):
+        """Move the given piece to the specified space."""
+        self._soft_remove_piece(piece)
+        piece.file = _file
+        piece.rank = rank
+        self._soft_place_piece(piece)
+
     def first_blocked_space_from(self, _file, rank, direction=0):
         """Find the first space from the space at (_file, rank) blocked by
         another piece in the given direction and return as (_file, rank).
