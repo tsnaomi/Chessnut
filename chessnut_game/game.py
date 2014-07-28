@@ -125,7 +125,7 @@ class ChessnutGame(object):
         piece.rank = rank
         self._soft_place_piece(piece)
 
-    def first_blocked_space_from(self, _file, rank, direction=0):
+    def first_blocked_space_from(self, _file, rank, direction):
         """Find the first space from the space at (_file, rank) blocked by
         another piece in the given direction and return as (_file, rank).
         Returns (None, None) if no space is blocked.
