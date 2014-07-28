@@ -1,7 +1,7 @@
 import unittest
 from game import ChessnutGame, Black, White
 from pieces import Pawn, Rook, Knight, Bishop, Queen, King
-from exceptions import OffBoardError
+from exceptions import BoardIndexError
 
 
 def build_forward_diagonal(_file, rank):
@@ -140,7 +140,7 @@ class TestFirstBlockedMoveFrom(unittest.TestCase):
                 placed.append((p._file, p.rank))
                 self.circing_pawns.append(p)
 
-            except OffBoardError:
+            except BoardIndexError:
                 pass
 
             return placed
@@ -161,7 +161,7 @@ class TestFirstBlockedMoveFrom(unittest.TestCase):
                 )
                 yield (p.file, p.rank)
 
-            except OffBoardError:
+            except BoardIndexError:
                 pass
 
     def test_empty_board(self):
