@@ -59,7 +59,7 @@ class Piece(object):
         self._generate_naive_cache()
 
     @abstractmethod
-    def _generate_naive_cache(self):
+    def generate_naive_cache(self):
         """Generate the naive moves cache. The Piece class is non-specific
         and has no move logic, so this method is empty. Pieces derived
         from this class must implement their own version based on their move
@@ -69,7 +69,7 @@ class Piece(object):
         pass
 
     @abstractmethod
-    def _generate_actual_cache(self, game):
+    def generate_actual_cache(self, game):
         """Generate the actual_moves_cache. The Piece class is non-specific
         and has no move logic, so this method is empty. Pieces derivedfrom
         this class must implement their own version based on their move
@@ -176,7 +176,7 @@ class Pawn(Piece):
         """
         return True if (_file, rank) in self.naive_captures else False
 
-    def _generate_naive_cache(self):
+    def generate_naive_cache(self):
         """Generate the Pawn's naive caches. The pawn in unique in that it
         must generate two caches, rather than one, but the situations in
         which each cache must be regenerated are identical.
@@ -196,7 +196,7 @@ class Pawn(Piece):
             self._generate_diagonal_moves(backward=False, limit=1)
         )
 
-    def _generate_actual_cache(self, game):
+    def generate_actual_cache(self, game):
         """Generate the Pawn's actual caches."""
         self.actual_moves.clear()
         for _file, rank in self.naive_moves:
@@ -239,7 +239,7 @@ class Rook(Piece):
         super(Rook, self).__init__(*args, **kwargs)
         self.has_moved = False
 
-    def _generate_naive_cache(self):
+    def generate_naive_cache(self):
         """Generate the Rook's naive_moves cache."""
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_horizontal_moves())
@@ -254,7 +254,7 @@ class Rook(Piece):
 
 class Knight(Piece):
     """A knight."""
-    def _generate_naive_cache(self):
+    def generate_naive_cache(self):
         """Generate the Knight's naive_moves cache."""
         self.naive_moves.clear()
         for filemod, rankmod in (
@@ -267,7 +267,7 @@ class Knight(Piece):
                     (self.file + filemod, self.rank + rankmod)
                 )
 
-    def _generate_actual_cache(self, game):
+    def generate_actual_cache(self, game):
         """Generate the Knight's actual_moves cache."""
         self.actual_moves.clear()
         for _file, rank in self.naive_moves:
@@ -281,7 +281,7 @@ class Knight(Piece):
 
 class Bishop(Piece):
     """A bishop."""
-    def _generate_naive_cache(self):
+    def generate_naive_cache(self):
         """Generate the Bishop's naive_moves cache."""
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_diagonal_moves())
@@ -289,7 +289,7 @@ class Bishop(Piece):
 
 class Queen(Piece):
     """A queen."""
-    def _generate_naive_cache(self):
+    def generate_naive_cache(self):
         """Generate the Queen's naive_moves cache."""
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_horizontal_moves())
@@ -315,7 +315,7 @@ class King(Piece):
         super(King, self).move_to(_file, rank)
         self.has_moved = True
 
-    def _generate_naive_cache(self):
+    def generate_naive_cache(self):
         """Generate the King's naive_moves cache."""
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_horizontal_moves(limit=1))
