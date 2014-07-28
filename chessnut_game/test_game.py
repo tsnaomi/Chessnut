@@ -138,7 +138,7 @@ class TestFirstBlockedMoveFrom(unittest.TestCase):
             try:
                 self.c._hard_place_piece(p)
                 placed.append((p.file, p.rank))
-                self.circing_pawns.append(p)
+                self.circling_pawns.append(p)
 
             except BoardIndexError:
                 placed.append((None, None))
