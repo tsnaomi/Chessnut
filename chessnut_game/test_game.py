@@ -1,6 +1,7 @@
 import unittest
-from game import ChessnutGame
+from game import ChessnutGame, Black, White
 from pieces import Pawn, Rook, Knight, Bishop, Queen, King
+from exceptions import OffBoardError
 
 
 def build_forward_diagonal(_file, rank):
@@ -105,8 +106,20 @@ class TestGenerateDiagonals(unittest.TestCase):
 
 class TestFirstBlockedMoveFrom(unittest.TestCase):
     """Test the first_blocked_move_from method of the game class."""
+    mods = (
+        (0, 1),
+        (1, 1),
+        (1, 0),
+        (1, -1),
+        (0, -1),
+        (-1, -1),
+        (-1, 0),
+        (-1, 1)
+    )
+
+    c = ChessnutGame()
+
     def setUp(self):
-        self.c = ChessnutGame()
         self.circling_pawns = []
 
     def tearDown(self):
@@ -115,21 +128,36 @@ class TestFirstBlockedMoveFrom(unittest.TestCase):
 
         self.circling_pawns = []
 
-    def surround_piece(_file, rank, radius):
+    def surround_piece(self, _file, rank, radius):
         """Create a circle of Pawns around the the given file and rank.
         Return a list of spaces at which they are placed, in clockwise order.
         """
+        placed = []
+        for filemod, rankmod in self.mods:
+            p = Pawn(White, _file + radius * filemod, rank + radius * rankmod)
+            try:
+                self.c._hard_place_piece(p)
+                placed.append((p._file, p.rank))
+                self.circing_pawns.append(p)
+            except OffBoardError:
+                pass
 
-    def circle_piece(_file, rank, radius):
+            return placed
+
+    def circle_piece(self, _file, rank, radius):
         """Create a single Pawn that circles the given file and rank.
         Yield the coordinates of the Pawn as it circles.
         """
 
     def test_empty_board(self):
         """Test an empty board."""
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            pass
 
     def test_all_pieces(self):
         """Assert that each type of piece in each color can block spaces."""
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            pass
 
     def test_all_directions_surrounded(self):
         """Test all directions when surrounded by pawns."""
