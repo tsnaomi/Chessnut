@@ -1,4 +1,5 @@
 from pieces import Pawn, Rook, Knight, Bishop, Queen, King
+from chessnut_exceptions import BoardIndexError
 
 # Module-level constants representing which player's turn it is.
 White = True
@@ -194,6 +195,11 @@ class ChessnutGame(object):
         """Place a piece already existent (in piece and player caches) at the
         location specified by its current rank and file.
         """
+        if not 0 <= piece.file <= 7 or not 0 <= piece.rank <= 7:
+            raise BoardIndexError(
+                "_soft_place_piece: attempting to place piece at board indices"
+                " (%s, %s)." % (piece.file, piece.rank)
+            )
         self.pieces_by_file[piece.file].add(piece)
         self.pieces_by_rank[piece.rank].add(piece)
         self.pieces_by_forward_diagonal[(piece.file, piece.rank)].add(piece)
@@ -201,14 +207,19 @@ class ChessnutGame(object):
 
     def _hard_place_piece(self, piece):
         """Add the given piece to all caches, placing it on the board."""
+        self._soft_place_piece(piece)
         self.pieces_by_player[piece.player].add(piece)
         self.pieces_by_type[piece.__class__].add(piece)
-        self._soft_place_piece(piece)
 
     def _soft_remove_piece(self, piece):
         """Remove the given piece from its current location, leaving it in the
         player and piece caches.
         """
+        if not 0 <= piece.file <= 7 or not 0 <= piece.rank <= 7:
+            raise BoardIndexError(
+                "_soft_remove_piece: attempting to remove piece at board"
+                " indices (%s, %s)." % (piece.file, piece.rank)
+            )
         self.pieces_by_file[piece.file].remove(piece)
         self.pieces_by_rank[piece.rank].remove(piece)
         self.pieces_by_forward_diagonal[(piece.file, piece.rank)].remove(piece)
@@ -217,9 +228,9 @@ class ChessnutGame(object):
     def _hard_remove_piece(self, piece):
         """Remove the given piece from all caches, removing it from the board.
         """
+        self._soft_remove_piece(piece)
         self.pieces_by_player[piece.player].remove(piece)
         self.pieces_by_type[piece.__class__].remove(piece)
-        self._soft_remove_piece(piece)
 
     def _coordinates_to_forward_diagonal(self, _file, rank):
         """Find out which forward diagonal the given space belongs to."""
