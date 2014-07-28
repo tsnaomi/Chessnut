@@ -1,7 +1,7 @@
 import unittest
 from game import ChessnutGame, Black, White
 from pieces import Pawn, Rook, Knight, Bishop, Queen, King
-from exceptions import BoardIndexError
+from chessnut_exceptions import BoardIndexError
 
 
 def build_forward_diagonal(_file, rank):
@@ -178,6 +178,7 @@ class TestFirstBlockedMoveFrom(unittest.TestCase):
         for piece in (Pawn, Rook, Knight, Bishop, Queen, King):
             for color in (Black, White):
                 p = piece(color, 4, 5)
+                self.c._hard_place_piece(p)
                 self.assertEqual(
                     self.c.first_blocked_space_from(4, 4, 0),
                     (4, 5)
