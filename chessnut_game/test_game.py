@@ -143,7 +143,7 @@ class TestFirstBlockedMoveFrom(unittest.TestCase):
             except BoardIndexError:
                 placed.append((None, None))
 
-            return placed
+        return placed
 
     def circle_piece(self, _file, rank, radius):
         """Create a single Pawn that circles the given file and rank.
@@ -188,7 +188,7 @@ class TestFirstBlockedMoveFrom(unittest.TestCase):
     def test_all_directions_surrounded(self):
         """Test all directions when surrounded by pawns."""
         for _file, rank in ((f, r) for f in range(8) for r in range(8)):
-            for radius in range(8):
+            for radius in range(1, 8):
                 expected = self.surround_piece(_file, rank, radius)
                 for direction in range(8):
                     self.assertEqual(
