@@ -137,11 +137,11 @@ class TestFirstBlockedMoveFrom(unittest.TestCase):
             p = Pawn(White, _file + radius * filemod, rank + radius * rankmod)
             try:
                 self.c._hard_place_piece(p)
-                placed.append((p._file, p.rank))
+                placed.append((p.file, p.rank))
                 self.circing_pawns.append(p)
 
             except BoardIndexError:
-                pass
+                placed.append((None, None))
 
             return placed
 
@@ -162,7 +162,7 @@ class TestFirstBlockedMoveFrom(unittest.TestCase):
                 yield (p.file, p.rank)
 
             except BoardIndexError:
-                pass
+                yield (None, None)
 
     def test_empty_board(self):
         """Test an empty board."""
@@ -187,6 +187,18 @@ class TestFirstBlockedMoveFrom(unittest.TestCase):
 
     def test_all_directions_surrounded(self):
         """Test all directions when surrounded by pawns."""
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            for radius in range(8):
+                expected = self.surround_piece(_file, rank, radius)
+                for direction in range(8):
+                    self.assertEqual(
+                        self.c.first_blocked_space_from(
+                            _file,
+                            rank,
+                            direction
+                        ),
+                        expected.pop(0)
+                    )
 
     def test_all_directions_circling_piece(self):
         """Test all directions as one Pawn circles."""
