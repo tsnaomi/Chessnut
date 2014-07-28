@@ -38,7 +38,7 @@ class Piece(object):
         self.in_naive_captures = self.in_naive_moves
 
         # Generate the initial naive_moves cache.
-        self._generate_naive_cache()
+        self.generate_naive_cache()
 
     def can_move_to(self, _file, rank):
         """Refer to the actual_moves cache to determine whether this piece
@@ -56,7 +56,7 @@ class Piece(object):
         """
         self.file = _file
         self.rank = rank
-        self._generate_naive_cache()
+        self.generate_naive_cache()
 
     @abstractmethod
     def generate_naive_cache(self):
@@ -132,7 +132,7 @@ class Pawn(Piece):
     """
     def __init__(self, player=None, _file=None, rank=None):
         # Store a separate move set for captures, as pawns have separate
-        # capture and move logic. Because _generate_naive_cache is called
+        # capture and move logic. Because generate_naive_cache is called
         # in the super call below, these attributes must be instantiated
         # first.
         self.naive_captures = set()
