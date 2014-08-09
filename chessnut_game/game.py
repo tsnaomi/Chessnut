@@ -191,12 +191,12 @@ class ChessnutGame(object):
             pawnrank = 1 if player is White else 6
 
             for _file in range(8):
-                self._place_piece(
+                self._hard_place_piece(
                     Pawn(player=player, _file=_file, rank=pawnrank)
                 )
 
             for piecetype, _file in pieces:
-                self._place_piece(
+                self._hard_place_piece(
                     piecetype(player=player, _file=_file, rank=homerank)
                 )
 
@@ -206,8 +206,10 @@ class ChessnutGame(object):
         """
         if not 0 <= piece.file <= 7 or not 0 <= piece.rank <= 7:
             raise BoardIndexError(
-                "_soft_place_piece: attempting to place piece at board indices"
-                " (%s, %s)." % (piece.file, piece.rank)
+                "Attempting to place piece at board indices (%s, %s)." % (
+                    piece.file,
+                    piece.rank
+                )
             )
         self.pieces_by_file[piece.file].add(piece)
         self.pieces_by_rank[piece.rank].add(piece)
@@ -226,8 +228,10 @@ class ChessnutGame(object):
         """
         if not 0 <= piece.file <= 7 or not 0 <= piece.rank <= 7:
             raise BoardIndexError(
-                "_soft_remove_piece: attempting to remove piece at board"
-                " indices (%s, %s)." % (piece.file, piece.rank)
+                "Attempting to remove piece at board indices (%s, %s)." % (
+                    piece.file,
+                    piece.rank
+                )
             )
         self.pieces_by_file[piece.file].remove(piece)
         self.pieces_by_rank[piece.rank].remove(piece)
