@@ -14,6 +14,9 @@ class ChessnutGame(object):
 
         # Bucket the pieces on the board by several criteria.
 
+        # Bucket all pieces.
+        self.pieces = set()
+
         # Bucket by the owner of the piece.
         self.pieces_by_player = {
             White: set(),
@@ -219,6 +222,7 @@ class ChessnutGame(object):
     def _hard_place_piece(self, piece):
         """Add the given piece to all caches, placing it on the board."""
         self._soft_place_piece(piece)
+        self.pieces.add(piece)
         self.pieces_by_player[piece.player].add(piece)
         self.pieces_by_type[piece.__class__].add(piece)
 
@@ -242,6 +246,7 @@ class ChessnutGame(object):
         """Remove the given piece from all caches, removing it from the board.
         """
         self._soft_remove_piece(piece)
+        self.pieces.remove(piece)
         self.pieces_by_player[piece.player].remove(piece)
         self.pieces_by_type[piece.__class__].remove(piece)
 
