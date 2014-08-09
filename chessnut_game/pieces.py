@@ -208,20 +208,25 @@ class Pawn(Piece):
         identical.
         """
         self.actual_moves.clear()
-        rank_move = self.rank + (1 if self.player is White else -1)
-        if not (
-            game.pieces_by_file[self.file] &
-            game.pieces_by_rank[rank_move]
-        ):
-            self.actual_moves.add((self.file, rank_move))
 
-            if not self.has_moved:
-                rank_move = rank_move + (1 if self.player is White else -1)
-                if not (
-                    game.pieces_by_file[self.file] &
-                    game.pieces_by_rank[rank_move]
-                ):
-                    self.actual_moves.add((self.file, rank_move))
+        try:
+            rank_move = self.rank + (1 if self.player is White else -1)
+            if not (
+                game.pieces_by_file[self.file] &
+                game.pieces_by_rank[rank_move]
+            ):
+                self.actual_moves.add((self.file, rank_move))
+
+                if not self.has_moved:
+                    rank_move = rank_move + (1 if self.player is White else -1)
+                    if not (
+                        game.pieces_by_file[self.file] &
+                        game.pieces_by_rank[rank_move]
+                    ):
+                        self.actual_moves.add((self.file, rank_move))
+
+        except KeyError:
+            pass
 
         self.actual_captures.clear()
         for _file, rank in self.naive_captures:
