@@ -104,8 +104,8 @@ class TestGenerateDiagonals(unittest.TestCase):
         """Test the _generate_backward_diagonal method."""
 
 
-class TestFirstBlockedSpaceFrom(unittest.TestCase):
-    """Test the first_blocked_space_from method of the game class."""
+class TestFirstBlockingPiece(unittest.TestCase):
+    """Test the first_blocking_piece method of the game class."""
     mods = (
         (0, 1),
         (1, 1),
@@ -122,32 +122,32 @@ class TestFirstBlockedSpaceFrom(unittest.TestCase):
     def setUp(self):
         self.circling_pawns = []
 
-    def tearDown(self):
+    def clear_circling_pawns(self):
         for pawn in self.circling_pawns:
             self.c._hard_remove_piece(pawn)
-
         self.circling_pawns = []
 
     def surround_piece(self, _file, rank, radius):
         """Create a circle of Pawns around the the given file and rank.
-        Return a list of spaces at which they are placed, in clockwise order.
+        Return a list of Pawns placed, or None if they would be off-board,
+        in clockwise order.
         """
         placed = []
         for filemod, rankmod in self.mods:
             p = Pawn(White, _file + radius * filemod, rank + radius * rankmod)
             try:
                 self.c._hard_place_piece(p)
-                placed.append((p.file, p.rank))
+                placed.append(p)
                 self.circling_pawns.append(p)
 
             except BoardIndexError:
-                placed.append((None, None))
+                placed.append(None)
 
         return placed
 
     def circle_piece(self, _file, rank, radius):
         """Create a single Pawn that circles the given file and rank.
-        Yield the coordinates of the Pawn as it circles.
+        Yield the Pawn as it circles, or None if it would go off-board.
         """
         p = Pawn(White, _file, rank)
         self.c._hard_place_piece(p)
@@ -160,18 +160,18 @@ class TestFirstBlockedSpaceFrom(unittest.TestCase):
                     _file + radius * filemod,
                     rank + radius * rankmod
                 )
-                yield (p.file, p.rank)
+                yield p
 
             except BoardIndexError:
-                yield (None, None)
+                yield
 
     def test_empty_board(self):
         """Test an empty board."""
         for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for direction in range(8):
-                self.assertEqual(
-                    self.c.first_blocked_space_from(_file, rank, direction),
-                    (None, None)
+                self.assertIs(
+                    self.c.first_blocking_piece(_file, rank, direction),
+                    None
                 )
 
     def test_all_pieces(self):
@@ -180,9 +180,9 @@ class TestFirstBlockedSpaceFrom(unittest.TestCase):
             for color in (Black, White):
                 p = piece(color, 4, 5)
                 self.c._hard_place_piece(p)
-                self.assertEqual(
-                    self.c.first_blocked_space_from(4, 4, 0),
-                    (4, 5)
+                self.assertIs(
+                    self.c.first_blocking_piece(4, 4, 0),
+                    p
                 )
                 self.c._hard_remove_piece(p)
 
@@ -193,15 +193,15 @@ class TestFirstBlockedSpaceFrom(unittest.TestCase):
                 for direction, expected in enumerate(
                     self.circle_piece(_file, rank, radius)
                 ):
-                    self.assertEqual(
-                        self.c.first_blocked_space_from(
+                    self.assertIs(
+                        self.c.first_blocking_piece(
                             _file,
                             rank,
                             direction
                         ),
                         expected
                     )
-                self.tearDown()
+                self.clear_circling_pawns()
 
     def test_all_directions_surrounded(self):
         """Test all directions when surrounded by pawns."""
@@ -209,15 +209,15 @@ class TestFirstBlockedSpaceFrom(unittest.TestCase):
             for radius in range(1, 8):
                 expected = self.surround_piece(_file, rank, radius)
                 for direction in range(8):
-                    self.assertEqual(
-                        self.c.first_blocked_space_from(
+                    self.assertIs(
+                        self.c.first_blocking_piece(
                             _file,
                             rank,
                             direction
                         ),
                         expected.pop(0)
                     )
-                self.tearDown()
+                self.clear_circling_pawns()
 
     def test_all_directions_layered(self):
         """Test two layers of blocking pieces."""
@@ -225,15 +225,15 @@ class TestFirstBlockedSpaceFrom(unittest.TestCase):
             self.surround_piece(_file, rank, 2)
             expected = self.surround_piece(_file, rank, 1)
             for direction in range(8):
-                self.assertEqual(
-                    self.c.first_blocked_space_from(
+                self.assertIs(
+                    self.c.first_blocking_piece(
                         _file,
                         rank,
                         direction
                     ),
                     expected.pop(0)
                 )
-            self.tearDown()
+            self.clear_circling_pawns()
 
     def test_all_directions_staggered(self):
         """Test two staggered circles of pieces."""
@@ -241,15 +241,15 @@ class TestFirstBlockedSpaceFrom(unittest.TestCase):
             self.surround_piece(_file, rank, 3)
             expected = self.surround_piece(_file, rank, 1)
             for direction in range(8):
-                self.assertEqual(
-                    self.c.first_blocked_space_from(
+                self.assertIs(
+                    self.c.first_blocking_piece(
                         _file,
                         rank,
                         direction
                     ),
                     expected.pop(0)
                 )
-            self.tearDown()
+            self.clear_circling_pawns()
 
 
 if __name__ == '__main__':
