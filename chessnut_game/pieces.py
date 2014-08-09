@@ -264,12 +264,59 @@ class Rook(Piece):
 
     def generate_actual_cache(self, game):
         """Generate the Rook's actual_moves cache."""
+        self.actual_moves.clear()
         for direction in range(0, 8, 2):
-            block_file, block_rank = game.first_blocked_space_from(
+            blocker = game.first_blocking_piece(
                 self.file,
                 self.rank,
                 direction
             )
+
+            if direction == 0:
+                self.actual_moves.update(
+                    (self.file, rank) for rank in range(
+                        self.rank + 1,
+                        8 if blocker is None else (
+                            blocker.rank if blocker.player is self.player else
+                            blocker.rank + 1
+                        )
+                    )
+                )
+
+            elif direction == 2:
+                self.actual_moves.update(
+                    (_file, self.rank) for _file in range(
+                        self.file + 1,
+                        8 if blocker is None else (
+                            blocker.file if blocker.player is self.player else
+                            blocker.file + 1
+                        )
+                    )
+                )
+
+            elif direction == 4:
+                self.actual_moves.update(
+                    (self.file, rank) for rank in range(
+                        self.rank - 1,
+                        -1 if blocker is None else (
+                            blocker.rank if blocker.player is self.player else
+                            blocker.rank - 1
+                        ),
+                        -1
+                    )
+                )
+
+            elif direction == 6:
+                self.actual_moves.update(
+                    (_file, self.rank) for _file in range(
+                        self.file - 1,
+                        -1 if blocker is None else (
+                            blocker.file if blocker.player is self.player else
+                            blocker.file - 1
+                        ),
+                        -1
+                    )
+                )
 
     def move_to(self, _file, rank):
         """Move this rook to the file and rank provided, regenerate its
