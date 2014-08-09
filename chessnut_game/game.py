@@ -121,10 +121,19 @@ class ChessnutGame(object):
 
     def move_piece(self, piece, _file, rank):
         """Move the given piece to the specified space."""
+        old_file = piece.file
+        old_rank = piece.rank
         self._soft_remove_piece(piece)
         piece.file = _file
         piece.rank = rank
-        self._soft_place_piece(piece)
+
+        try:
+            self._soft_place_piece(piece)
+        except BoardIndexError:
+            piece.file = old_file
+            piece.rank = old_rank
+            self._soft_place_piece(piece)
+            raise
 
     def first_blocked_space_from(self, _file, rank, direction):
         """Find the first space from the space at (_file, rank) blocked by
