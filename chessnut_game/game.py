@@ -140,8 +140,8 @@ class ChessnutGame(object):
 
     def first_blocked_space_from(self, _file, rank, direction):
         """Find the first space from the space at (_file, rank) blocked by
-        another piece in the given direction and return as (_file, rank).
-        Returns (None, None) if no space is blocked.
+        another piece in the given direction and return that piece.
+        Returns None if no space is blocked.
 
         Directions start at 0 for up/North, and proceed clockwise through 7
         for diagonally up and left/Northwest.
@@ -153,24 +153,65 @@ class ChessnutGame(object):
                 " was %s." % direction
             )
 
-        filemod = 0 if not direction % 4 else (1 if direction < 4 else -1)
-        rankmod = 0 if not direction % 2 and direction % 4 else \
-            (-1 if 2 < direction < 6 else 1)
+        try:
+            # direction is 0 or 4
+            if direction % 4 == 0:
+                return sorted(
+                    (
+                        piece for piece in self.pieces_by_file[_file] if (
+                            piece.rank > rank if direction == 0 else
+                            piece.rank < rank
+                        )
+                    ),
+                    key=lambda x: x.rank,
+                    reverse=False if direction == 0 else True
+                )[0]
 
-        blocked_file = _file + filemod
-        blocked_rank = rank + rankmod
+            # direction is 2 or 6
+            elif direction % 2 == 0:
+                return sorted(
+                    (
+                        piece for piece in self.pieces_by_rank[rank] if (
+                            piece.file > _file if direction == 2 else
+                            piece.file < _file
+                        )
+                    ),
+                    key=lambda x: x.file,
+                    reverse=False if direction == 2 else True
+                )[0]
 
-        while 0 <= blocked_file <= 7 and 0 <= blocked_rank <= 7:
-            if (
-                self.pieces_by_file[blocked_file] &
-                self.pieces_by_rank[blocked_rank]
-            ):
-                return (blocked_file, blocked_rank)
+            # direction is 1 or 5
+            elif direction % 4 == 1:
+                return sorted(
+                    (
+                        piece for piece in
+                        self.pieces_by_forward_diagonal[(_file, rank)] if (
+                            piece.rank > rank if direction == 1 else
+                            piece.rank < rank
+                        )
+                    ),
+                    key=lambda x: x.rank,
+                    reverse=False if direction == 1 else True
+                )[0]
 
-            blocked_file += filemod
-            blocked_rank += rankmod
+            # direction is 3 or 7
+            else:
+                return sorted(
+                    (
+                        piece for piece in
+                        self.pieces_by_backward_diagonal[(_file, rank)] if (
+                            piece.rank > rank if direction == 7 else
+                            piece.rank < rank
+                        )
+                    ),
+                    key=lambda x: x.rank,
+                    reverse=False if direction == 7 else True
+                )[0]
 
-        return (None, None)
+        # IndexError is raised when the sorted list of blocking pieces we build
+        # above is empty - that is, there is no blocking piece.
+        except IndexError:
+            return
 
     def _set_actual_moves_cache(self, piece):
         """Set the actual_moves cache of the given piece."""
