@@ -105,7 +105,7 @@ class TestGenerateDiagonals(unittest.TestCase):
 
 
 class TestFirstBlockedSpaceFrom(unittest.TestCase):
-    """Test the first_blocked_move_from method of the game class."""
+    """Test the first_blocked_space_from method of the game class."""
     mods = (
         (0, 1),
         (1, 1),
@@ -151,6 +151,7 @@ class TestFirstBlockedSpaceFrom(unittest.TestCase):
         """
         p = Pawn(White, _file, rank)
         self.c._hard_place_piece(p)
+        self.circling_pawns.append(p)
 
         for filemod, rankmod in self.mods:
             try:
@@ -199,9 +200,24 @@ class TestFirstBlockedSpaceFrom(unittest.TestCase):
                         ),
                         expected.pop(0)
                     )
+                self.tearDown()
 
     def test_all_directions_circling_piece(self):
         """Test all directions as one Pawn circles."""
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            for radius in range(1, 8):
+                for direction, expected in enumerate(
+                    self.circle_piece(_file, rank, radius)
+                ):
+                    self.assertEqual(
+                        self.c.first_blocked_space_from(
+                            _file,
+                            rank,
+                            direction
+                        ),
+                        expected
+                    )
+                self.tearDown()
 
     def test_all_directions_layered(self):
         """Test two layers of blocking pieces."""
