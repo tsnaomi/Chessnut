@@ -182,7 +182,7 @@ class Pawn(Piece):
     def generate_naive_cache(self):
         """Generate the Pawn's naive caches.
 
-        The pawn in unique in that it must generate two caches, rather than
+        The pawn is unique in that it must generate two caches, rather than
         one, but the situations in which each cache must be regenerated are
         identical.
         """
@@ -203,17 +203,24 @@ class Pawn(Piece):
     def generate_actual_cache(self, game):
         """Generate the Pawn's actual caches.
 
-        The pawn in unique in that it must generate two caches, rather than
+        The pawn is unique in that it must generate two caches, rather than
         one, but the situations in which each cache must be regenerated are
         identical.
         """
         self.actual_moves.clear()
-        for _file, rank in self.naive_moves:
+        rank_move = self.rank + (1 if self.player is White else -1)
+        if not (
+            game.pieces_by_file[self.file] &
+            game.pieces_by_rank[rank_move]
+        ):
+            self.actual_moves.add((self.file, rank_move))
+
+            rank_move = rank_move + (1 if self.player is White else -1)
             if not (
-                game.pieces_by_file[_file] &
-                game.pieces_by_rank[rank]
+                game.pieces_by_file[self.file] &
+                game.pieces_by_rank[rank_move]
             ):
-                self.actual_moves.add((_file, rank))
+                self.actual_moves.add((self.file, rank_move))
 
         self.actual_captures.clear()
         for _file, rank in self.naive_captures:
@@ -253,6 +260,15 @@ class Rook(Piece):
         """Generate the Rook's naive_moves cache."""
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_horizontal_moves())
+
+    def generate_actual_cache(self, game):
+        """Generate the Rook's actual_moves cache."""
+        for direction in range(0, 8, 2):
+            block_file, block_rank = game.first_blocked_space_from(
+                self.file,
+                self.rank,
+                direction
+            )
 
     def move_to(self, _file, rank):
         """Move this rook to the file and rank provided, regenerate its
