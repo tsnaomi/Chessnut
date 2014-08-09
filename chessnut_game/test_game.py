@@ -186,22 +186,6 @@ class TestFirstBlockedSpaceFrom(unittest.TestCase):
                 )
                 self.c._hard_remove_piece(p)
 
-    def test_all_directions_surrounded(self):
-        """Test all directions when surrounded by pawns."""
-        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
-            for radius in range(1, 8):
-                expected = self.surround_piece(_file, rank, radius)
-                for direction in range(8):
-                    self.assertEqual(
-                        self.c.first_blocked_space_from(
-                            _file,
-                            rank,
-                            direction
-                        ),
-                        expected.pop(0)
-                    )
-                self.tearDown()
-
     def test_all_directions_circling_piece(self):
         """Test all directions as one Pawn circles."""
         for _file, rank in ((f, r) for f in range(8) for r in range(8)):
@@ -219,11 +203,53 @@ class TestFirstBlockedSpaceFrom(unittest.TestCase):
                     )
                 self.tearDown()
 
+    def test_all_directions_surrounded(self):
+        """Test all directions when surrounded by pawns."""
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            for radius in range(1, 8):
+                expected = self.surround_piece(_file, rank, radius)
+                for direction in range(8):
+                    self.assertEqual(
+                        self.c.first_blocked_space_from(
+                            _file,
+                            rank,
+                            direction
+                        ),
+                        expected.pop(0)
+                    )
+                self.tearDown()
+
     def test_all_directions_layered(self):
         """Test two layers of blocking pieces."""
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            self.surround_piece(_file, rank, 2)
+            expected = self.surround_piece(_file, rank, 1)
+            for direction in range(8):
+                self.assertEqual(
+                    self.c.first_blocked_space_from(
+                        _file,
+                        rank,
+                        direction
+                    ),
+                    expected.pop(0)
+                )
+            self.tearDown()
 
     def test_all_directions_staggered(self):
         """Test two staggered circles of pieces."""
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            self.surround_piece(_file, rank, 3)
+            expected = self.surround_piece(_file, rank, 1)
+            for direction in range(8):
+                self.assertEqual(
+                    self.c.first_blocked_space_from(
+                        _file,
+                        rank,
+                        direction
+                    ),
+                    expected.pop(0)
+                )
+            self.tearDown()
 
 
 if __name__ == '__main__':
