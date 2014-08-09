@@ -136,7 +136,7 @@ class Pawn(Piece):
     and move logic are different), and track whether they have moved, to
     determine whether they're allowed to move two spaces.
     """
-    def __init__(self, player=None, _file=None, rank=None):
+    def __init__(self, *args, **kwargs):
         # Store a separate move set for captures, as pawns have separate
         # capture and move logic. Because generate_naive_cache is called
         # in the super call below, these attributes must be instantiated
@@ -152,7 +152,8 @@ class Pawn(Piece):
         # move two spaces forward is legal.
         self.has_moved = False
 
-        super(Pawn, self).__init__(player, _file, rank, same_logic=False)
+        kwargs.setdefault('same_logic', False)
+        super(Pawn, self).__init__(*args, **kwargs)
 
     def move_to(self, _file, rank):
         """In addition to moving the Pawn, set has_moved to True."""
