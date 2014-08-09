@@ -1,5 +1,5 @@
 import unittest
-from test_pieces import *
-from test_game import *
+from .pieces import *
+from .game import *
 
 unittest.main()
