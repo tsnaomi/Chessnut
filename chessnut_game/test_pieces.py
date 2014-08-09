@@ -355,7 +355,10 @@ class TestPawn(unittest.TestCase):
                     self.assertEqual(pawn.naive_captures, expected_spaces)
 
     def test_generate_actual_cache_actual_moves(self):
-        """Assert that the actual_moves cache is correctly generated."""
+        """Assert that the actual_moves cache is correctly generated even
+        when various naive_moves locations are blocked by friendly and enemy
+        pieces.
+        """
         for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for pawn in (self.pW, self.pB):
                 for has_moved in (True, False):
@@ -367,6 +370,37 @@ class TestPawn(unittest.TestCase):
 
                     for i in range(len(pawn.naive_moves)):
                         for spaces in combinations(pawn.naive_moves, i):
+                            for player in (Black, White):
+                                game = ChessnutGame()
+                                for _file, rank in spaces:
+                                    blocking_piece = Pawn(
+                                        player,
+                                        _file,
+                                        rank,
+                                    )
+                                    game._hard_place_piece(blocking_piece)
+
+                                pawn.generate_actual_cache(game)
+
+                                for space in pawn.actual_moves:
+                                    self.assertIn(space, pawn.naive_moves)
+                                    self.assertNotIn(space, spaces)
+
+    def test_generate_actual_cache_actual_captures_blockers(self):
+        """Assert that the actual_captures cache is correctly generated even
+        when various naive_captures locations are blocked by friendly pieces.
+        """
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            for pawn in (self.pW, self.pB):
+                for has_moved in (True, False):
+                    pawn.file = _file
+                    pawn.rank = rank
+                    pawn.has_moved = has_moved
+
+                    pawn.generate_naive_cache()
+
+                    for i in range(len(pawn.naive_captures)):
+                        for spaces in combinations(pawn.naive_captures, i):
                             game = ChessnutGame()
                             for _file, rank in spaces:
                                 blocking_piece = Pawn(
@@ -378,9 +412,37 @@ class TestPawn(unittest.TestCase):
 
                             pawn.generate_actual_cache(game)
 
-                            for space in pawn.actual_moves:
-                                self.assertIn(space, pawn.naive_moves)
-                                self.assertNotIn(space, spaces)
+                            self.assertEqual(set(), pawn.actual_captures)
+
+    def test_generate_actual_cache_actual_captures_enemies(self):
+        """Assert that the actual_captures cache is correctly generated even
+        when various naive_captures locations are occupied by enemy pieces.
+        """
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            for pawn in (self.pW, self.pB):
+                for has_moved in (True, False):
+                    pawn.file = _file
+                    pawn.rank = rank
+                    pawn.has_moved = has_moved
+
+                    pawn.generate_naive_cache()
+
+                    for i in range(len(pawn.naive_captures)):
+                        for spaces in combinations(pawn.naive_captures, i):
+                            game = ChessnutGame()
+                            for _file, rank in spaces:
+                                blocking_piece = Pawn(
+                                    not pawn.player,
+                                    _file,
+                                    rank,
+                                )
+                                game._hard_place_piece(blocking_piece)
+
+                            pawn.generate_actual_cache(game)
+
+                            for space in pawn.actual_captures:
+                                self.assertIn(space, pawn.naive_captures)
+                                self.assertIn(space, spaces)
 
 
 class TestRook(unittest.TestCase):
