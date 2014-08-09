@@ -376,7 +376,7 @@ class TestPawn(unittest.TestCase):
                                     _file,
                                     rank,
                                 )
-                                game._place_piece(blocking_piece)
+                                game._hard_place_piece(blocking_piece)
 
                             pawn._generate_actual_cache(game)
 
@@ -440,19 +440,19 @@ class TestKnight(unittest.TestCase):
                             (piece.file + filemod, piece.rank + rankmod)
                         )
 
-                piece._generate_naive_cache()
+                piece.generate_naive_cache()
 
                 self.assertEqual(piece.naive_moves, expected_spaces)
 
-    def test_generate_actual_cache_blocked(self):
-        """Assert that the actual_moves cache is correctly generated when
-        various naive_moves locations are blocked by friendly pieces.
+    def test_generate_actual_cache_blockers(self):
+        """Assert that the actual_moves cache is correctly generated even
+        when various naive_moves locations are blocked by friendly pieces.
         """
         for _file, rank in ((f, r) for f in range(8) for r in range(8)):
             for piece in (self.pW, self.pB):
                 piece.file = _file
                 piece.rank = rank
-                piece._generate_naive_cache()
+                piece.generate_naive_cache()
 
                 for i in range(len(piece.naive_moves)):
                     for spaces in combinations(piece.naive_moves, i):
@@ -463,13 +463,38 @@ class TestKnight(unittest.TestCase):
                                 _file,
                                 rank,
                             )
-                            game._place_piece(blocking_piece)
+                            game._hard_place_piece(blocking_piece)
 
-                        piece._generate_actual_cache(game)
+                        piece.generate_actual_cache(game)
 
                         for space in piece.actual_moves:
                             self.assertIn(space, piece.naive_moves)
                             self.assertNotIn(space, spaces)
+
+    def test_generate_actual_cache_enemies(self):
+        """Assert that the actual_moves cache is correctly generated even
+        when various naive_moves locations are occupied by enemy pieces.
+        """
+        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+            for piece in (self.pW, self.pB):
+                piece.file = _file
+                piece.rank = rank
+                piece.generate_naive_cache()
+
+                for i in range(len(piece.naive_moves)):
+                    for spaces in combinations(piece.naive_moves, i):
+                        game = ChessnutGame()
+                        for _file, rank in spaces:
+                            blocking_piece = Pawn(
+                                not piece.player,
+                                _file,
+                                rank,
+                            )
+                            game._hard_place_piece(blocking_piece)
+
+                        piece.generate_actual_cache(game)
+
+                        self.assertEqual(piece.naive_moves, piece.actual_moves)
 
 
 class TestBishop(unittest.TestCase):
