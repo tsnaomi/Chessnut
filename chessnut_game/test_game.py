@@ -104,7 +104,7 @@ class TestGenerateDiagonals(unittest.TestCase):
         """Test the _generate_backward_diagonal method."""
 
 
-class TestFirstBlockedMoveFrom(unittest.TestCase):
+class TestFirstBlockedSpaceFrom(unittest.TestCase):
     """Test the first_blocked_move_from method of the game class."""
     mods = (
         (0, 1),
