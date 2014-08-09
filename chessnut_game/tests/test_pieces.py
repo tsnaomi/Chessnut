@@ -1,9 +1,8 @@
 import unittest
 from mock import patch
-from game import Black, White
-from pieces import Piece, Pawn, Rook, Knight, Bishop, Queen, King
-from game import ChessnutGame
 from itertools import combinations
+from chessnut_game.game import Black, White, ChessnutGame
+from chessnut_game.pieces import Piece, Pawn, Rook, Knight, Bishop, Queen, King
 
 
 def generate_diagonal_spaces(_file, rank):

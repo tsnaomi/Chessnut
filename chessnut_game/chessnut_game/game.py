@@ -1,5 +1,5 @@
-from pieces import Pawn, Rook, Knight, Bishop, Queen, King
-from chessnut_exceptions import BoardIndexError
+from chessnut_game.pieces import Pawn, Rook, Knight, Bishop, Queen, King
+from chessnut_game.exceptions import BoardIndexError
 
 # Module-level constants representing which player's turn it is.
 White = True

@@ -1,7 +1,7 @@
 import unittest
-from game import ChessnutGame, Black, White
-from pieces import Pawn, Rook, Knight, Bishop, Queen, King
-from chessnut_exceptions import BoardIndexError
+from chessnut_game.game import ChessnutGame, Black, White
+from chessnut_game.pieces import Pawn, Rook, Knight, Bishop, Queen, King
+from chessnut_game.exceptions import BoardIndexError
 
 
 def build_forward_diagonal(_file, rank):
