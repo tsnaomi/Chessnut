@@ -216,7 +216,7 @@ class Pawn(Piece):
             self.actual_moves.add((self.file, rank_move))
 
             rank_move = rank_move + (1 if self.player is White else -1)
-            if not (
+            if not self.has_moved and not (
                 game.pieces_by_file[self.file] &
                 game.pieces_by_rank[rank_move]
             ):
