@@ -80,7 +80,7 @@ class TestPiece(unittest.TestCase):
         dest_file = 1
         dest_rank = 1
         for piece in (self.pW, self.pB):
-            with patch.object(Piece, '_generate_naive_cache') as mock_method:
+            with patch.object(Piece, 'generate_naive_cache') as mock_method:
                 mock_method.return_value = None
                 piece.move_to(dest_file, dest_rank)
 
@@ -299,8 +299,6 @@ class TestPawn(unittest.TestCase):
         correctly rebound by the Pawn constructor.
         """
         for pawn in (self.pW, self.pB):
-            self.assertEqual(pawn.can_capture_to, pawn._can_capture_to)
-            self.assertEqual(pawn.in_naive_captures, pawn._in_naive_captures)
             self.assertNotEqual(pawn.can_move_to, pawn.can_capture_to)
             self.assertNotEqual(pawn.in_naive_captures, pawn.in_naive_moves)
 
@@ -325,7 +323,7 @@ class TestPawn(unittest.TestCase):
                         if not pawn.has_moved and pawn.rank > 1:
                             expected_spaces.add((_file, rank - 2))
 
-                    pawn._generate_naive_cache()
+                    pawn.generate_naive_cache()
 
                     self.assertEqual(pawn.naive_moves, expected_spaces)
 
@@ -352,7 +350,7 @@ class TestPawn(unittest.TestCase):
                             if pawn.file < 7:
                                 expected_spaces.add((_file + 1, rank - 1))
 
-                    pawn._generate_naive_cache()
+                    pawn.generate_naive_cache()
 
                     self.assertEqual(pawn.naive_captures, expected_spaces)
 
@@ -365,7 +363,7 @@ class TestPawn(unittest.TestCase):
                     pawn.rank = rank
                     pawn.has_moved = has_moved
 
-                    pawn._generate_naive_cache()
+                    pawn.generate_naive_cache()
 
                     for i in range(len(pawn.naive_moves)):
                         for spaces in combinations(pawn.naive_moves, i):
@@ -378,7 +376,7 @@ class TestPawn(unittest.TestCase):
                                 )
                                 game._hard_place_piece(blocking_piece)
 
-                            pawn._generate_actual_cache(game)
+                            pawn.generate_actual_cache(game)
 
                             for space in pawn.actual_moves:
                                 self.assertIn(space, pawn.naive_moves)
@@ -403,7 +401,7 @@ class TestRook(unittest.TestCase):
                 expected_spaces.update(
                     (f, rank) for f in range(8) if f != _file)
 
-                piece._generate_naive_cache()
+                piece.generate_naive_cache()
 
                 self.assertEqual(piece.naive_moves, expected_spaces)
 
@@ -515,7 +513,7 @@ class TestBishop(unittest.TestCase):
                     for f, r in generate_diagonal_spaces(_file, rank)
                 )
 
-                piece._generate_naive_cache()
+                piece.generate_naive_cache()
 
                 self.assertEqual(piece.naive_moves, expected_spaces)
 
