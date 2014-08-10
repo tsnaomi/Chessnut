@@ -27,9 +27,9 @@ class Piece(object):
         self.naive_moves = set()
 
         # Store a set containing all of the spaces on the board to which
-        # this piece can ACTUALLY move, given the state of the board. This
-        # attribute is set by the game object, as the piece does not know
-        # about the positions of other pieces on its own.
+        # this piece can ACTUALLY move, given the state of the board. The
+        # piece needs access to the game oject in order to generate this
+        # cache.
         self.actual_moves = set()
 
         # Bind can_capture_to to can_move_to and in_naive_captures to
