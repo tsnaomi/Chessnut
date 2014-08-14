@@ -1,5 +1,9 @@
+print __name__
+
 import unittest
-from chessnut_game.game import ChessnutGame, Black, White
+from ..utils.functions import circle_space, surround_space
+from ..utils.decorators import all_players, all_spaces, all_piece_types
+from chessnut_game import ChessnutGame, Black, White
 from chessnut_game.pieces import Pawn, Rook, Knight, Bishop, Queen, King
 from chessnut_game.exceptions import BoardIndexError
 
@@ -106,150 +110,76 @@ class TestGenerateDiagonals(unittest.TestCase):
 
 class TestFirstBlockingPiece(unittest.TestCase):
     """Test the first_blocking_piece method of the game class."""
-    mods = (
-        (0, 1),
-        (1, 1),
-        (1, 0),
-        (1, -1),
-        (0, -1),
-        (-1, -1),
-        (-1, 0),
-        (-1, 1)
-    )
+    game = ChessnutGame()
 
-    c = ChessnutGame()
+    @all_spaces
+    def test_empty_board(self, _file=None, rank=None):
+        """Test an empty board from the given space."""
+        for direction in range(8):
+            self.assertIsNone(
+                self.game.first_blocking_piece(_file, rank, direction)
+            )
 
-    def setUp(self):
-        self.circling_pawns = []
-
-    def clear_circling_pawns(self):
-        for pawn in self.circling_pawns:
-            self.c._hard_remove_piece(pawn)
-        self.circling_pawns = []
-
-    def surround_piece(self, _file, rank, radius):
-        """Create a circle of Pawns around the the given file and rank.
-        Return a list of Pawns placed, or None if they would be off-board,
-        in clockwise order.
-        """
-        placed = []
-        for filemod, rankmod in self.mods:
-            p = Pawn(White, _file + radius * filemod, rank + radius * rankmod)
-            try:
-                self.c._hard_place_piece(p)
-                placed.append(p)
-                self.circling_pawns.append(p)
-
-            except BoardIndexError:
-                placed.append(None)
-
-        return placed
-
-    def circle_piece(self, _file, rank, radius):
-        """Create a single Pawn that circles the given file and rank.
-        Yield the Pawn as it circles, or None if it would go off-board.
-        """
-        p = Pawn(White, _file, rank)
-        self.c._hard_place_piece(p)
-        self.circling_pawns.append(p)
-
-        for filemod, rankmod in self.mods:
-            try:
-                self.c.move_piece(
-                    p,
-                    _file + radius * filemod,
-                    rank + radius * rankmod
-                )
-                yield p
-
-            except BoardIndexError:
-                yield
-
-    def test_empty_board(self):
-        """Test an empty board."""
-        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
-            for direction in range(8):
-                self.assertIs(
-                    self.c.first_blocking_piece(_file, rank, direction),
-                    None
-                )
-
-    def test_all_pieces(self):
+    @all_players
+    @all_piece_types
+    def test_all_pieces(self, piece=None, player=None):
         """Assert that each type of piece in each color can block spaces."""
-        for piece in (Pawn, Rook, Knight, Bishop, Queen, King):
-            for color in (Black, White):
-                p = piece(color, 4, 5)
-                self.c._hard_place_piece(p)
+        pc = piece(player, 4, 5)
+        game = ChessnutGame()
+        game._hard_place_piece(pc)
+        self.assertIs(
+            game.first_blocking_piece(4, 4, 0),
+            pc
+        )
+
+    @all_spaces
+    def test_all_directions_circling_piece(self, _file=None, rank=None):
+        """Test all directions as one Pawn circles the given space."""
+        for radius in range(1, 8):
+            game = ChessnutGame()
+            for direction, expected in enumerate(
+                circle_space(game, _file, rank, radius)
+            ):
                 self.assertIs(
-                    self.c.first_blocking_piece(4, 4, 0),
-                    p
+                    game.first_blocking_piece(_file, rank, direction),
+                    expected
                 )
-                self.c._hard_remove_piece(p)
 
-    def test_all_directions_circling_piece(self):
-        """Test all directions as one Pawn circles."""
-        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
-            for radius in range(1, 8):
-                for direction, expected in enumerate(
-                    self.circle_piece(_file, rank, radius)
-                ):
-                    self.assertIs(
-                        self.c.first_blocking_piece(
-                            _file,
-                            rank,
-                            direction
-                        ),
-                        expected
-                    )
-                self.clear_circling_pawns()
-
-    def test_all_directions_surrounded(self):
-        """Test all directions when surrounded by pawns."""
-        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
-            for radius in range(1, 8):
-                expected = self.surround_piece(_file, rank, radius)
-                for direction in range(8):
-                    self.assertIs(
-                        self.c.first_blocking_piece(
-                            _file,
-                            rank,
-                            direction
-                        ),
-                        expected.pop(0)
-                    )
-                self.clear_circling_pawns()
-
-    def test_all_directions_layered(self):
-        """Test two layers of blocking pieces."""
-        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
-            self.surround_piece(_file, rank, 2)
-            expected = self.surround_piece(_file, rank, 1)
+    @all_spaces
+    def test_all_directions_surrounded(self, _file=None, rank=None):
+        """Test all directions when the given space is surrounded by Pawns."""
+        for radius in range(1, 8):
+            game = ChessnutGame()
+            expected = surround_space(game, _file, rank, radius)
             for direction in range(8):
                 self.assertIs(
-                    self.c.first_blocking_piece(
-                        _file,
-                        rank,
-                        direction
-                    ),
+                    game.first_blocking_piece(_file, rank, direction),
                     expected.pop(0)
                 )
-            self.clear_circling_pawns()
 
-    def test_all_directions_staggered(self):
+    @all_spaces
+    def test_all_directions_layered(self, _file=None, rank=None):
+        """Test two layers of blocking Pawns from the given space."""
+        game = ChessnutGame()
+        surround_space(game, _file, rank, 2)
+        expected = surround_space(game, _file, rank, 1)
+        for direction in range(8):
+            self.assertIs(
+                game.first_blocking_piece(_file, rank, direction),
+                expected.pop(0)
+            )
+
+    @all_spaces
+    def test_all_directions_staggered(self, _file=None, rank=None):
         """Test two staggered circles of pieces."""
-        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
-            self.surround_piece(_file, rank, 3)
-            expected = self.surround_piece(_file, rank, 1)
-            for direction in range(8):
-                self.assertIs(
-                    self.c.first_blocking_piece(
-                        _file,
-                        rank,
-                        direction
-                    ),
-                    expected.pop(0)
-                )
-            self.clear_circling_pawns()
+        game = ChessnutGame()
+        surround_space(game, _file, rank, 3)
+        expected = surround_space(game, _file, rank, 1)
+        for direction in range(8):
+            self.assertIs(
+                game.first_blocking_piece(_file, rank, direction),
+                expected.pop(0)
+            )
 
 
 if __name__ == '__main__':
