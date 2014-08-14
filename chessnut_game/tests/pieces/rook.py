@@ -1,87 +1,86 @@
 import unittest
+from ..utils.decorators import all_players, all_spaces
 from itertools import combinations
-from chessnut_game.game import Black, White, ChessnutGame
+from chessnut_game import ChessnutGame
 from chessnut_game.pieces import Rook, Pawn
+
+rook = Rook()
 
 
 class TestRook(unittest.TestCase):
     """Test the Rook class."""
-    def setUp(self):
-        self.pW = Rook(White, 0, 0)
-        self.pB = Rook(Black, 0, 7)
-
-    def test_generate_naive_cache(self):
-        """Assert that the naive_moves cache is correctly generated."""
-        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
-            for piece in (self.pW, self.pB):
-                piece.file = _file
-                piece.rank = rank
-
-                expected_spaces = set(
-                    (_file, r) for r in range(8) if r != rank)
-                expected_spaces.update(
-                    (f, rank) for f in range(8) if f != _file)
-
-                piece.generate_naive_cache()
-
-                self.assertEqual(piece.naive_moves, expected_spaces)
-
-    def test_move_to(self):
-        """Assert that move_to marks these pieces as having moved."""
-        for piece in (self.pW, self.pB):
-            self.assertFalse(piece.has_moved)
-            piece.move_to(0, 1)
-            self.assertTrue(piece.has_moved)
-            self.assertEqual(piece.file, 0)
-            self.assertEqual(piece.rank, 1)
-
-    def test_generate_actual_cache_blockers(self):
-        """Assert that the actual_moves cache is correctly generated even
-        when various naive_moves paths are blocked by friendly pieces.
+    @all_spaces
+    @all_players
+    def test_generate_naive_cache(self, player=None, _file=None, rank=None):
+        """Assert that the naive_moves cache is correctly generated from
+        the given space for the given player.
         """
-        for _file, rank in ((f, r) for f in range(8) for r in range(8)):
-            for piece in (self.pW, self.pB):
-                piece.file = _file
-                piece.rank = rank
-                piece.generate_naive_cache()
+        rook.player = player
+        rook.file = _file
+        rook.rank = rank
+        rook.generate_naive_cache()
 
-                for i in range(len(piece.naive_moves)):
-                    for spaces in combinations(piece.naive_moves, i):
-                        game = ChessnutGame()
-                        for block_file, block_rank in spaces:
-                            blocking_piece = Pawn(
-                                piece.player,
-                                block_file,
-                                block_rank,
-                            )
-                            game._hard_place_piece(blocking_piece)
+        expected_spaces = set(
+            (_file, r) for r in range(8) if r != rank)
+        expected_spaces.update(
+            (f, rank) for f in range(8) if f != _file)
 
-                        piece.generate_actual_cache(game)
+        self.assertEqual(rook.naive_moves, expected_spaces)
 
-                        blocker_0 = game.first_blocking_piece(_file, rank, 0)
-                        blocker_2 = game.first_blocking_piece(_file, rank, 2)
-                        blocker_4 = game.first_blocking_piece(_file, rank, 4)
-                        blocker_6 = game.first_blocking_piece(_file, rank, 6)
 
-                        for space in piece.actual_moves:
-                            self.assertIn(space, piece.naive_moves)
-                            to_file, to_rank = space
-                            self.assertTrue(
-                                (to_file == piece.file) !=
-                                (to_rank == piece.rank)
-                            )
-                            if to_file == piece.file:
-                                self.assertTrue(
-                                    -1 if blocker_4 is None else blocker_4.rank
-                                    < to_rank <
-                                    8 if blocker_0 is None else blocker_0.rank
-                                )
-                            elif to_rank == piece.rank:
-                                self.assertTrue(
-                                    -1 if blocker_6 is None else blocker_6.file
-                                    < to_file <
-                                    8 if blocker_2 is None else blocker_2.file
-                                )
+    @all_spaces
+    @all_players
+    def test_generate_actual_cache_blockers(
+        self,
+        player=None,
+        _file=None,
+        rank=None
+    ):
+        """Assert that the actual_moves cache is correctly generated from
+        the given space for the given player even when various naive_moves
+        paths are blocked by friendly pieces.
+        """
+        piece.file = _file
+        piece.rank = rank
+        piece.generate_naive_cache()
+
+        for i in range(len(piece.naive_moves)):
+            for spaces in combinations(piece.naive_moves, i):
+                game = ChessnutGame()
+                for block_file, block_rank in spaces:
+                    blocking_piece = Pawn(
+                        piece.player,
+                        block_file,
+                        block_rank,
+                    )
+                    game._hard_place_piece(blocking_piece)
+
+                piece.generate_actual_cache(game)
+
+                blocker_0 = game.first_blocking_piece(_file, rank, 0)
+                blocker_2 = game.first_blocking_piece(_file, rank, 2)
+                blocker_4 = game.first_blocking_piece(_file, rank, 4)
+                blocker_6 = game.first_blocking_piece(_file, rank, 6)
+
+                for space in piece.actual_moves:
+                    self.assertIn(space, piece.naive_moves)
+                    to_file, to_rank = space
+                    self.assertTrue(
+                        (to_file == piece.file) !=
+                        (to_rank == piece.rank)
+                    )
+                    if to_file == piece.file:
+                        self.assertTrue(
+                            -1 if blocker_4 is None else blocker_4.rank
+                            < to_rank <
+                            8 if blocker_0 is None else blocker_0.rank
+                        )
+                    elif to_rank == piece.rank:
+                        self.assertTrue(
+                            -1 if blocker_6 is None else blocker_6.file
+                            < to_file <
+                            8 if blocker_2 is None else blocker_2.file
+                        )
 
     def test_generate_actual_cache_enemies(self):
         """Assert that the actual_moves cache is correctly generated even
