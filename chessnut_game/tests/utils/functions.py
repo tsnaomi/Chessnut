@@ -1,20 +1,9 @@
-"""Helper functions for tests."""
+"""Helper functions for use in tests."""
 
+from .constants import direction_modifiers
 from chessnut_game import White
 from chessnut_game.pieces import Pawn
 from chessnut_game.exceptions import BoardIndexError
-
-# Modifiers for movement in directions 0 through 7, in order.
-direction_modifiers = (
-    (0, 1),
-    (1, 1),
-    (1, 0),
-    (1, -1),
-    (0, -1),
-    (-1, -1),
-    (-1, 0),
-    (-1, 1)
-)
 
 
 def surround_space(game, _file, rank, radius, piece=Pawn, player=White):
