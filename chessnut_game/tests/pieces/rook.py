@@ -48,11 +48,11 @@ class TestRook(unittest.TestCase):
                 for i in range(len(piece.naive_moves)):
                     for spaces in combinations(piece.naive_moves, i):
                         game = ChessnutGame()
-                        for _file, rank in spaces:
+                        for block_file, block_rank in spaces:
                             blocking_piece = Pawn(
                                 piece.player,
-                                _file,
-                                rank,
+                                block_file,
+                                block_rank,
                             )
                             game._hard_place_piece(blocking_piece)
 
@@ -66,15 +66,21 @@ class TestRook(unittest.TestCase):
                         for space in piece.actual_moves:
                             self.assertIn(space, piece.naive_moves)
                             to_file, to_rank = space
+                            self.assertTrue(
+                                (to_file == piece.file) !=
+                                (to_rank == piece.rank)
+                            )
                             if to_file == piece.file:
                                 self.assertTrue(
-                                    8 if blocker_0 is None else blocker_0.rank
-                                    < to_rank <
                                     -1 if blocker_4 is None else blocker_4.rank
+                                    < to_rank <
+                                    8 if blocker_0 is None else blocker_0.rank
                                 )
                             elif to_rank == piece.rank:
                                 self.assertTrue(
-                                    blocker_6.file < to_file < blocker_2.file
+                                    -1 if blocker_6 is None else blocker_6.file
+                                    < to_file <
+                                    8 if blocker_2 is None else blocker_2.file
                                 )
 
     def test_generate_actual_cache_enemies(self):
