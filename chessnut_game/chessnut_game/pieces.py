@@ -13,7 +13,7 @@ class Piece(object):
     (regardless of the legality of that move), and is consulted by the game
     to cache the spaces on the board to which it can actually move.
     """
-    def __init__(self, player=None, _file=None, rank=None, same_logic=True):
+    def __init__(self, player=White, _file=0, rank=0, same_logic=True):
         """Initialize the attributes of this Piece."""
         # Keep track of whose piece this is and where it is on the board.
         self.player = player
