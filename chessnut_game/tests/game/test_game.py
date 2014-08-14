@@ -3,9 +3,7 @@ print __name__
 import unittest
 from ..utils.functions import circle_space, surround_space
 from ..utils.decorators import all_players, all_spaces, all_piece_types
-from chessnut_game import ChessnutGame, Black, White
-from chessnut_game.pieces import Pawn, Rook, Knight, Bishop, Queen, King
-from chessnut_game.exceptions import BoardIndexError
+from chessnut_game import ChessnutGame
 
 
 def build_forward_diagonal(_file, rank):
