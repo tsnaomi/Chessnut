@@ -19,15 +19,11 @@ knight_modifiers = (
 
 class TestKnight(unittest.TestCase):
     """Test the Knight class."""
-    @all_spaces
-    @all_players
-    def test_generate_naive_cache(self, player=None, _file=None, rank=None):
+    @all_spaces(knight)
+    @all_players(knight)
+    def test_generate_naive_cache(self, knight=None):
         """Assert that the naive_moves cache is correctly generated from
         the given space."""
-        knight.player = player
-        knight.file = _file
-        knight.rank = rank
-
         expected_spaces = set()
         for filemod, rankmod in knight_modifiers:
             if 0 <= knight.file + filemod <= 7 and \
@@ -40,21 +36,13 @@ class TestKnight(unittest.TestCase):
 
         self.assertEqual(knight.naive_moves, expected_spaces)
 
-    @all_spaces
-    @all_players
-    def test_generate_actual_cache_blockers(
-        self,
-        player=None,
-        _file=None,
-        rank=None
-    ):
+    @all_spaces(knight)
+    @all_players(knight)
+    def test_generate_actual_cache_blockers(self, knight=None):
         """Assert that the actual_moves cache is correctly generated from
         the given space even when various naive_moves locations are blocked
         by friendly pieces.
         """
-        knight.player = player
-        knight.file = _file
-        knight.rank = rank
         knight.generate_naive_cache()
 
         for i in range(len(knight.naive_moves)):
@@ -71,21 +59,13 @@ class TestKnight(unittest.TestCase):
                     self.assertIn(space, knight.naive_moves)
                     self.assertNotIn(space, spaces)
 
-    @all_spaces
-    @all_players
-    def test_generate_actual_cache_enemies(
-        self,
-        player=None,
-        _file=None,
-        rank=None
-    ):
+    @all_spaces(knight)
+    @all_players(knight)
+    def test_generate_actual_cache_enemies(self, knight=None):
         """Assert that the actual_moves cache is correctly generated from
         the given space even when various naive_moves locations are occupied
         by enemy pieces.
         """
-        knight.player = player
-        knight.file = _file
-        knight.rank = rank
         knight.generate_naive_cache()
 
         for i in range(len(knight.naive_moves)):
