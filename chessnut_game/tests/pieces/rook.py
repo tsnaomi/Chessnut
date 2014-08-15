@@ -23,6 +23,7 @@ class TestRook(unittest.TestCase):
             (f, rook.rank) for f in range(8) if f != rook.file)
 
         self.assertEqual(rook.naive_moves, expected_spaces)
+        print rook.player, rook.file, rook.rank
 
     @all_spaces(rook)
     @all_players(rook)
