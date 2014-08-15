@@ -38,6 +38,18 @@ class TestKnight(unittest.TestCase):
 
     @all_spaces(knight)
     @all_players(knight)
+    def test_generate_actual_cache_empty_board(self, knight=None):
+        """Assert that the actual_moves cache is identical to the naive_moves
+        cache in the case of an empty board.
+        """
+        game = ChessnutGame()
+        self.assertEqual(
+            knight.generate_naive_cache(),
+            knight.generate_actual_cache(game)
+        )
+
+    @all_spaces(knight)
+    @all_players(knight)
     def test_generate_actual_cache_blockers(self, knight=None):
         """Assert that the actual_moves cache is correctly generated from
         the given space even when various naive_moves locations are blocked
