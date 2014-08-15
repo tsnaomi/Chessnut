@@ -63,7 +63,7 @@ def all_players(piece=None):
 def all_piece_types(test_method):
     """Run a test method with every type of piece.
 
-    Runs its wrapped method 7 times, once for each type of piece. Pieces are
+    Runs its wrapped method 6 times, once for each type of piece. Pieces are
     passed to the test method as a 'piece' keyword argument.
     """
     def wrapped_test_method(self, *args, **kwargs):
