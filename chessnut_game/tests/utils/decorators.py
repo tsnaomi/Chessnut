@@ -10,8 +10,8 @@ def all_spaces(test_method, piece=None):
     Runs its wrapped test method 64 times, once for each space on the board.
     If 'piece' is none, then 'rank' and '_file' are passed as keyword arguments
     to the wrapped test method. If 'piece' is not none, then the rank and file
-    are set on the piece, and the piece is passed as keyword argument 'piece'
-    to the test method.
+    are set on the piece, and the piece is passed as a keyword argument named
+    for the lowercased name of the piece class.
     """
     if piece is None:
         def wrapped_test_method(self, *args, **kwargs):
@@ -21,9 +21,9 @@ def all_spaces(test_method, piece=None):
     else:
         def wrapped_test_method(self, *args, **kwargs):
             for _file, rank in ((f, r) for f in range(8) for r in range(8)):
-                piece.file = _file
-                piece.rank = rank
-                test_method(self, *args, piece=piece, **kwargs)
+                piece.file, piece.rank = _file, rank
+                kwargs[piece.__class__.__name__.lower()] = piece
+                test_method(self, *args, **kwargs)
 
     return wrapped_test_method
 
@@ -34,8 +34,8 @@ def all_players(test_method, piece=None):
     Runs its wrapped test method twice, once for each player. If 'piece' is
     none, then 'player' is passed as a keyword argument to the wrapped test
     method. If 'piece' is not none, then the rank and file are set on the
-    piece, and the piece is passed as keyword argument 'piece' to the test
-    method.
+    piece, and the piece is passed as a keyword argument named for the
+    lowercased name of the piece class.
     """
     if piece is None:
         def wrapped_test_method(self, *args, **kwargs):
@@ -46,7 +46,8 @@ def all_players(test_method, piece=None):
         def wrapped_test_method(self, *args, **kwargs):
             for player in (Black, White):
                 piece.player = player
-                test_method(self, *args, piece=piece, **kwargs)
+                kwargs[piece.__class__.__name__.lower()] = piece
+                test_method(self, *args, **kwargs)
 
     return wrapped_test_method
 
