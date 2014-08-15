@@ -1,5 +1,5 @@
 import unittest
-from ..utils.decorators import all_players, all_spaces
+from ..utils.decorators import all_players, all_spaces, all_move_states
 from itertools import combinations
 from chessnut_game import ChessnutGame
 from chessnut_game.pieces import Rook, Pawn
@@ -11,6 +11,7 @@ class TestRook(unittest.TestCase):
     """Test the Rook class."""
     @all_spaces(rook)
     @all_players(rook)
+    @all_move_states(rook)
     def test_generate_naive_cache(self, rook=None):
         """Assert that the naive_moves cache is correctly generated from
         the given space for the given player.
@@ -26,6 +27,7 @@ class TestRook(unittest.TestCase):
 
     @all_spaces(rook)
     @all_players(rook)
+    @all_move_states(rook)
     def test_generate_actual_cache_empty_board(self, rook=None):
         """Assert that the actual_moves cache is identical to the naive_moves
         cache in the case of an empty board.
