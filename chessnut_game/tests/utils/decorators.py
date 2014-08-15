@@ -60,6 +60,23 @@ def all_players(piece=None):
     return wrap_test_method
 
 
+def all_move_states(piece):
+    """Run a test method for both move states of the specified piece.
+
+    Runs its wrapped test method twice, once for each value of piece.has_moved.
+    The piece is passed as a keyword argument named for the lowercased name
+    of the piece class.
+    """
+    def wrap_test_method(test_method):
+        def wrapped_test_method(self, *args, **kwargs):
+            for has_moved in (True, False):
+                piece.has_moved = has_moved
+                kwargs[piece.__class__.__name__.lower()] = piece
+                test_method(self, *args, **kwargs)
+        return wrapped_test_method
+    return wrap_test_method
+
+
 def all_piece_types(test_method):
     """Run a test method with every type of piece.
 
