@@ -39,9 +39,9 @@ def all_players(piece=None):
 
     Runs its wrapped test method twice, once for each player. If 'piece' is
     none, then 'player' is passed as a keyword argument to the wrapped test
-    method. If 'piece' is not none, then the rank and file are set on the
-    piece, and the piece is passed as a keyword argument named for the
-    lowercased name of the piece class.
+    method. If 'piece' is not none, then the player is set on the piece,
+    and the piece is passed as a keyword argument named for the lowercased
+    name of the piece class.
     """
     def wrap_test_method(test_method):
         if piece is None:
