@@ -1,4 +1,8 @@
-"""Decorators for use in wrapping test methods."""
+"""Decorators for use in tests.
+
+These decorators wrap test methods taking certain keywords arguments in
+order to repeat them under a variety of conditions.
+"""
 
 from chessnut_game import Black, White
 from chessnut_game.pieces import Pawn, Rook, Knight, Bishop, Queen, King
