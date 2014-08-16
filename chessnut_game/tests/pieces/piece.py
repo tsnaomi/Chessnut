@@ -2,7 +2,7 @@ import unittest
 from mock import patch
 from chessnut_game.game import Black, White
 from chessnut_game.pieces import Piece
-from .utils import generate_diagonal_spaces
+from ..utils.functions import generate_diagonal_spaces
 
 
 class TestPiece(unittest.TestCase):
