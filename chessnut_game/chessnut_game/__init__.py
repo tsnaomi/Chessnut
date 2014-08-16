@@ -1,4 +1,5 @@
-from .game import ChessnutGame, Black, White
+from .game import ChessnutGame
+from .constants import Black, White
 
 __all__ = (
     'ChessnutGame',

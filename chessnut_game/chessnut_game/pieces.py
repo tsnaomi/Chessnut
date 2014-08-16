@@ -1,6 +1,4 @@
-# Module-level constants representing which player's turn it is.
-White = True
-Black = False
+from chessnut_game.constants import White
 
 
 class Piece(object):
