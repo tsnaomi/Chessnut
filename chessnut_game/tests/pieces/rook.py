@@ -9,6 +9,13 @@ rook = Rook()
 
 class TestRook(unittest.TestCase):
     """Test the Rook class."""
+    def test_has_moved(self):
+        """Assert that the has_moved flag is set and unset as expected."""
+        rook = Rook()
+        self.assertFalse(rook.has_moved)
+        rook.generate_naive_cache()
+        self.assertTrue(rook.has_moved)
+
     @all_spaces(rook)
     @all_players(rook)
     @all_move_states(rook)
