@@ -51,3 +51,15 @@ def circle_space(game, _file, rank, radius, piece=Pawn, player=White):
 
         except BoardIndexError:
             yield
+
+
+def block_non_cache_spaces(game, piece=None, blocker=Pawn, player=White):
+    """Block all spaces in 'game' not in 'piece's naive_moves cache.
+
+    Blocking pieces are White Pawns by default.
+    """
+    for _file, rank in ((f, r) for f in range(8) for r in range(8)):
+        if (_file, rank) not in piece.naive_moves:
+            game._hard_place_piece(Pawn(player, _file, rank))
+
+    return game
