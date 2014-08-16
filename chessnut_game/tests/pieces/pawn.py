@@ -1,6 +1,7 @@
 import unittest
 from itertools import combinations
 from ..utils.decorators import all_players, all_spaces, all_move_states
+from ..utils.functions import block_non_cache_spaces
 from chessnut_game import Black, White, ChessnutGame
 from chessnut_game.pieces import Pawn
 
@@ -15,6 +16,13 @@ class TestPawn(unittest.TestCase):
         """
         self.assertNotEqual(pawn.can_move_to, pawn.can_capture_to)
         self.assertNotEqual(pawn.in_naive_captures, pawn.in_naive_moves)
+
+    def test_has_moved(self):
+        """Assert that the has_moved flag is set and unset as expected."""
+        pawn = Pawn()
+        self.assertFalse(pawn.has_moved)
+        pawn.generate_naive_cache()
+        self.assertTrue(pawn.has_moved)
 
     @all_spaces(pawn)
     @all_players(pawn)
@@ -49,6 +57,20 @@ class TestPawn(unittest.TestCase):
         pawn.generate_actual_cache(game)
         self.assertEqual(pawn.naive_moves, pawn.actual_moves)
         self.assertEqual(pawn.naive_captures, pawn.actual_captures)
+
+    @all_spaces(pawn)
+    @all_players(pawn)
+    @all_move_states(pawn)
+    def test_generate_actual_cache_non_blockers(self, pawn=None):
+        """Assert that the actual_moves cache is correctly generated from
+        the given space for the given player when friendly and enemy pieces
+        are present in non-naive_moves locations on the board.
+        """
+        pawn.generate_naive_cache()
+        for player in (Black, White):
+            game = block_non_cache_spaces(ChessnutGame(), pawn)
+            pawn.generate_actual_cache(game)
+            self.assertEqual(pawn.actual_moves, pawn.naive_moves)
 
     @all_spaces(pawn)
     @all_players(pawn)
