@@ -29,7 +29,6 @@ class TestBishop(unittest.TestCase):
         cache in the case of an empty board.
         """
         game = ChessnutGame()
-        self.assertEqual(
-            bishop.generate_naive_cache(),
-            bishop.generate_actual_cache(game)
-        )
+        bishop.generate_naive_cache(),
+        bishop.generate_actual_cache(game)
+        self.assertEqual(bishop.naive_moves, bishop.actual_moves)

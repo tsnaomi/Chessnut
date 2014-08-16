@@ -19,7 +19,6 @@ class TestQueen(unittest.TestCase):
         cache in the case of an empty board.
         """
         game = ChessnutGame()
-        self.assertEqual(
-            queen.generate_naive_cache(),
-            queen.generate_actual_cache(game)
-        )
+        queen.generate_naive_cache(),
+        queen.generate_actual_cache(game)
+        self.assertEqual(queen.naive_moves, queen.actual_moves)

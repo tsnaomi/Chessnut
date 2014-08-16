@@ -19,7 +19,6 @@ class TestKing(unittest.TestCase):
         cache in the case of an empty board.
         """
         game = ChessnutGame()
-        self.assertEqual(
-            king.generate_naive_cache(),
-            king.generate_actual_cache(game)
-        )
+        king.generate_naive_cache(),
+        king.generate_actual_cache(game)
+        self.assertEqual(king.naive_moves, king.actual_moves)

@@ -45,10 +45,10 @@ class TestPawn(unittest.TestCase):
         cache in the case of an empty board.
         """
         game = ChessnutGame()
-        self.assertEqual(
-            pawn.generate_naive_cache(),
-            pawn.generate_actual_cache(game)
-        )
+        pawn.generate_naive_cache(),
+        pawn.generate_actual_cache(game)
+        self.assertEqual(pawn.naive_moves, pawn.actual_moves)
+        self.assertEqual(pawn.naive_captures, pawn.actual_captures)
 
     @all_spaces(pawn)
     @all_players(pawn)

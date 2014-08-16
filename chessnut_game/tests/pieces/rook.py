@@ -42,10 +42,7 @@ class TestRook(unittest.TestCase):
         game = ChessnutGame()
         rook.generate_naive_cache(),
         rook.generate_actual_cache(game)
-        self.assertEqual(
-            rook.naive_cache,
-            rook.actual_cache
-        )
+        self.assertEqual(rook.naive_moves, rook.actual_moves)
 
     @all_spaces(rook)
     @all_players(rook)
