@@ -1,7 +1,8 @@
 import unittest
 from ..utils.decorators import all_spaces, all_players
+from ..utils.functions import block_non_cache_spaces
 from itertools import combinations
-from chessnut_game import ChessnutGame
+from chessnut_game import ChessnutGame, Black, White
 from chessnut_game.pieces import Knight, Pawn
 
 knight = Knight()
@@ -46,6 +47,21 @@ class TestKnight(unittest.TestCase):
         knight.generate_naive_cache(),
         knight.generate_actual_cache(game)
         self.assertEqual(knight.naive_moves, knight.actual_moves)
+
+    @all_spaces(knight)
+    @all_players(knight)
+    def test_generate_actual_cache_non_blockers(self, knight=None):
+        """Assert that the actual_moves cache is correctly generated from
+        the given space for the given player when friendly and enemy pieces
+        are present in non-naive_moves locations on the board.
+
+        Additionally asserts that the Knight can jump over intervening pieces.
+        """
+        knight.generate_naive_cache()
+        for player in (Black, White):
+            game = block_non_cache_spaces(ChessnutGame(), knight)
+            knight.generate_actual_cache(game)
+            self.assertEqual(knight.actual_moves, knight.naive_moves)
 
     @all_spaces(knight)
     @all_players(knight)
