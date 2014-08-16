@@ -179,7 +179,8 @@ class Pawn(Piece):
             self._generate_horizontal_moves(
                 backward=False,
                 sideways=False,
-                limit=1 if self.has_moved else 2
+                # Use getattr here in case this call came from __init__.
+                limit=1 if getattr(self, 'has_moved', False) else 2
             )
         )
 
