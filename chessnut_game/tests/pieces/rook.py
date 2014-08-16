@@ -1,8 +1,8 @@
 import unittest
 from ..utils.decorators import all_players, all_spaces, all_move_states
-from ..utils.functions import block_non_cache_spaces
+from ..utils.functions import block_non_cache_spaces, surround_space
 from chessnut_game import ChessnutGame, Black, White
-from chessnut_game.pieces import Rook, Pawn
+from chessnut_game.pieces import Rook
 
 rook = Rook()
 
@@ -40,9 +40,11 @@ class TestRook(unittest.TestCase):
         cache in the case of an empty board.
         """
         game = ChessnutGame()
+        rook.generate_naive_cache(),
+        rook.generate_actual_cache(game)
         self.assertEqual(
-            rook.generate_naive_cache(),
-            rook.generate_actual_cache(game)
+            rook.naive_cache,
+            rook.actual_cache
         )
 
     @all_spaces(rook)
@@ -67,6 +69,16 @@ class TestRook(unittest.TestCase):
         the given space for the given player when various naive_moves
         paths are blocked by friendly pieces.
         """
+        rook.generate_naive_cache()
+        for radius in range(8):
+            for player in (Black, White):
+                game = ChessnutGame()
+                circle = surround_space(game, rook.file, rook.rank, radius)
+                expected = set()
+
+                rook.generate_actual_cache()
+
+                self.assertEqual(rook.actual_cache, )
 
     @all_spaces(rook)
     @all_players(rook)
