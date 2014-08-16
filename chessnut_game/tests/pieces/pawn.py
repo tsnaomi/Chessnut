@@ -50,21 +50,20 @@ class TestPawn(unittest.TestCase):
     @all_move_states(pawn)
     def test_generate_actual_cache_empty_board(self, pawn=None):
         """Assert that the actual_moves cache is identical to the naive_moves
-        cache in the case of an empty board.
+        cache the case of an empty board.
         """
         game = ChessnutGame()
-        pawn.generate_naive_cache(),
+        pawn.generate_naive_cache()
         pawn.generate_actual_cache(game)
         self.assertEqual(pawn.naive_moves, pawn.actual_moves)
-        self.assertEqual(pawn.naive_captures, pawn.actual_captures)
 
     @all_spaces(pawn)
     @all_players(pawn)
     @all_move_states(pawn)
     def test_generate_actual_cache_non_blockers(self, pawn=None):
-        """Assert that the actual_moves cache is correctly generated from
+        """Assert that the actual caches are correctly generated from
         the given space for the given player when friendly and enemy pieces
-        are present in non-naive_moves locations on the board.
+        are present in non-naive-cache locations on the board.
         """
         pawn.generate_naive_cache()
         for player in (Black, White):
