@@ -1,7 +1,7 @@
 import unittest
 from ..utils.decorators import all_players, all_spaces, all_move_states
-from ..utils.functions import block_non_cache_spaces, block_all_cache_paths
-from chessnut_game import ChessnutGame
+from ..utils.functions import block_non_cache_spaces
+from chessnut_game import ChessnutGame, Black, White
 from chessnut_game.pieces import Rook, Pawn
 
 rook = Rook()
@@ -46,6 +46,11 @@ class TestRook(unittest.TestCase):
         the given space for the given player when friendly and enemy pieces
         are present in non-naive_moves locations on the board.
         """
+        rook.generate_naive_cache()
+        for player in (Black, White):
+            game = block_non_cache_spaces(ChessnutGame(), piece=rook)
+            rook.generate_actual_cache(game)
+            self.assertEqual(rook.actual_moves, rook.naive_moves)
 
     @all_spaces(rook)
     @all_players(rook)
