@@ -102,6 +102,33 @@ class TestRook(unittest.TestCase):
         the given space for the given player when various naive_moves
         paths are blocked by enemy pieces.
         """
+        rook.generate_naive_cache()
+        for radius in range(1, 8):
+            game = ChessnutGame()
+            circle = surround_space(
+                game,
+                rook.file,
+                rook.rank,
+                radius,
+                player=not rook.player
+            )
+
+            expected = set(
+                (rook.file, rank) for rank in range(
+                    getattr(circle[4], 'rank', 0),
+                    getattr(circle[0], 'rank', 7) + 1
+                ) if rank != rook.rank
+            )
+            expected.update(
+                (_file, rook.rank) for _file in range(
+                    getattr(circle[6], 'file', 0),
+                    getattr(circle[2], 'file', 7) + 1
+                ) if _file != rook.file
+            )
+
+            rook.generate_actual_cache(game)
+
+            self.assertEqual(rook.actual_moves, expected)
 
 
 if __name__ == '__main__':
