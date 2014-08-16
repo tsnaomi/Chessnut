@@ -1,6 +1,6 @@
 import unittest
 from ..utils.decorators import all_players, all_spaces, all_move_states
-from itertools import combinations
+from ..utils.functions import block_non_cache_spaces, block_all_cache_paths
 from chessnut_game import ChessnutGame
 from chessnut_game.pieces import Rook, Pawn
 
@@ -37,6 +37,33 @@ class TestRook(unittest.TestCase):
             rook.generate_naive_cache(),
             rook.generate_actual_cache(game)
         )
+
+    @all_spaces(rook)
+    @all_players(rook)
+    @all_move_states(rook)
+    def test_generate_actual_cache_non_blockers(self, rook=None):
+        """Assert that the actual_moves cache is correctly generated from
+        the given space for the given player when friendly and enemy pieces
+        are present in non-naive_moves locations on the board.
+        """
+
+    @all_spaces(rook)
+    @all_players(rook)
+    @all_move_states(rook)
+    def test_generate_actual_cache_blockers(self, rook=None):
+        """Assert that the actual_moves cache is correctly generated from
+        the given space for the given player when various naive_moves
+        paths are blocked by friendly pieces.
+        """
+
+    @all_spaces(rook)
+    @all_players(rook)
+    @all_move_states(rook)
+    def test_generate_actual_cache_enemies(self, rook=None):
+        """Assert that the actual_moves cache is correctly generated from
+        the given space for the given player when various naive_moves
+        paths are blocked by enemy pieces.
+        """
 
     # @all_spaces
     # @all_players
