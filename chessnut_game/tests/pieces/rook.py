@@ -67,15 +67,32 @@ class TestRook(unittest.TestCase):
         paths are blocked by friendly pieces.
         """
         rook.generate_naive_cache()
-        for radius in range(8):
-            for player in (Black, White):
-                game = ChessnutGame()
-                circle = surround_space(game, rook.file, rook.rank, radius)
-                expected = set()
+        for radius in range(1, 8):
+            game = ChessnutGame()
+            circle = surround_space(
+                game,
+                rook.file,
+                rook.rank,
+                radius,
+                player=rook.player
+            )
 
-                rook.generate_actual_cache()
+            expected = set(
+                (rook.file, rank) for rank in range(
+                    getattr(circle[4], 'rank', -1) + 1,
+                    getattr(circle[0], 'rank', 8)
+                ) if rank != rook.rank
+            )
+            expected.update(
+                (_file, rook.rank) for _file in range(
+                    getattr(circle[6], 'file', -1) + 1,
+                    getattr(circle[2], 'file', 8)
+                ) if _file != rook.file
+            )
 
-                self.assertEqual(rook.actual_cache, )
+            rook.generate_actual_cache(game)
+
+            self.assertEqual(rook.actual_moves, expected)
 
     @all_spaces(rook)
     @all_players(rook)
