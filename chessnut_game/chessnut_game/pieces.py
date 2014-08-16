@@ -51,14 +51,6 @@ class Piece(object):
         """Determine membership in the naive_moves cache."""
         return True if (_file, rank) in self.naive_moves else False
 
-    def move_to(self, _file, rank):
-        """Move this Piece to the file and rank provided, then regenerate
-        the naive_moves cache.
-        """
-        self.file = _file
-        self.rank = rank
-        self.generate_naive_cache()
-
     @abstractmethod
     def generate_naive_cache(self):
         """Generate the naive moves cache.
