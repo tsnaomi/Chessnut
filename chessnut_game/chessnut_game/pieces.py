@@ -148,12 +148,13 @@ class Pawn(Piece):
         # captured.
         self.en_passant = False
 
-        # Track whether this pawn has moved, so we can figure out whether a
-        # move two spaces forward is legal.
-        self.has_moved = False
-
         kwargs.setdefault('same_logic', False)
         super(Pawn, self).__init__(*args, **kwargs)
+
+        # Track whether this pawn has moved, so we can figure out whether a
+        # move two spaces forward is legal. generate_naive_cache sets this
+        # attribute to True, so it must be set back to False here.
+        self.has_moved = False
 
     def move_to(self, _file, rank):
         """In addition to moving the Pawn, set has_moved to True."""
@@ -186,6 +187,9 @@ class Pawn(Piece):
         one, but the situations in which each cache must be regenerated are
         identical.
         """
+        # The naive cache is only regenerated when this piece moves.
+        self.has_moved = True
+
         self.naive_moves.clear()
         self.naive_moves.update(
             self._generate_horizontal_moves(
@@ -264,6 +268,9 @@ class Rook(Piece):
 
     def generate_naive_cache(self):
         """Generate the Rook's naive_moves cache."""
+        # The naive cache is only regenerated when this piece moves.
+        self.has_moved = True
+
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_horizontal_moves())
 
@@ -397,6 +404,9 @@ class King(Piece):
 
     def generate_naive_cache(self):
         """Generate the King's naive_moves cache."""
+        # The naive cache is only regenerated when this piece moves.
+        self.has_moved = True
+
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_horizontal_moves(limit=1))
         self.naive_moves.update(self._generate_diagonal_moves(limit=1))
