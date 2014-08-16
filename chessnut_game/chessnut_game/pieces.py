@@ -25,7 +25,10 @@ class Piece(object):
         # In most pieces, capture logic and move logic are the same.
         self.captures = self.moves
 
-        # Generate the initial moves cache.
+        # A dictionary in which signals are accumulated as they're generated.
+        self.signals = {}
+
+        # Generate the initial moves.
         self.generate_moves()
 
     def generate_moves(self, game):
@@ -41,9 +44,10 @@ class Piece(object):
             "%s has not implemented generate_moves." % self.__class__
         )
 
-    def update_moves(self, game, space):
-        """Update the moves cache. Return a dict containing signals for the
-        game to register.
+    def update_moves(self, game, code):
+        """Update the moves cache. In addition to a game, take a code
+        dictating piece-specific update logic. Return a dict containing
+        signals for the game to register.
 
         The Piece class is non-specific and has no move logic, so this method
         is empty. Pieces derived from this class must implement their own
@@ -103,11 +107,10 @@ class Piece(object):
 class Pawn(Piece):
     """A pawn.
 
-    In addition to the functions of normal pieces, pawns track whether they
-    are eligible to be en-passant captured, track separately which spaces
-    they can move to and which they can capture to (since their capture
-    and move logic are different), and track whether they have moved, to
-    determine whether they're allowed to move two spaces.
+    Pawns track separately which spaces they can move to and which they
+    can capture to (since their capture and move logic are different),
+    whether they are eligible to be en-passant captured, and whether they
+    have moved (to determine whether they're allowed to move two spaces).
     """
     def __init__(self, player=White, _file=0, rank=0):
         super(Pawn, self).__init__(player, _file, rank)
@@ -116,8 +119,7 @@ class Pawn(Piece):
         # capture and move logic.
         self.captures = set()
 
-        # Track whether or not this pawn is eligible to be en-passant
-        # captured.
+        # Track whether this pawn is eligible to be en-passant captured.
         self.en_passant = False
 
         # Track whether this pawn has moved, so we can figure out whether a
@@ -127,10 +129,18 @@ class Pawn(Piece):
     def generate_moves_cache(self, game):
         """Generate the Pawn's caches.
 
-        The pawn is unique in that it must generate two caches, rather than
-        one, but the situations in which each cache must be regenerated are
-        identical.
+        The pawn must generate two caches, rather than one, but the caches
+        are regenerated under the same conditions.
         """
+        signals = {
+            'piece_moved': {},
+            'space_moved_from': {},
+            'space_moved_to': {},
+        }
+        if not self.has_moved:
+            signals['piece_moved'].setdefault(self, [])
+            signals['piece_moved'][self].append((self.set_has_moved))
+
         self.moves.clear()
         for _file, rank in self._generate_horizontal_moves(
             backward=False,
@@ -169,8 +179,7 @@ class Pawn(Piece):
                 except (KeyError, AttributeError):
                     pass
 
-        # The naive cache is only regenerated when this piece moves.
-        self.has_moved = True
+        return signals
 
     def update_moves_cache(self, game, space):
         """Update the Pawn's caches."""
