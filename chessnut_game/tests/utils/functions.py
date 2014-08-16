@@ -60,7 +60,7 @@ def block_non_cache_spaces(game, piece=None, blocker=Pawn, player=White):
     """
     for _file, rank in ((f, r) for f in range(8) for r in range(8)):
         if (_file, rank) not in piece.naive_moves:
-            game._hard_place_piece(Pawn(player, _file, rank))
+            game._hard_place_piece(blocker(player, _file, rank))
 
     return game
 
