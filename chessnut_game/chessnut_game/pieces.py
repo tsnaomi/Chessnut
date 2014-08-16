@@ -1,5 +1,3 @@
-from abc import abstractmethod
-
 # Module-level constants representing which player's turn it is.
 White = True
 Black = False
@@ -9,11 +7,11 @@ class Piece(object):
     """The piece base class.
 
     A chess piece knows where it is on the board, knows to which player it
-    belongs, caches the spaces on the board to which it could move
-    (regardless of the legality of that move), and is consulted by the game
-    to cache the spaces on the board to which it can actually move.
+    belongs, caches the spaces on the board to which it can move, and keeps
+    track of a set of spaces it needs to watch in order to determine when
+    its available moves have changed.
     """
-    def __init__(self, player=White, _file=0, rank=0, same_logic=True):
+    def __init__(self, player=White, _file=0, rank=0):
         """Initialize the attributes of this Piece."""
         # Keep track of whose piece this is and where it is on the board.
         self.player = player
@@ -21,56 +19,39 @@ class Piece(object):
         self.rank = rank
 
         # Store a set containing all the spaces on the board to which this
-        # piece could move - IF this piece were the only piece on the board.
-        # This much, the piece can calculate on its own, because it knows
-        # its own move logic.
-        self.naive_moves = set()
-
-        # Store a set containing all of the spaces on the board to which
-        # this piece can ACTUALLY move, given the state of the board. The
-        # piece needs access to the game oject in order to generate this
-        # cache.
-        self.actual_moves = set()
+        # piece can move.
+        self.moves = set()
 
         # In most pieces, capture logic and move logic are the same.
-        if same_logic:
-            self.can_capture_to = self.can_move_to
-            self.in_naive_captures = self.in_naive_moves
-            self.actual_captures = self.actual_moves
-            self.naive_captures = self.naive_moves
+        self.captures = self.moves
 
-        # Generate the initial naive_moves cache.
-        self.generate_naive_cache()
+        # Generate the initial moves cache.
+        self.generate_moves()
 
-    def can_move_to(self, _file, rank):
-        """Determine whether this piece can move to the space in question.
-        """
-        return True if (_file, rank) in self.actual_moves else False
-
-    def in_naive_moves(self, _file, rank):
-        """Determine membership in the naive_moves cache."""
-        return True if (_file, rank) in self.naive_moves else False
-
-    @abstractmethod
-    def generate_naive_cache(self):
-        """Generate the naive moves cache.
+    def generate_moves(self, game):
+        """Generate the moves cache. Return a dict containing signals for the
+        game to register.
 
         The Piece class is non-specific and has no move logic, so this method
         is empty. Pieces derived from this class must implement their own
         version based on their move logic. _generate_horizontal_moves and
         _generate_diagonal_moves are provided to assist with this task.
         """
-        pass
+        raise NotImplementedError(
+            "%s has not implemented generate_moves." % self.__class__
+        )
 
-    @abstractmethod
-    def generate_actual_cache(self, game):
-        """Generate the actual_moves_cache.
+    def update_moves(self, game, space):
+        """Update the moves cache. Return a dict containing signals for the
+        game to register.
 
         The Piece class is non-specific and has no move logic, so this method
         is empty. Pieces derived from this class must implement their own
         version based on their move logic.
         """
-        pass
+        raise NotImplementedError(
+            "%s has not implemented update_moves." % self.__class__
+        )
 
     def _generate_horizontal_moves(self, backward=True, sideways=True, limit=7):
         """Calculates the spaces to which this piece can move horizontally.
@@ -128,69 +109,72 @@ class Pawn(Piece):
     and move logic are different), and track whether they have moved, to
     determine whether they're allowed to move two spaces.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, player=White, _file=0, rank=0):
+        super(Pawn, self).__init__(player, _file, rank)
+
         # Store a separate move set for captures, as pawns have separate
-        # capture and move logic. Because generate_naive_cache is called
-        # in the super call below, these attributes must be instantiated
-        # first.
-        self.naive_captures = set()
-        self.actual_captures = set()
+        # capture and move logic.
+        self.captures = set()
 
         # Track whether or not this pawn is eligible to be en-passant
         # captured.
         self.en_passant = False
 
-        kwargs.setdefault('same_logic', False)
-        super(Pawn, self).__init__(*args, **kwargs)
-
         # Track whether this pawn has moved, so we can figure out whether a
-        # move two spaces forward is legal. generate_naive_cache sets this
-        # attribute to True, so it must be set back to False here.
+        # move two spaces forward is legal.
         self.has_moved = False
 
-    def can_capture_to(self, _file, rank):
-        """Determine whether this Pawn can capture to the space in question.
-
-        Pawns are a special case piece: their move logic and capture logic
-        differ. They must therefore have separate behavior for can_capture_to
-        (in other pieces, this method is an alias for can_move_to).
-        """
-        return True if (_file, rank) in self.actual_captures else False
-
-    def in_naive_captures(self, _file, rank):
-        """Determine membership in the naive_captures cache.
-
-        Pawns are a special case piece: their move logic and capture logic
-        differ. They must therefore have separate behavior for
-        in_naive_captures (in other pieces, this method is an alias for
-        in_naive_moves).
-        """
-        return True if (_file, rank) in self.naive_captures else False
-
-    def generate_naive_cache(self):
-        """Generate the Pawn's naive caches.
+    def generate_moves_cache(self, game):
+        """Generate the Pawn's caches.
 
         The pawn is unique in that it must generate two caches, rather than
         one, but the situations in which each cache must be regenerated are
         identical.
         """
-        self.naive_moves.clear()
-        self.naive_moves.update(
-            self._generate_horizontal_moves(
-                backward=False,
-                sideways=False,
-                # Use getattr here in case this call came from __init__.
-                limit=1 if getattr(self, 'has_moved', False) else 2
-            )
-        )
+        self.moves.clear()
+        for _file, rank in self._generate_horizontal_moves(
+            backward=False,
+            sideways=False,
+            limit=1 if self.has_moved else 2
+        ):
+            if not (game.pieces_by_file[_file] & game.pieces_by_rank[rank]):
+                self.moves.add((_file, rank))
+            else:
+                self.move_sentinels[(_file, rank)] = 0
+                break
 
-        self.naive_captures.clear()
-        self.naive_captures.update(
-            self._generate_diagonal_moves(backward=False, limit=1)
-        )
+        self.captures.clear()
+        for _file, rank in self._generate_diagonal_moves(
+            backward=False,
+            limit=1
+        ):
+            if (
+                game.pieces_by_file[_file] &
+                game.pieces_by_rank[rank] &
+                game.pieces_by_player[not self.player]
+            ):
+                self.actual_captures.add((_file, rank))
+
+            else:
+                try:
+                    en_passant_piece = (
+                        game.pieces_by_file[_file] &
+                        game.pieces_by_rank[self.rank] &
+                        game.pieces_by_player[not self.player]
+                    ).pop()
+
+                    if en_passant_piece.en_passant:
+                        self.actual_captures.add((_file, rank))
+
+                except (KeyError, AttributeError):
+                    pass
 
         # The naive cache is only regenerated when this piece moves.
         self.has_moved = True
+
+    def update_moves_cache(self, game, space):
+        """Update the Pawn's caches."""
+        pass
 
     def generate_actual_cache(self, game):
         """Generate the Pawn's actual caches.
@@ -243,7 +227,7 @@ class Rook(Piece):
         super(Rook, self).__init__(*args, **kwargs)
         self.has_moved = False
 
-    def generate_naive_cache(self):
+    def generate_moves(self):
         """Generate the Rook's naive_moves cache."""
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_horizontal_moves())
@@ -317,7 +301,7 @@ class Rook(Piece):
 
 class Knight(Piece):
     """A knight."""
-    def generate_naive_cache(self):
+    def generate_moves(self):
         """Generate the Knight's naive_moves cache."""
         self.naive_moves.clear()
         for filemod, rankmod in (
@@ -344,7 +328,7 @@ class Knight(Piece):
 
 class Bishop(Piece):
     """A bishop."""
-    def generate_naive_cache(self):
+    def generate_moves(self):
         """Generate the Bishop's naive_moves cache."""
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_diagonal_moves())
@@ -352,7 +336,7 @@ class Bishop(Piece):
 
 class Queen(Piece):
     """A queen."""
-    def generate_naive_cache(self):
+    def generate_moves(self):
         """Generate the Queen's naive_moves cache."""
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_horizontal_moves())
@@ -379,7 +363,7 @@ class King(Piece):
         super(King, self).move_to(_file, rank)
         self.has_moved = True
 
-    def generate_naive_cache(self):
+    def generate_moves(self):
         """Generate the King's naive_moves cache."""
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_horizontal_moves(limit=1))
