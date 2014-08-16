@@ -32,12 +32,12 @@ class Piece(object):
         # cache.
         self.actual_moves = set()
 
-        # Bind can_capture_to to can_move_to and in_naive_captures to
-        # in_naive_moves. In most pieces, capture logic and move logic are
-        # the same, so the same methods should be called to determine both.
+        # In most pieces, capture logic and move logic are the same.
         if same_logic:
             self.can_capture_to = self.can_move_to
             self.in_naive_captures = self.in_naive_moves
+            self.actual_captures = self.actual_moves
+            self.naive_captures = self.naive_moves
 
         # Generate the initial naive_moves cache.
         self.generate_naive_cache()

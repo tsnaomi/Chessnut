@@ -59,7 +59,8 @@ def block_non_cache_spaces(game, piece=None, blocker=Pawn, player=White):
     Blocking pieces are White Pawns by default.
     """
     for _file, rank in ((f, r) for f in range(8) for r in range(8)):
-        if (_file, rank) not in piece.naive_moves:
+        if (_file, rank) not in piece.naive_moves and \
+                (_file, rank) not in piece.naive_captures:
             game._hard_place_piece(blocker(player, _file, rank))
 
     return game
