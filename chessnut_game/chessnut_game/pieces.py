@@ -148,11 +148,6 @@ class Pawn(Piece):
         # attribute to True, so it must be set back to False here.
         self.has_moved = False
 
-    def move_to(self, _file, rank):
-        """In addition to moving the Pawn, set has_moved to True."""
-        super(Pawn, self).move_to(_file, rank)
-        self.has_moved = True
-
     def can_capture_to(self, _file, rank):
         """Determine whether this Pawn can capture to the space in question.
 
@@ -179,9 +174,6 @@ class Pawn(Piece):
         one, but the situations in which each cache must be regenerated are
         identical.
         """
-        # The naive cache is only regenerated when this piece moves.
-        self.has_moved = True
-
         self.naive_moves.clear()
         self.naive_moves.update(
             self._generate_horizontal_moves(
@@ -195,6 +187,9 @@ class Pawn(Piece):
         self.naive_captures.update(
             self._generate_diagonal_moves(backward=False, limit=1)
         )
+
+        # The naive cache is only regenerated when this piece moves.
+        self.has_moved = True
 
     def generate_actual_cache(self, game):
         """Generate the Pawn's actual caches.
@@ -260,11 +255,11 @@ class Rook(Piece):
 
     def generate_naive_cache(self):
         """Generate the Rook's naive_moves cache."""
-        # The naive cache is only regenerated when this piece moves.
-        self.has_moved = True
-
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_horizontal_moves())
+
+        # The naive cache is only regenerated when this piece moves.
+        self.has_moved = True
 
     def generate_actual_cache(self, game):
         """Generate the Rook's actual_moves cache."""
@@ -396,9 +391,9 @@ class King(Piece):
 
     def generate_naive_cache(self):
         """Generate the King's naive_moves cache."""
-        # The naive cache is only regenerated when this piece moves.
-        self.has_moved = True
-
         self.naive_moves.clear()
         self.naive_moves.update(self._generate_horizontal_moves(limit=1))
         self.naive_moves.update(self._generate_diagonal_moves(limit=1))
+
+        # The naive cache is only regenerated when this piece moves.
+        self.has_moved = True
