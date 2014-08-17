@@ -31,8 +31,8 @@ class Piece(object):
         self.generate_moves()
 
     def generate_moves(self, game):
-        """Generate the moves cache. Return a dict containing signals for the
-        game to register.
+        """Generate the moves cache. Return a SignalCollector containing
+        signals for the game to register.
 
         The Piece class is non-specific and has no move logic, so this method
         is empty. Pieces derived from this class must implement their own
@@ -45,8 +45,8 @@ class Piece(object):
 
     def update_moves(self, game, code):
         """Update the moves cache. In addition to a game, take a code
-        dictating piece-specific update logic. Return a dict containing
-        signals for the game to register.
+        dictating piece-specific update logic. Return a SignalCollector
+        containing signals for the game to register.
 
         The Piece class is non-specific and has no move logic, so this method
         is empty. Pieces derived from this class must implement their own
@@ -125,20 +125,13 @@ class Pawn(Piece):
         # move two spaces forward is legal.
         self.has_moved = False
 
-    def generate_moves_cache(self, game):
+    def generate_moves(self, game):
         """Generate the Pawn's caches.
 
         The pawn must generate two caches, rather than one, but the caches
         are regenerated under the same conditions.
         """
-        signals = {
-            'piece_moved': {},
-            'space_moved_from': {},
-            'space_moved_to': {},
-        }
-        if not self.has_moved:
-            signals['piece_moved'].setdefault(self, [])
-            signals['piece_moved'][self].append((self.set_has_moved))
+        signals = SignalCollector()
 
         self.moves.clear()
         for _file, rank in self._generate_horizontal_moves(
@@ -149,7 +142,11 @@ class Pawn(Piece):
             if not (game.pieces_by_file[_file] & game.pieces_by_rank[rank]):
                 self.moves.add((_file, rank))
             else:
-                self.move_sentinels[(_file, rank)] = 0
+                signals.add(
+                    'space_moved_from',
+                    (self.update_moves, 0),
+                    (_file, rank)
+                )
                 break
 
         self.captures.clear()
@@ -162,7 +159,7 @@ class Pawn(Piece):
                 game.pieces_by_rank[rank] &
                 game.pieces_by_player[not self.player]
             ):
-                self.actual_captures.add((_file, rank))
+                self.captures.add((_file, rank))
 
             else:
                 try:
@@ -173,10 +170,19 @@ class Pawn(Piece):
                     ).pop()
 
                     if en_passant_piece.en_passant:
-                        self.actual_captures.add((_file, rank))
+                        self.captures.add((_file, rank))
 
                 except (KeyError, AttributeError):
-                    pass
+                    signals.add(
+                        'space_moved_to',
+                        (self.update_moves, 1),
+                        (_file, rank)
+                    )
+                    signals.add(
+                        'space_moved_to',
+                        (self.update_moves, 1),
+                        (_file, self.rank)
+                    )
 
         return signals
 
