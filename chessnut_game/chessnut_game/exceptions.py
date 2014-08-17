@@ -8,3 +8,8 @@ class BoardIndexError(ChessnutBaseException):
     coordinates of the board.
     """
     pass
+
+
+class InvalidSignalError(ChessnutBaseException):
+    """Exception raised when attempting to register an invalid signal."""
+    pass
