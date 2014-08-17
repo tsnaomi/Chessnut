@@ -67,7 +67,7 @@ class SignalManager(SignalBase):
                         "%s is not a valid signal." % signal
                     )
 
-    def dispatch(self, signal, trigger):
+    def dispatch(self, signal, trigger=None):
         """Dispatch any signals with the given trigger and then update
         the contained signals with any new signals returned.
         """
