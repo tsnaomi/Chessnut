@@ -1,4 +1,5 @@
 from chessnut_game.constants import White
+from chessnut_game.signals import SignalCollector
 
 
 class Piece(object):
